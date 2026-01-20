@@ -13,17 +13,10 @@ class DatabaseSeeder extends Seeder
         // 1. Buat Akun ADMIN (Otomatis)
         User::create([
             'name' => 'Admin Pusat',
-            'email' => 'admin@admin.com',
+            'email' => 'it@admin.com',
             'password' => Hash::make('password'),
-            'usertype' => 'admin', // <--- PENTING!
+            'usertype' => 'super_admin', 
         ]);
 
-        // 2. Buat Akun WARGA (Untuk Tes)
-        User::create([
-            'name' => 'Warga Biasa',
-            'email' => 'warga@gmail.com',
-            'password' => Hash::make('password'),
-            'usertype' => 'user',
-        ]);
     }
 }

@@ -27,9 +27,25 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
         $request->session()->regenerate();
 
-        // Logika Pemisahan Jalan
-        if ($request->user()->usertype === 'admin') {
+        $role = $request->user()->usertype;
+
+        //Group admin 
+        if (in_array($role, ['admin', 'ka', 'sie_rujukan', 'atem', 'super_admin'])) {
             return redirect()->intended(route('admin.dashboard', absolute: false));
+        }
+
+        //Group operator
+        if (in_array($role, ['operator'])) {
+            return redirect()->intended(route('operator.dashboard', absolute: false));
+        }
+
+        //group lapangan 
+        if (in_array($role, ['driver', 'nakes', 'peserta_bhd'])) {
+            return redirect()->intended(route('lapangan.dashboard', absolute: false));
+        }
+        //group faskes 
+        if (in_array($role, ['rumahsakit', 'klinik_utama', 'puskesmas', 'lab_medik'])) {
+            return redirect()->intended(route('faskes.dashboard', absolute: false));
         }
 
         return redirect()->intended(route('dashboard', absolute: false));

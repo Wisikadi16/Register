@@ -2,56 +2,104 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth; // <--- INI BARIS YANG HILANG TADI
 use App\Http\Controllers\EmergencyController;
-use App\Http\Controllers\UserController;    
+use App\Http\Controllers\UserController;
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+*/
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::middleware('auth')->group(function () {
+// --- GROUP 1: MASYARAKAT / PUBLIK ---
+// Role: 'masyarakat' (Sesuai Seeder & Register Controller)
+Route::middleware(['auth', 'role:masyarakat'])->group(function () {
+    
+    // Dashboard utama untuk masyarakat (Halaman SOS)
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
 
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
-
-// --- RUANGAN USER / MASYARAKAT ---
-Route::middleware(['auth', 'role:user'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
-
+    // Fitur Order Ambulan
     Route::get('/emergency/create', [EmergencyController::class, 'create'])->name('emergency.create');
     Route::post('/emergency', [EmergencyController::class, 'store'])->name('emergency.store');
 });
 
 
-// --- RUANGAN ADMIN & SUPER ADMIN---
-Route::middleware(['auth', 'role:admin,super_admin'])->group(function () {
+// --- GROUP 2: ADMIN & MANAJEMEN ---
+// Menggabungkan: admin, super_admin, ka, sie_rujukan, atem
+Route::middleware(['auth', 'role:admin,super_admin,ka,sie_rujukan,atem'])->prefix('admin')->group(function () {
     
-    Route::get('/admin/dashboard', function () {
+    Route::get('/dashboard', function () {
         return view('admin.dashboard'); 
     })->name('admin.dashboard');
 
-    // DAFTAR LENGKAP ROUTE USER (WAJIB ADA SEMUA)
-    Route::get('/admin/users', [UserController::class, 'index'])->name('users.index');
-    Route::get('/admin/users/create', [UserController::class, 'create'])->name('users.create');
-    Route::post('/admin/users', [UserController::class, 'store'])->name('users.store');
-    
-    // Baris di bawah ini yang menyebabkan error jika hilang:
-    Route::get('/admin/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
-    Route::put('/admin/users/{user}', [UserController::class, 'update'])->name('users.update');
-    Route::delete('/admin/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+    // DAFTAR LENGKAP ROUTE USER (MANAJEMEN USER)
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
+    Route::post('/users', [UserController::class, 'store'])->name('users.store');
+    Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+    Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
+    Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 });
 
-// --- RUANGAN AMBULAN ---
-Route::middleware(['auth', 'role:ambulan'])->prefix('ambulan')->group(function () {
+
+// --- GROUP 3: OPERATOR (CALL CENTER) ---
+// Role: operator
+Route::middleware(['auth', 'role:operator'])->prefix('operator')->group(function () {
     Route::get('/dashboard', function () {
-        return view('ambulan.dashboard');
-    })->name('ambulan.dashboard');
+        // Pastikan buat file: resources/views/operator/dashboard.blade.php
+        return view('operator.dashboard'); 
+    })->name('operator.dashboard');
 });
+
+
+// --- GROUP 4: TIM LAPANGAN (AMBULAN) ---
+// Prefix URL kita ubah jadi 'lapangan' agar konsisten dengan folder view
+Route::middleware(['auth', 'role:driver,nakes,peserta_bhd'])->prefix('lapangan')->group(function () {
+    
+    Route::get('/dashboard', function () {
+        
+        // 1. Cari Mobil Ambulan
+        $ambulance = \App\Models\Ambulance::where('driver_id', Auth::id())->first();
+        
+        $activeJob = null;
+
+        // 2. Cek Tugas
+        if ($ambulance) {
+            $activeJob = \App\Models\EmergencyCall::where('ambulance_id', $ambulance->id)
+                            ->whereIn('status', ['pending', 'process']) 
+                            ->latest()
+                            ->first();
+        }
+
+        // 3. Tampilkan View
+        return view('lapangan.dashboard', compact('ambulance', 'activeJob'));
+
+    })->name('lapangan.dashboard'); // Nama Route
+
+    Route::post('/finish-job/{id}', [\App\Http\Controllers\EmergencyController::class, 'finishJob'])->name('lapangan.finish');
+});
+
+
+// --- GROUP 5: FASKES (RUMAH SAKIT & PUSKESMAS) ---
+// Menggabungkan: rumahsakit, klinik_utama, puskesmas, lab_medik
+Route::middleware(['auth', 'role:rumahsakit,klinik_utama,puskesmas,lab_medik'])->prefix('faskes')->group(function () {
+    Route::get('/dashboard', [\App\Http\Controllers\HospitalController::class, 'index'])->name('faskes.dashboard');
+    Route::put('/hospital/{id}/update-status', [\App\Http\Controllers\HospitalController::class, 'update'])->name('faskes.update');
+});
+
+
+// --- ROUTE PROFIL (UMUM) ---
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
 require __DIR__.'/auth.php';

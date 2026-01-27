@@ -13,7 +13,26 @@ return new class extends Migration
     {
         Schema::create('emergency_calls', function (Blueprint $table) {
             $table->id();
+            
+            // Relasi ke User (Pelapor)
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            
+            // Data Kejadian
+            $table->string('location');     // Lokasi
+            $table->text('description');    // Keterangan
+            
+            // Status (Penting! Ini yang bikin error tadi)
+            $table->string('status')->default('pending'); // pending, process, done, cancelled
+            
+            // Koordinat Peta
+            $table->string('latitude')->nullable();
+            $table->string('longitude')->nullable();
+            
             $table->timestamps();
+            
+            // Catatan: Kolom 'ambulance_id' tidak ditulis di sini 
+            // karena akan ditambahkan otomatis oleh migration tanggal 26 (Januari) yang sudah Anda buat.
+            // Jadi urutannya aman.
         });
     }
 

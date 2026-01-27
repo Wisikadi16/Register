@@ -3,7 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-// 1. Panggil file yang BENAR (RoleMiddleware)
+// Pastikan baris ini memanggil RoleMiddleware
 use App\Http\Middleware\RoleMiddleware; 
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -13,9 +13,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // 2. Daftarkan alias 'role' agar bisa dipakai di Routes
+        // Alias 'role' diarahkan ke file RoleMiddleware yang baru kita update
         $middleware->alias([
-            'role' => \App\Http\Middleware\RoleMiddleware::class,
+            'role' => RoleMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

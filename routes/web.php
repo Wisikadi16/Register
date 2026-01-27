@@ -64,13 +64,13 @@ Route::middleware(['auth', 'role:operator'])->prefix('operator')->group(function
 Route::middleware(['auth', 'role:driver,nakes,peserta_bhd'])->prefix('lapangan')->group(function () {
     
     Route::get('/dashboard', function () {
-        
-        // 1. Cari Mobil Ambulan
-        $ambulance = \App\Models\Ambulance::where('driver_id', Auth::id())->first();
+        // 1. Ambil Data Diri Driver
+        $user = auth()->user();
+        $ambulance = \App\Models\Ambulance::where('driver_id', $user->id)->first();
         
         $activeJob = null;
 
-        // 2. Cek Tugas
+        // 2. Cek Apakah Ada Tugas Aktif?
         if ($ambulance) {
             $activeJob = \App\Models\EmergencyCall::where('ambulance_id', $ambulance->id)
                             ->whereIn('status', ['pending', 'process']) 
@@ -78,10 +78,14 @@ Route::middleware(['auth', 'role:driver,nakes,peserta_bhd'])->prefix('lapangan')
                             ->first();
         }
 
-        // 3. Tampilkan View
-        return view('lapangan.dashboard', compact('ambulance', 'activeJob'));
+        // 3. (BARU) Ambil Data RS untuk Tabel Rujukan
+        // Kita urutkan berdasarkan ketersediaan bed IGD (terbanyak di atas)
+        $hospitals = \App\Models\Hospital::orderBy('available_bed_igd', 'desc')->get();
 
-    })->name('lapangan.dashboard'); // Nama Route
+        // 4. Kirim semua variabel ke View
+        return view('lapangan.dashboard', compact('ambulance', 'activeJob', 'hospitals'));
+
+    })->name('lapangan.dashboard');
 
     Route::post('/finish-job/{id}', [\App\Http\Controllers\EmergencyController::class, 'finishJob'])->name('lapangan.finish');
 });

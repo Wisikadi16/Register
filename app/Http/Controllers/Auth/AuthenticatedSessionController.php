@@ -24,32 +24,54 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
+        // Autentikasi (email + password)
         $request->authenticate();
         $request->session()->regenerate();
 
-        $role = $request->user()->usertype;
+        $user = $request->user();
 
-        //Group admin 
-        if (in_array($role, ['admin', 'ka', 'sie_rujukan', 'atem', 'super_admin'])) {
-            return redirect()->intended(route('admin.dashboard', absolute: false));
+        // 🔴 VALIDASI STATUS USER (WAJIB SESUAI FLOW & KAK)
+        if ($user->status !== 'active') {
+            Auth::logout();
+
+            return back()->withErrors([
+                'email' => 'Akun Anda belum aktif atau diblokir.',
+            ]);
         }
 
-        //Group operator
+        $role = $user->role;
+
+        // Group admin
+        if (in_array($role, ['admin', 'ka', 'sie_rujukan', 'atem', 'super_admin'])) {
+        return redirect()->intended(route('admin.dashboard', absolute: false));
+        }
+
+        // Group operator
         if (in_array($role, ['operator'])) {
             return redirect()->intended(route('operator.dashboard', absolute: false));
         }
 
-        //group lapangan 
+        // Group lapangan
         if (in_array($role, ['driver', 'nakes', 'peserta_bhd'])) {
             return redirect()->intended(route('lapangan.dashboard', absolute: false));
         }
-        //group faskes 
+
+        // Group faskes
         if (in_array($role, ['rumahsakit', 'klinik_utama', 'puskesmas', 'lab_medik'])) {
             return redirect()->intended(route('faskes.dashboard', absolute: false));
         }
+        if ($role === 'masyarakat') {
+            return redirect()->intended(route('dashboard', false));
+        }
 
-        return redirect()->intended(route('dashboard', absolute: false));
-    }   
+        // 🔴 ROLE TIDAK TERDAFTAR → TOLAK AKSES
+        Auth::logout();
+
+        return back()->withErrors([
+            'email' => 'Role pengguna tidak dikenali oleh sistem.',
+        ]);
+    }
+
 
     /**
      * Destroy an authenticated session.

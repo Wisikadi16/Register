@@ -29,7 +29,7 @@
 
                     <div class="mb-4">
                         <label class="block text-gray-700 text-sm font-bold mb-2">Jabatan / Role</label>
-                        <select name="usertype" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        <select name="role" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                             <option value="user">Masyarakat (Default)</option>
                             <option value="admin">Admin Operasional & Logistik</option>
                             <option value="sierujukan">Sie Rujukan (Operator)</option>

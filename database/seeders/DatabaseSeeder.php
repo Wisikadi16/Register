@@ -3,10 +3,10 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use Illuminate\Database\Seeder;
-use App\Models\Basecamp;   
-use App\Models\Hospital;   
+use App\Models\Basecamp;
+use App\Models\Hospital;
 use App\Models\Ambulance;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
@@ -28,7 +28,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'IT Super Admin',
             'email' => 'it@admin.com',
             'password' => $password,
-            'usertype' => 'super_admin',
+            'role' => 'super_admin',
         ]);
 
         // 2. Admin Dinkes
@@ -36,7 +36,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Admin Dinkes',
             'email' => 'admin@dinkes.com',
             'password' => $password,
-            'usertype' => 'admin',
+            'role' => 'admin',
         ]);
 
         // 3. KA (Koordinator)
@@ -44,7 +44,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Ibu Koordinator',
             'email' => 'ka@dinkes.com',
             'password' => $password,
-            'usertype' => 'ka',
+            'role' => 'ka',
         ]);
 
         // 4. Sie Rujukan
@@ -52,7 +52,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Petugas Rujukan',
             'email' => 'sie@dinkes.com',
             'password' => $password,
-            'usertype' => 'sie_rujukan',
+            'role' => 'sie_rujukan',
         ]);
 
         // 5. Atem (Teknisi Alat)
@@ -60,7 +60,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Teknisi Atem',
             'email' => 'atem@ah.com',
             'password' => $password,
-            'usertype' => 'atem',
+            'role' => 'atem',
         ]);
 
 
@@ -73,7 +73,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Operator Command Center',
             'email' => 'operator@ah.com',
             'password' => $password,
-            'usertype' => 'operator',
+            'role' => 'operator',
         ]);
 
 
@@ -81,12 +81,12 @@ class DatabaseSeeder extends Seeder
         // 3. KELOMPOK LAPANGAN (TIM MEDIS)
         // ==========================================
 
-        // 7. Driver Ambulan
-        User::create([
+        // 7. Driver Ambulan (KITA SIMPAN KE VARIABEL AGAR BISA DIPAKAI DI BAWAH)
+        $driver1 = User::create([
             'name' => 'Driver Ambulan 01',
             'email' => 'driver@ah.com',
             'password' => $password,
-            'usertype' => 'driver',
+            'role' => 'driver',
         ]);
 
         // 8. Nakes (Dokter/Perawat Pendamping)
@@ -94,7 +94,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Nakes Pendamping',
             'email' => 'nakes@ah.com',
             'password' => $password,
-            'usertype' => 'nakes',
+            'role' => 'nakes',
         ]);
 
         // 9. Peserta BHD (Relawan)
@@ -102,7 +102,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Relawan BHD',
             'email' => 'bhd@ah.com',
             'password' => $password,
-            'usertype' => 'peserta_bhd',
+            'role' => 'peserta_bhd',
         ]);
 
 
@@ -115,7 +115,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Admin RS Karyadi',
             'email' => 'rs@ah.com',
             'password' => $password,
-            'usertype' => 'rumahsakit',
+            'role' => 'rumahsakit',
         ]);
 
         // 11. Puskesmas (Basecamp)
@@ -123,7 +123,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Admin PKM Pandanaran',
             'email' => 'pkm@ah.com',
             'password' => $password,
-            'usertype' => 'puskesmas',
+            'role' => 'puskesmas',
         ]);
 
         // 12. Klinik Utama
@@ -131,7 +131,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Admin Klinik Sehat',
             'email' => 'klinik@ah.com',
             'password' => $password,
-            'usertype' => 'klinik_utama',
+            'role' => 'klinik_utama',
         ]);
 
         // 13. Lab Medik
@@ -139,7 +139,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Admin Lab Prodia',
             'email' => 'lab@ah.com',
             'password' => $password,
-            'usertype' => 'lab_medik',
+            'role' => 'lab_medik',
         ]);
 
 
@@ -152,9 +152,15 @@ class DatabaseSeeder extends Seeder
             'name' => 'Warga Semarang',
             'email' => 'warga@gmail.com',
             'password' => $password,
-            'usertype' => 'masyarakat',
+            'role' => 'masyarakat', // SUDAH DIPERBAIKI (Tadi ada spasi)
         ]);
-        //2. DATA BASECAMP (PUSKESMAS SEMARANG)
+
+
+        // ==========================================
+        // DATA WILAYAH & FASKES (MASTER DATA)
+        // ==========================================
+
+        // 1. DATA BASECAMP (PUSKESMAS SEMARANG)
         $pkm_pandanaran = Basecamp::create([
             'name' => 'Puskesmas Pandanaran',
             'phone' => '024-8310000',
@@ -176,21 +182,21 @@ class DatabaseSeeder extends Seeder
             'longitude' => 110.430500,
         ]);
 
-        $pkm_karangayu = Basecamp::create([
+        Basecamp::create([
             'name' => 'Puskesmas Karangayu',
             'phone' => '024-7600000',
             'latitude' => -6.981500,
             'longitude' => 110.395000,
         ]);
 
-        $pkm_bulu = Basecamp::create([
+        Basecamp::create([
             'name' => 'Puskesmas Bulu Lor',
             'phone' => '024-3540000',
             'latitude' => -6.970000,
             'longitude' => 110.410000,
         ]);
 
-        // Data RS rujukan
+        // 2. DATA RS RUJUKAN
         Hospital::create([
             'name' => 'RSUP Dr. Kariadi',
             'phone_igd' => '024-8413476',
@@ -222,24 +228,26 @@ class DatabaseSeeder extends Seeder
         ]);
 
 
-        // Data Ambulan
+        // 3. DATA ARMADA AMBULAN
+        // Linkkan Ambulan 01 ke Driver yang sudah kita simpan di variabel $driver1
         Ambulance::create([
             'plat_number' => 'H 9901 AH',
             'name' => 'Ambulan Hebat 01',
             'basecamp_id' => $pkm_pandanaran->id,
             'status' => 'ready',
-            'current_latitude' => -6.986687, // Posisi awal di basecamp
+            'current_latitude' => -6.986687,
             'current_longitude' => 110.413254,
-            'driver_id' => 3, // ID user driver yang kita buat di atas
+            'driver_id' => $driver1->id, // OTOMATIS BENAR (Milik 'driver@ah.com')
         ]);
 
         Ambulance::create([
             'plat_number' => 'H 9902 AH',
             'name' => 'Ambulan Hebat 02',
             'basecamp_id' => $pkm_pandanaran->id,
-            'status' => 'busy', // Sedang jalan
+            'status' => 'busy',
             'current_latitude' => -6.980000, 
             'current_longitude' => 110.415000,
+            'driver_id' => null, // Belum ada driver
         ]);
 
         Ambulance::create([
@@ -249,6 +257,7 @@ class DatabaseSeeder extends Seeder
             'status' => 'ready',
             'current_latitude' => -7.050516,
             'current_longitude' => 110.420455,
+            'driver_id' => null,
         ]);
 
         Ambulance::create([
@@ -258,6 +267,7 @@ class DatabaseSeeder extends Seeder
             'status' => 'maintenance',
             'current_latitude' => -6.990450,
             'current_longitude' => 110.430500,
+            'driver_id' => null,
         ]);
     }
 }

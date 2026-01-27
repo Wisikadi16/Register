@@ -39,7 +39,7 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'usertype' => 'masyarakat', // Set default usertype to 'masyarakat'
+            'role' => 'masyarakat', // Set default usertype to 'masyarakat'
         ]);
 
         event(new Registered($user));
@@ -47,5 +47,7 @@ class RegisteredUserController extends Controller
         Auth::login($user);
 
         return redirect(route('dashboard', absolute: false));
+
+        
     }
 }

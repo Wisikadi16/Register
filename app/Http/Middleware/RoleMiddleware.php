@@ -8,29 +8,26 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RoleMiddleware
 {
-    // Perhatikan tanda titik tiga (...$roles) untuk menangkap banyak role
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        // Ambil usertype dari user yang sedang login
-        $userRole = $request->user()->usertype;
+        // 1. Ambil data user yang sedang login
+        $user = $request->user();
 
-        // Cek: Apakah role user ada di dalam daftar yang diizinkan?
-        // Contoh: Apakah 'super_admin' ada di daftar ['admin', 'super_admin']?
-        if (in_array($userRole, $roles)) {
-            return $next($request); // SILAKAN MASUK
+        // 2. Cek apakah user ada & kolom 'role' sesuai dengan izin
+        //    (Kita ganti 'usertype' menjadi 'role')
+        if (! $user || ! in_array($user->role, $roles)) {
+            
+            // Jika role tidak cocok, kita tolak dengan Error 403 (Forbidden)
+            // Ini akan memunculkan halaman "THIS ACTION IS UNAUTHORIZED"
+            abort(403, 'Akses Ditolak. Role Anda (' . ($user->role ?? 'None') . ') tidak diizinkan masuk ke halaman ini.');
         }
 
-        // --- JIKA DITOLAK, LEMPAR SESUAI JABATAN ASLINYA ---
-        
-        if ($userRole === 'admin' || $userRole === 'super_admin') {
-            return redirect()->route('admin.dashboard');
-        }
-        
-        if ($userRole === 'ambulan') {
-            return redirect()->route('ambulan.dashboard');
-        }
-
-        // Default lempar ke halaman masyarakat
-        return redirect()->route('dashboard');
+        // 3. Jika cocok, silakan masuk
+        return $next($request);
     }
 }

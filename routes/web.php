@@ -18,8 +18,8 @@ Route::get('/', function () {
 
 // --- GROUP 1: MASYARAKAT / PUBLIK ---
 // Role: 'masyarakat' (Sesuai Seeder & Register Controller)
-Route::middleware(['auth', 'role:masyarakat'])->group(function () {
-    
+Route::middleware(['auth', 'role:masyarakat, super_admin'])->group(function () {
+
     // Dashboard utama untuk masyarakat (Halaman SOS)
     Route::get('/dashboard', function () {
         return view('dashboard');
@@ -31,51 +31,73 @@ Route::middleware(['auth', 'role:masyarakat'])->group(function () {
 });
 
 
-// --- GROUP 2: ADMIN & MANAJEMEN ---
-// Menggabungkan: admin, super_admin, ka, sie_rujukan, atem
-Route::middleware(['auth', 'role:admin,super_admin,ka,sie_rujukan,atem'])->prefix('admin')->group(function () {
-    
+// --- GROUP 2: SUPER ADMIN & ADMIN ---
+Route::middleware(['auth', 'role:super_admin,admin'])->prefix('admin')->group(function () {
+
+    // UBAH BAGIAN INI: Kita kirim data statistik ke view
     Route::get('/dashboard', function () {
-        return view('admin.dashboard'); 
+
+        $stats = [
+            'total_users' => \App\Models\User::count(),
+            'total_drivers' => \App\Models\User::where('role', 'driver')->count(),
+            'total_ambulances' => \App\Models\Ambulance::count(),
+            'total_calls' => \App\Models\EmergencyCall::count(),
+            'active_calls' => \App\Models\EmergencyCall::whereIn('status', ['pending', 'process'])->count(),
+            'hospitals' => \App\Models\Hospital::count(),
+        ];
+
+        return view('admin.dashboard', compact('stats'));
+
     })->name('admin.dashboard');
 
-    // DAFTAR LENGKAP ROUTE USER (MANAJEMEN USER)
-    Route::get('/users', [UserController::class, 'index'])->name('users.index');
-    Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
-    Route::post('/users', [UserController::class, 'store'])->name('users.store');
-    Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
-    Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
-    Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
-});
+    // ... (Route user lainnya biarkan saja) ...
+    // Route User Management
+    Route::resource('users', \App\Http\Controllers\UserController::class)->names([
+        'index' => 'admin.users.index',
+        'create' => 'users.create',
+        'store' => 'admin.users.store',
+        'edit' => 'users.edit',
+        'update' => 'users.update',
+        'destroy' => 'users.destroy',
+    ]);
 
+    // Route Master Data: Rumah Sakit
+    Route::resource('hospitals', \App\Http\Controllers\AdminHospitalController::class)->names('admin.hospitals');
+
+    // Route Master Data: Puskesmas (Basecamp)
+    Route::resource('basecamps', \App\Http\Controllers\AdminBasecampController::class)->names('admin.basecamps');
+
+
+    // ... dst ...
+});
 
 // --- GROUP 3: OPERATOR (CALL CENTER) ---
 // Role: operator
-Route::middleware(['auth', 'role:operator'])->prefix('operator')->group(function () {
+Route::middleware(['auth', 'role:operator,super_admin'])->prefix('operator')->group(function () {
     Route::get('/dashboard', function () {
         // Pastikan buat file: resources/views/operator/dashboard.blade.php
-        return view('operator.dashboard'); 
+        return view('operator.dashboard');
     })->name('operator.dashboard');
 });
 
 
 // --- GROUP 4: TIM LAPANGAN (AMBULAN) ---
 // Prefix URL kita ubah jadi 'lapangan' agar konsisten dengan folder view
-Route::middleware(['auth', 'role:driver,nakes,peserta_bhd'])->prefix('lapangan')->group(function () {
-    
+Route::middleware(['auth', 'role:driver,nakes,peserta_bhd,super_admin'])->prefix('lapangan')->group(function () {
+
     Route::get('/dashboard', function () {
         // 1. Ambil Data Diri Driver
         $user = auth()->user();
         $ambulance = \App\Models\Ambulance::where('driver_id', $user->id)->first();
-        
+
         $activeJob = null;
 
         // 2. Cek Apakah Ada Tugas Aktif?
         if ($ambulance) {
             $activeJob = \App\Models\EmergencyCall::where('ambulance_id', $ambulance->id)
-                            ->whereIn('status', ['pending', 'process']) 
-                            ->latest()
-                            ->first();
+                ->whereIn('status', ['pending', 'process'])
+                ->latest()
+                ->first();
         }
 
         // 3. (BARU) Ambil Data RS untuk Tabel Rujukan
@@ -93,7 +115,7 @@ Route::middleware(['auth', 'role:driver,nakes,peserta_bhd'])->prefix('lapangan')
 
 // --- GROUP 5: FASKES (RUMAH SAKIT & PUSKESMAS) ---
 // Menggabungkan: rumahsakit, klinik_utama, puskesmas, lab_medik
-Route::middleware(['auth', 'role:rumahsakit,klinik_utama,puskesmas,lab_medik'])->prefix('faskes')->group(function () {
+Route::middleware(['auth', 'role:rumahsakit,klinik_utama,puskesmas,lab_medik,super_admin]'])->prefix('faskes')->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\HospitalController::class, 'index'])->name('faskes.dashboard');
     Route::put('/hospital/{id}/update-status', [\App\Http\Controllers\HospitalController::class, 'update'])->name('faskes.update');
 });
@@ -106,4 +128,4 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

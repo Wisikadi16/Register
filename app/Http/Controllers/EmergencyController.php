@@ -16,6 +16,7 @@ class EmergencyController extends Controller
     }
 
     // Menyimpan Data Panggilan ke Database
+    // Menyimpan Data Panggilan ke Database
     public function store(Request $request)
     {
         // 1. Validasi Input
@@ -24,46 +25,61 @@ class EmergencyController extends Controller
             'longitude' => 'required',
             'description' => 'required|string',
         ]);
+        
         $userLat = $request->latitude;
         $userLng = $request->longitude;
 
-        //Ambil Semua Ambulan yang 'READY' saja
+        // 2. Ambil Semua Ambulan yang 'READY' saja
         $readyAmbulances = Ambulance::where('status', 'ready')->get();
+
+        // Jika tidak ada ambulan ready sama sekali
+        if ($readyAmbulances->isEmpty()) {
+            return redirect()->back()->with('error', 'Maaf, tidak ada armada ambulan yang SIAP (READY) saat ini. Hubungi 119 via telepon.');
+        }
 
         $nearestAmbulance = null;
         $shortestDistance = 999999999;
         
-        //Logika DSS (Looping & hitung jarak)
+        // 3. Logika DSS (Mencari yang terdekat)
+        foreach ($readyAmbulances as $ambulance) {
+            // Pastikan ambulan punya lokasi GPS valid agar tidak error hitungan
+            if ($ambulance->current_latitude && $ambulance->current_longitude) {
+                $distance = $this->calculateDistance(
+                    $userLat,
+                    $userLng,
+                    $ambulance->current_latitude,
+                    $ambulance->current_longitude
+                );
 
-    foreach ($readyAmbulances as $ambulance) {
-            $distance = $this->calculateDistance(
-                $userLat,
-                $userLng,
-                $ambulance->current_latitude,
-                $ambulance->current_longitude
-            );
-
-            if ($distance < $shortestDistance) {
-                $shortestDistance = $distance;
-                $nearestAmbulance = $ambulance;
+                if ($distance < $shortestDistance) {
+                    $shortestDistance = $distance;
+                    $nearestAmbulance = $ambulance;
+                }
             }
         }
 
-        //cek pencarian
+        // Cek hasil pencarian
         if(!$nearestAmbulance){
-            return redirect()->back()->with('error', 'Maaf, tidak ada ambulan yang tersedia saat ini.');
+            return redirect()->back()->with('error', 'Gagal menemukan ambulan terdekat yang memiliki lokasi GPS valid.');
         }
 
-        //Simpan ke Database
+        // 4. Simpan ke Database
         EmergencyCall::create([
             'user_id' => Auth::id(), 
             'ambulance_id' => $nearestAmbulance->id,
             "latitude" => $userLat,
             "longitude" => $userLng,
+            
+            // --- PERBAIKAN DI SINI ---
+            // Kita isi kolom 'location' dengan koordinat agar tidak error
+            'location' => "{$userLat}, {$userLng}", 
+            // -------------------------
+            
             'description' => $request->description,
             'status' => 'pending', 
         ]);
-        //update status ambulan jadi 'busy'
+
+        // 5. Update status ambulan jadi 'busy'
         $nearestAmbulance->update(['status' => 'busy']);
 
         return redirect()->route('dashboard')->with('success', 

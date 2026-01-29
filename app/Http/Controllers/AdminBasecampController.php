@@ -30,7 +30,9 @@ class AdminBasecampController extends Controller
             'longitude' => 'required|numeric',
         ]);
 
-        Basecamp::create($request->all());
+        $basecamp = Basecamp::create($request->all());
+
+        \App\Models\AuditLog::record('CREATE', 'Menambahkan Puskesmas baru: ' . $basecamp->name);
 
         return redirect()->route('admin.basecamps.index')->with('success', 'Puskesmas berhasil ditambahkan.');
     }
@@ -56,13 +58,20 @@ class AdminBasecampController extends Controller
 
         $basecamp->update($request->all());
 
+        \App\Models\AuditLog::record('UPDATE', 'Mengupdate Puskesmas: ' . $basecamp->name);
+
         return redirect()->route('admin.basecamps.index')->with('success', 'Data Puskesmas berhasil diperbarui.');
     }
 
     // Hapus Puskesmas
     public function destroy($id)
     {
-        Basecamp::findOrFail($id)->delete();
+        $basecamp = Basecamp::findOrFail($id);
+        $name = $basecamp->name;
+        $basecamp->delete();
+
+        \App\Models\AuditLog::record('DELETE', 'Menghapus Puskesmas: ' . $name);
+
         return redirect()->route('admin.basecamps.index')->with('success', 'Puskesmas berhasil dihapus.');
     }
 }

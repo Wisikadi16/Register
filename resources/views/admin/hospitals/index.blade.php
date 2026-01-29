@@ -22,10 +22,25 @@
                     <div class="flex justify-between items-center mb-6">
                         <h3 class="text-lg font-bold">Daftar Rumah Sakit Rujukan</h3>
 
-                        <a href="{{ route('admin.hospitals.create') }}"
-                            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg transition duration-150 ease-in-out">
-                            + Tambah RS
-                        </a>
+                        <div class="flex gap-2">
+                            <!-- Export Button -->
+                            <a href="{{ route('admin.hospitals.export') }}"
+                                class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded shadow-lg transition duration-150 ease-in-out flex items-center gap-2">
+                                📥 Export Excel
+                            </a>
+
+                            <!-- Import Button (opens modal/form) -->
+                            <button onclick="document.getElementById('importModal').classList.remove('hidden')"
+                                class="bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-4 rounded shadow-lg transition duration-150 ease-in-out flex items-center gap-2">
+                                📤 Import Excel
+                            </button>
+
+                            <!-- Add Button -->
+                            <a href="{{ route('admin.hospitals.create') }}"
+                                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg transition duration-150 ease-in-out">
+                                + Tambah RS
+                            </a>
+                        </div>
                     </div>
 
                     <div class="overflow-x-auto">
@@ -96,6 +111,35 @@
                     </div>
 
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Modal -->
+    <div id="importModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <h3 class="text-lg font-bold text-gray-900 mb-4">Import Data Rumah Sakit</h3>
+
+                <form action="{{ route('admin.hospitals.import') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Pilih File Excel/CSV</label>
+                        <input type="file" name="file" accept=".xlsx,.xls,.csv" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                        <p class="text-xs text-gray-500 mt-1">Format: .xlsx, .xls, atau .csv</p>
+                    </div>
+
+                    <div class="flex justify-end gap-2">
+                        <button type="button" onclick="document.getElementById('importModal').classList.add('hidden')"
+                            class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">
+                            Batal
+                        </button>
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                            Upload & Import
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

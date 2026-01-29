@@ -31,27 +31,21 @@ Route::middleware(['auth', 'role:masyarakat, super_admin'])->group(function () {
 });
 
 
-// --- GROUP 2: SUPER ADMIN & ADMIN ---
-Route::middleware(['auth', 'role:super_admin,admin'])->prefix('admin')->group(function () {
-
-    // UBAH BAGIAN INI: Kita kirim data statistik ke view
+// --- GROUP 2A: SUPER ADMIN (IT) ---
+// Fokus: Manajemen Sistem, Data Master, Settings
+Route::middleware(['auth', 'role:super_admin'])->prefix('super-admin')->group(function () {
+    // Dashboard Super Admin (Sistem)
     Route::get('/dashboard', function () {
-
         $stats = [
             'total_users' => \App\Models\User::count(),
-            'total_drivers' => \App\Models\User::where('role', 'driver')->count(),
+            'total_hospitals' => \App\Models\Hospital::count(),
+            'total_basecamps' => \App\Models\Basecamp::count(),
             'total_ambulances' => \App\Models\Ambulance::count(),
-            'total_calls' => \App\Models\EmergencyCall::count(),
-            'active_calls' => \App\Models\EmergencyCall::whereIn('status', ['pending', 'process'])->count(),
-            'hospitals' => \App\Models\Hospital::count(),
         ];
-
         return view('admin.dashboard', compact('stats'));
+    })->name('super-admin.dashboard');
 
-    })->name('admin.dashboard');
-
-    // ... (Route user lainnya biarkan saja) ...
-    // Route User Management
+    // Route User Management (Super Admin only)
     Route::resource('users', \App\Http\Controllers\UserController::class)->names([
         'index' => 'admin.users.index',
         'create' => 'users.create',
@@ -61,14 +55,60 @@ Route::middleware(['auth', 'role:super_admin,admin'])->prefix('admin')->group(fu
         'destroy' => 'users.destroy',
     ]);
 
-    // Route Master Data: Rumah Sakit
+    // Route Master Data: Rumah Sakit (Super Admin only)
     Route::resource('hospitals', \App\Http\Controllers\AdminHospitalController::class)->names('admin.hospitals');
+    Route::get('/hospitals-export', [\App\Http\Controllers\AdminHospitalController::class, 'export'])->name('admin.hospitals.export');
+    Route::post('/hospitals-import', [\App\Http\Controllers\AdminHospitalController::class, 'import'])->name('admin.hospitals.import');
 
-    // Route Master Data: Puskesmas (Basecamp)
+    // Route Master Data: Puskesmas (Super Admin only)
     Route::resource('basecamps', \App\Http\Controllers\AdminBasecampController::class)->names('admin.basecamps');
 
+    // Route Master Data: Ambulan (Super Admin only)
+    Route::resource('ambulances', \App\Http\Controllers\AdminAmbulanceController::class)->names('admin.ambulances');
 
-    // ... dst ...
+    // Route Audit Log (Super Admin only)
+    Route::get('/audit-logs', [\App\Http\Controllers\AdminAuditLogController::class, 'index'])->name('admin.logs.index');
+
+    // Route Pengaturan Sistem (Super Admin only)
+    Route::get('/settings', [\App\Http\Controllers\AdminSettingController::class, 'index'])->name('admin.settings.index');
+    Route::put('/settings', [\App\Http\Controllers\AdminSettingController::class, 'update'])->name('admin.settings.update');
+
+    // Route Broadcast Notification (Super Admin only)
+    Route::get('/notifications', [\App\Http\Controllers\AdminNotificationController::class, 'index'])->name('admin.notifications.index');
+    Route::get('/notifications/create', [\App\Http\Controllers\AdminNotificationController::class, 'create'])->name('admin.notifications.create');
+    Route::post('/notifications', [\App\Http\Controllers\AdminNotificationController::class, 'store'])->name('admin.notifications.store');
+    Route::post('/notifications/{id}/read', [\App\Http\Controllers\AdminNotificationController::class, 'markAsRead'])->name('admin.notifications.read');
+});
+
+// --- GROUP 2B: ADMIN DINAS KESEHATAN (OPERASIONAL) ---
+// Fokus: Monitoring, Laporan, Statistik
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
+    // Dashboard Admin Dinas (Operasional Monitoring)
+    Route::get('/dashboard', [\App\Http\Controllers\AdminDinkesController::class, 'dashboard'])->name('admin.dashboard');
+
+    // Monitoring Kejadian (Laporan)
+    Route::get('/reports', [\App\Http\Controllers\AdminDinkesController::class, 'reports'])->name('admin.dinkes.reports');
+
+    // Monitoring Armada (Ambulans)
+    Route::get('/ambulances-monitor', [\App\Http\Controllers\AdminDinkesController::class, 'ambulances'])->name('admin.dinkes.ambulances');
+
+    // Monitoring RS (Ketersediaan Bed)
+    Route::get('/hospitals-monitor', [\App\Http\Controllers\AdminDinkesController::class, 'hospitals'])->name('admin.dinkes.hospitals');
+
+    // Modul Inventori (Stok, Oksigen, Obat, ATK)
+    Route::get('/inventory', [\App\Http\Controllers\AdminDinkesController::class, 'inventoryIndex'])->name('admin.dinkes.inventory.index');
+    Route::post('/inventory', [\App\Http\Controllers\AdminDinkesController::class, 'inventoryStore'])->name('admin.dinkes.inventory.store');
+
+    // Modul Logistik (Service & BBM)
+    Route::get('/logistics', [\App\Http\Controllers\AdminDinkesController::class, 'logisticIndex'])->name('admin.dinkes.logistics.index');
+    Route::post('/logistics', [\App\Http\Controllers\AdminDinkesController::class, 'logisticStore'])->name('admin.dinkes.logistics.store');
+
+    // Modul Utilitas (Listrik & PAM)
+    Route::get('/utilities', [\App\Http\Controllers\AdminDinkesController::class, 'utilityIndex'])->name('admin.dinkes.utilities.index');
+    Route::post('/utilities', [\App\Http\Controllers\AdminDinkesController::class, 'utilityStore'])->name('admin.dinkes.utilities.store');
+
+    // Rekap Pasien AH
+    Route::get('/patient-recap', [\App\Http\Controllers\AdminDinkesController::class, 'patientRecap'])->name('admin.dinkes.patient-recap');
 });
 
 // --- GROUP 3: OPERATOR (CALL CENTER) ---

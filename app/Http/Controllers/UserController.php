@@ -32,7 +32,7 @@ class UserController extends Controller
             'role' => ['required', 'string'], // Validasi Role
         ]);
 
-        User::create([
+        $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
@@ -40,16 +40,23 @@ class UserController extends Controller
             'status' => 'active',
         ]);
 
+        \App\Models\AuditLog::record('CREATE', 'Membuat User baru: ' . $user->name . ' (' . $user->role . ')');
+
         return redirect()->route('admin.users.index')->with('success', 'User berhasil ditambahkan!');
     }
-    
+
     // Fitur Hapus User
     public function destroy($id)
     {
-        User::findOrFail($id)->delete();
+        $user = User::findOrFail($id);
+        $name = $user->name;
+        $user->delete();
+
+        \App\Models\AuditLog::record('DELETE', 'Menghapus User: ' . $name);
+
         return redirect()->back()->with('success', 'User berhasil dihapus.');
     }
-        // Menampilkan form edit user
+    // Menampilkan form edit user
     public function edit($id)
     {
         $user = User::findOrFail($id);
@@ -63,7 +70,7 @@ class UserController extends Controller
 
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,'.$user->id],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
             'role' => ['required', 'string'],
         ]);
 
@@ -83,6 +90,8 @@ class UserController extends Controller
 
         $user->update($data);
 
+        \App\Models\AuditLog::record('UPDATE', 'Mengupdate User: ' . $user->name);
+
         return redirect()->route('admin.users.index')->with('success', 'User berhasil diperbarui!');
     }
-}   
+}

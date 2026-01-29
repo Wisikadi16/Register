@@ -22,7 +22,7 @@ class DatabaseSeeder extends Seeder
         // ==========================================
         // 1. KELOMPOK ADMIN & MANAJEMEN
         // ==========================================
-        
+
         // 1. Super Admin (IT)
         User::create([
             'name' => 'IT Super Admin',
@@ -164,7 +164,7 @@ class DatabaseSeeder extends Seeder
         $pkm_pandanaran = Basecamp::create([
             'name' => 'Puskesmas Pandanaran',
             'phone' => '024-8310000',
-            'latitude' => -6.986687, 
+            'latitude' => -6.986687,
             'longitude' => 110.413254,
         ]);
 
@@ -245,7 +245,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Ambulan Hebat 02',
             'basecamp_id' => $pkm_pandanaran->id,
             'status' => 'busy',
-            'current_latitude' => -6.980000, 
+            'current_latitude' => -6.980000,
             'current_longitude' => 110.415000,
             'driver_id' => null, // Belum ada driver
         ]);
@@ -269,5 +269,10 @@ class DatabaseSeeder extends Seeder
             'current_longitude' => 110.430500,
             'driver_id' => null,
         ]);
+
+        // ==========================================
+        // Seeder Settings (Konfigurasi Global)
+        // ==========================================
+        $this->call(SettingSeeder::class);
     }
 }

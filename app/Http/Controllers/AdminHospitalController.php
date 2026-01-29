@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Hospital;
+use App\Exports\HospitalsExport;
+use App\Imports\HospitalsImport;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 
 class AdminHospitalController extends Controller
@@ -20,7 +23,7 @@ class AdminHospitalController extends Controller
         return view('admin.hospitals.create');
     }
 
-    // Simpan RS Baru
+    // Simpan Rumah Sakit Baru
     public function store(Request $request)
     {
         $request->validate([
@@ -33,19 +36,21 @@ class AdminHospitalController extends Controller
             'available_bed_icu' => 'required|integer',
         ]);
 
-        Hospital::create($request->all());
+        $hospital = Hospital::create($request->all());
+
+        \App\Models\AuditLog::record('CREATE', 'Menambahkan Rumah Sakit baru: ' . $hospital->name);
 
         return redirect()->route('admin.hospitals.index')->with('success', 'Rumah Sakit berhasil ditambahkan.');
     }
 
-    // Form Edit RS
+    // Form Edit Rumah Sakit
     public function edit($id)
     {
         $hospital = Hospital::findOrFail($id);
         return view('admin.hospitals.edit', compact('hospital'));
     }
 
-    // Update RS
+    // Update Rumah Sakit
     public function update(Request $request, $id)
     {
         $hospital = Hospital::findOrFail($id);
@@ -62,13 +67,40 @@ class AdminHospitalController extends Controller
 
         $hospital->update($request->all());
 
+        \App\Models\AuditLog::record('UPDATE', 'Mengupdate data Rumah Sakit: ' . $hospital->name);
+
         return redirect()->route('admin.hospitals.index')->with('success', 'Data Rumah Sakit berhasil diperbarui.');
     }
 
-    // Hapus RS
+    // Hapus Rumah Sakit
     public function destroy($id)
     {
-        Hospital::findOrFail($id)->delete();
+        $hospital = Hospital::findOrFail($id);
+        $name = $hospital->name;
+        $hospital->delete();
+
+        \App\Models\AuditLog::record('DELETE', 'Menghapus Rumah Sakit: ' . $name);
+
         return redirect()->route('admin.hospitals.index')->with('success', 'Rumah Sakit berhasil dihapus.');
+    }
+
+    // Export to Excel
+    public function export()
+    {
+        return Excel::download(new HospitalsExport, 'hospitals_' . date('Y-m-d') . '.xlsx');
+    }
+
+    // Import from Excel
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv'
+        ]);
+
+        Excel::import(new HospitalsImport, $request->file('file'));
+
+        \App\Models\AuditLog::record('IMPORT', 'Mengimport data Rumah Sakit dari file Excel');
+
+        return redirect()->route('admin.hospitals.index')->with('success', 'Data berhasil diimport!');
     }
 }

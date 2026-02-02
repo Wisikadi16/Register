@@ -28,7 +28,10 @@ class RoleMiddleware
 
         // 3. CEK ROLE
         // Pastikan kolom 'role' sesuai dengan yang diizinkan
-        if (! in_array($user->role, $roles)) {
+        $userRole = strtolower($user->role);
+        $allowedRoles = array_map(fn($role) => strtolower(trim($role)), $roles);
+
+        if (!in_array($userRole, $allowedRoles)) {
             abort(403, 'Akses Ditolak. Role Anda (' . $user->role . ') tidak diizinkan masuk.');
         }
 

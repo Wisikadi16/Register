@@ -42,8 +42,12 @@ class AuthenticatedSessionController extends Controller
         $role = $user->role;
 
         // Group admin
-        if (in_array($role, ['admin', 'ka', 'sie_rujukan', 'atem', 'super_admin'])) {
-        return redirect()->intended(route('admin.dashboard', absolute: false));
+        if ($role === 'super_admin') {
+            return redirect()->intended(route('super-admin.dashboard', absolute: false));
+        }
+
+        if (in_array($role, ['admin', 'ka', 'sie_rujukan', 'atem'])) {
+            return redirect()->intended(route('admin.dashboard', absolute: false));
         }
 
         // Group operator

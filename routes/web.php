@@ -18,7 +18,7 @@ Route::get('/', function () {
 
 // --- GROUP 1: MASYARAKAT / PUBLIK ---
 // Role: 'masyarakat' (Sesuai Seeder & Register Controller)
-Route::middleware(['auth', 'role:masyarakat, super_admin'])->group(function () {
+Route::middleware(['auth', 'role:masyarakat,super_admin'])->group(function () {
 
     // Dashboard utama untuk masyarakat (Halaman SOS)
     Route::get('/dashboard', function () {
@@ -38,9 +38,12 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('super-admin')->group(fu
     Route::get('/dashboard', function () {
         $stats = [
             'total_users' => \App\Models\User::count(),
-            'total_hospitals' => \App\Models\Hospital::count(),
+            'hospitals' => \App\Models\Hospital::count(), // Key disesuaikan dengan view
             'total_basecamps' => \App\Models\Basecamp::count(),
             'total_ambulances' => \App\Models\Ambulance::count(),
+            'total_drivers' => \App\Models\User::whereIn('role', ['driver', 'nakes'])->count(),
+            'total_calls' => \App\Models\EmergencyCall::count(),
+            'active_calls' => \App\Models\EmergencyCall::whereIn('status', ['pending', 'process'])->count(),
         ];
         return view('admin.dashboard', compact('stats'));
     })->name('super-admin.dashboard');
@@ -82,7 +85,7 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('super-admin')->group(fu
 
 // --- GROUP 2B: ADMIN DINAS KESEHATAN (OPERASIONAL) ---
 // Fokus: Monitoring, Laporan, Statistik
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
+Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->group(function () {
     // Dashboard Admin Dinas (Operasional Monitoring)
     Route::get('/dashboard', [\App\Http\Controllers\AdminDinkesController::class, 'dashboard'])->name('admin.dashboard');
 
@@ -155,7 +158,7 @@ Route::middleware(['auth', 'role:driver,nakes,peserta_bhd,super_admin'])->prefix
 
 // --- GROUP 5: FASKES (RUMAH SAKIT & PUSKESMAS) ---
 // Menggabungkan: rumahsakit, klinik_utama, puskesmas, lab_medik
-Route::middleware(['auth', 'role:rumahsakit,klinik_utama,puskesmas,lab_medik,super_admin]'])->prefix('faskes')->group(function () {
+Route::middleware(['auth', 'role:rumahsakit,klinik_utama,puskesmas,lab_medik,super_admin'])->prefix('faskes')->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\HospitalController::class, 'index'])->name('faskes.dashboard');
     Route::put('/hospital/{id}/update-status', [\App\Http\Controllers\HospitalController::class, 'update'])->name('faskes.update');
 });

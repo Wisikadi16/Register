@@ -112,16 +112,16 @@ class DatabaseSeeder extends Seeder
 
         // 10. Rumah Sakit
         User::create([
-            'name' => 'Admin RS Karyadi',
-            'email' => 'rs@ah.com',
+            'name' => 'Admin Rumah Sakit',
+            'email' => 'rumahsakit@ah.com',
             'password' => $password,
             'role' => 'rumahsakit',
         ]);
 
         // 11. Puskesmas (Basecamp)
         User::create([
-            'name' => 'Admin PKM Pandanaran',
-            'email' => 'pkm@ah.com',
+            'name' => 'Admin Puskesmas',
+            'email' => 'puskesmas@ah.com',
             'password' => $password,
             'role' => 'puskesmas',
         ]);
@@ -136,8 +136,8 @@ class DatabaseSeeder extends Seeder
 
         // 13. Lab Medik
         User::create([
-            'name' => 'Admin Lab Prodia',
-            'email' => 'lab@ah.com',
+            'name' => 'Admin Lab Medik',
+            'email' => 'labmedik@ah.com',
             'password' => $password,
             'role' => 'lab_medik',
         ]);

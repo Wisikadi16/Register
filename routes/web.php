@@ -22,7 +22,7 @@ Route::get('/', function () {
 // GROUP 1: MASYARAKAT / PUBLIK
 // ====================================================
 Route::middleware(['auth', 'role:masyarakat'])->group(function () {
-    
+
     // Dashboard utama untuk masyarakat (Halaman SOS)
     Route::get('/dashboard', function () {
         return view('dashboard');
@@ -41,7 +41,7 @@ Route::middleware(['auth', 'role:masyarakat,admin,super_admin,driver,operator,ru
 // Fokus: Manajemen Sistem, Data Master, Settings
 // ====================================================
 Route::middleware(['auth', 'role:super_admin'])->prefix('super-admin')->group(function () {
-    
+
     // Dashboard Super Admin (Statistik Sistem)
     Route::get('/dashboard', function () {
         $stats = [
@@ -80,7 +80,7 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('super-admin')->group(fu
 
     // Audit Log & Settings
     Route::get('/audit-logs', [\App\Http\Controllers\AdminAuditLogController::class, 'index'])->name('admin.logs.index');
-    
+
     Route::get('/settings', [\App\Http\Controllers\AdminSettingController::class, 'index'])->name('admin.settings.index');
     Route::put('/settings', [\App\Http\Controllers\AdminSettingController::class, 'update'])->name('admin.settings.update');
 
@@ -97,7 +97,7 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('super-admin')->group(fu
 // Fokus: Monitoring, Laporan, Statistik, Inventori
 // ====================================================
 Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->group(function () {
-    
+
     // Dashboard Admin Dinas
     Route::get('/dashboard', [\App\Http\Controllers\AdminDinkesController::class, 'dashboard'])->name('admin.dashboard');
 
@@ -117,14 +117,20 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->group(fu
     // Modul Logistik
     Route::get('/logistics', [\App\Http\Controllers\AdminDinkesController::class, 'logisticIndex'])->name('admin.dinkes.logistics.index');
     Route::post('/logistics', [\App\Http\Controllers\AdminDinkesController::class, 'logisticStore'])->name('admin.dinkes.logistics.store');
+    Route::get('/logistics/{id}/edit', [\App\Http\Controllers\AdminDinkesController::class, 'logisticEdit'])->name('admin.dinkes.logistics.edit');
+    Route::put('/logistics/{id}', [\App\Http\Controllers\AdminDinkesController::class, 'logisticUpdate'])->name('admin.dinkes.logistics.update');
+    Route::delete('/logistics/{id}', [\App\Http\Controllers\AdminDinkesController::class, 'logisticDestroy'])->name('admin.dinkes.logistics.destroy');
 
     // Modul Utilitas
     Route::get('/utilities', [\App\Http\Controllers\AdminDinkesController::class, 'utilityIndex'])->name('admin.dinkes.utilities.index');
     Route::post('/utilities', [\App\Http\Controllers\AdminDinkesController::class, 'utilityStore'])->name('admin.dinkes.utilities.store');
+    Route::get('/utilities/{id}/edit', [\App\Http\Controllers\AdminDinkesController::class, 'utilityEdit'])->name('admin.dinkes.utilities.edit');
+    Route::put('/utilities/{id}', [\App\Http\Controllers\AdminDinkesController::class, 'utilityUpdate'])->name('admin.dinkes.utilities.update');
+    Route::delete('/utilities/{id}', [\App\Http\Controllers\AdminDinkesController::class, 'utilityDestroy'])->name('admin.dinkes.utilities.destroy');
 
     // Rekap Pasien
     Route::get('/patient-recap', [\App\Http\Controllers\AdminDinkesController::class, 'patientRecap'])->name('admin.dinkes.patient-recap');
-    
+
     // Integrasi PUSAKA (Dashboard Embed)
     Route::get('/pusaka', function () {
         return view('admin.pusaka');
@@ -137,11 +143,15 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->group(fu
 // ====================================================
 Route::middleware(['auth', 'role:operator,super_admin,koordinator'])->prefix('operator')->group(function () {
     Route::get('/dashboard', function () {
-        $emergencies = \App\Models\EmergencyCall::with(['user', 'ambulance'])
-                        ->orderBy('created_at', 'desc')->get();
+        $emergencies = \App\Models\EmergencyCall::with(['user', 'ambulance', 'hospital'])
+            ->orderBy('created_at', 'desc')->get();
         $ambulances = \App\Models\Ambulance::all();
-        return view('operator.dashboard', compact('emergencies', 'ambulances')); 
+        $hospitals = \App\Models\Hospital::orderBy('name')->get();
+        return view('operator.dashboard', compact('emergencies', 'ambulances', 'hospitals'));
     })->name('operator.dashboard');
+    Route::post('/emergency/{id}/assign', [\App\Http\Controllers\EmergencyController::class, 'assignAmbulance'])->name('operator.emergency.assign');
+    Route::post('/emergency/{id}/cancel', [\App\Http\Controllers\EmergencyController::class, 'cancelCall'])->name('operator.emergency.cancel');
+    Route::post('/emergency/{id}/set-destination', [\App\Http\Controllers\EmergencyController::class, 'setDestination'])->name('operator.emergency.set-destination');
 });
 
 
@@ -156,8 +166,8 @@ Route::middleware(['auth', 'role:driver,nakes,peserta_bhd'])->prefix('lapangan')
 
         if ($ambulance) {
             $activeJob = \App\Models\EmergencyCall::where('ambulance_id', $ambulance->id)
-                            ->whereIn('status', ['pending', 'process']) 
-                            ->latest()->first();
+                ->whereIn('status', ['pending', 'process'])
+                ->latest()->first();
         }
         $hospitals = \App\Models\Hospital::orderBy('available_bed_igd', 'desc')->get();
 
@@ -186,4 +196,4 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

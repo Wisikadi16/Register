@@ -50,13 +50,15 @@
                                 <th class="px-6 py-4 text-right">Nominal</th>
                                 <th class="px-6 py-4 text-center">Status</th>
                                 <th class="px-6 py-4 text-center">Waktu Input</th>
+                                <th class="px-6 py-4 text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200 text-sm">
                             @forelse($utilities as $util)
                                 <tr class="hover:bg-gray-50">
                                     <td class="px-6 py-4 font-bold">
-                                        {{ \Carbon\Carbon::parse($util->billing_period)->format('F Y') }}</td>
+                                        {{ \Carbon\Carbon::parse($util->billing_period)->format('F Y') }}
+                                    </td>
                                     <td class="px-6 py-4 uppercase">
                                         <span class="font-bold flex items-center gap-2">
                                             @if($util->type == 'listrik') ⚡ @else 💧 @endif
@@ -64,7 +66,8 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 text-right font-black text-amber-700">Rp
-                                        {{ number_format($util->amount, 0, ',', '.') }}</td>
+                                        {{ number_format($util->amount, 0, ',', '.') }}
+                                    </td>
                                     <td class="px-6 py-4 text-center">
                                         <span
                                             class="px-2 py-1 text-xs rounded-full font-bold bg-amber-100 text-amber-700 uppercase">
@@ -72,7 +75,24 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 text-center text-gray-400 text-xs">
-                                        {{ $util->created_at->format('d/m/Y H:i') }}</td>
+                                        {{ $util->created_at->format('d/m/Y H:i') }}
+                                    </td>
+                                    <td class="px-6 py-4 text-center flex justify-center gap-2">
+                                        <a href="{{ route('admin.dinkes.utilities.edit', $util->id) }}"
+                                            class="text-blue-600 hover:text-blue-900 font-bold text-xs uppercase bg-blue-100 px-2 py-1 rounded">
+                                            Edit
+                                        </a>
+                                        <form action="{{ route('admin.dinkes.utilities.destroy', $util->id) }}"
+                                            method="POST"
+                                            onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                class="text-red-600 hover:text-red-900 font-bold text-xs uppercase bg-red-100 px-2 py-1 rounded">
+                                                Hapus
+                                            </button>
+                                        </form>
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>

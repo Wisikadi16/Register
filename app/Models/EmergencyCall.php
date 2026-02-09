@@ -16,6 +16,7 @@ class EmergencyCall extends Model
         'hospital_id',  // <--- Tambahkan Baris INI
         'location',
         'description',
+        'photo',        // <--- Tambahkan Baris INI (Foto Bukti)
         'status',
         'latitude',     // <--- Wajib untuk peta
         'longitude'     // <--- Wajib untuk peta

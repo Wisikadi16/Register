@@ -65,6 +65,7 @@
                                 <th class="px-6 py-4 text-left">Keterangan</th>
                                 <th class="px-6 py-4 text-right">Biaya</th>
                                 <th class="px-6 py-4 text-center">Status</th>
+                                <th class="px-6 py-4 text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200 text-sm">
@@ -76,12 +77,28 @@
                                     <td class="px-6 py-4 uppercase font-bold text-xs">{{ $log->type }}</td>
                                     <td class="px-6 py-4 text-gray-600 italic">{{ $log->description ?: '-' }}</td>
                                     <td class="px-6 py-4 text-right font-bold text-blue-600">Rp
-                                        {{ number_format($log->amount, 0, ',', '.') }}</td>
+                                        {{ number_format($log->amount, 0, ',', '.') }}
+                                    </td>
                                     <td class="px-6 py-4 text-center">
                                         <span
                                             class="px-2 py-1 text-xs rounded-full font-bold bg-blue-100 text-blue-700 uppercase">
                                             {{ $log->status }}
                                         </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-center flex justify-center gap-2">
+                                        <a href="{{ route('admin.dinkes.logistics.edit', $log->id) }}"
+                                            class="text-blue-600 hover:text-blue-900 font-bold text-xs uppercase bg-blue-100 px-2 py-1 rounded">
+                                            Edit
+                                        </a>
+                                        <form action="{{ route('admin.dinkes.logistics.destroy', $log->id) }}" method="POST"
+                                            onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                class="text-red-600 hover:text-red-900 font-bold text-xs uppercase bg-red-100 px-2 py-1 rounded">
+                                                Hapus
+                                            </button>
+                                        </form>
                                     </td>
                                 </tr>
                             @empty

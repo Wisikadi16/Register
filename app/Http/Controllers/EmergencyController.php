@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\EmergencyCall;
 use App\Models\Ambulance;
+use App\Models\Hospital;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage; // <--- Tambahkan Library Storage
 
 class EmergencyController extends Controller
 {
@@ -16,7 +18,6 @@ class EmergencyController extends Controller
     }
 
     // Menyimpan Data Panggilan ke Database
-    // Menyimpan Data Panggilan ke Database
     public function store(Request $request)
     {
         // 1. Validasi Input
@@ -24,66 +25,76 @@ class EmergencyController extends Controller
             'latitude' => 'required',
             'longitude' => 'required',
             'description' => 'required|string',
+            'photo' => 'nullable|image|max:5120', // Max 5MB
         ]);
-        
+
         $userLat = $request->latitude;
         $userLng = $request->longitude;
+
+        // Handle File Upload
+        $photoPath = null;
+        if ($request->hasFile('photo')) {
+            $photoPath = $request->file('photo')->store('emergency_photos', 'public');
+        }
 
         // 2. Ambil Semua Ambulan yang 'READY' saja
         $readyAmbulances = Ambulance::where('status', 'ready')->get();
 
-        // Jika tidak ada ambulan ready sama sekali
-        if ($readyAmbulances->isEmpty()) {
-            return redirect()->back()->with('error', 'Maaf, tidak ada armada ambulan yang SIAP (READY) saat ini. Hubungi 119 via telepon.');
-        }
+        $assignedAmbulance = null;
+        $shortestDistance = null;
+        $status = 'pending'; // Default status jika tidak dapat ambulan
 
-        $nearestAmbulance = null;
-        $shortestDistance = 999999999;
-        
-        // 3. Logika DSS (Mencari yang terdekat)
-        foreach ($readyAmbulances as $ambulance) {
-            // Pastikan ambulan punya lokasi GPS valid agar tidak error hitungan
-            if ($ambulance->current_latitude && $ambulance->current_longitude) {
-                $distance = $this->calculateDistance(
-                    $userLat,
-                    $userLng,
-                    $ambulance->current_latitude,
-                    $ambulance->current_longitude
-                );
+        // 3. Logika DSS (Jika ada ambulan ready)
+        if ($readyAmbulances->isNotEmpty()) {
+            $shortestDistance = 999999999;
+            foreach ($readyAmbulances as $ambulance) {
+                // Pastikan ambulan punya lokasi GPS valid
+                if ($ambulance->current_latitude && $ambulance->current_longitude) {
+                    $distance = $this->calculateDistance(
+                        $userLat,
+                        $userLng,
+                        $ambulance->current_latitude,
+                        $ambulance->current_longitude
+                    );
 
-                if ($distance < $shortestDistance) {
-                    $shortestDistance = $distance;
-                    $nearestAmbulance = $ambulance;
+                    if ($distance < $shortestDistance) {
+                        $shortestDistance = $distance;
+                        $assignedAmbulance = $ambulance;
+                    }
                 }
             }
         }
 
-        // Cek hasil pencarian
-        if(!$nearestAmbulance){
-            return redirect()->back()->with('error', 'Gagal menemukan ambulan terdekat yang memiliki lokasi GPS valid.');
+        // 4. Tentukan Data untuk Disimpan
+        $callData = [
+            'user_id' => Auth::id(),
+            'latitude' => $userLat,
+            'longitude' => $userLng,
+            'location' => "{$userLat}, {$userLng}",
+            'description' => $request->description,
+            'photo' => $photoPath, // Simpan path foto
+            'ambulance_id' => null, // Default
+            'status' => 'pending', // Default
+        ];
+
+        // Jika berhasil mendapatkan ambulan
+        if ($assignedAmbulance) {
+            $callData['ambulance_id'] = $assignedAmbulance->id;
+            $callData['status'] = 'process';
+
+            // Update status ambulan jadi 'busy'
+            $assignedAmbulance->update(['status' => 'busy']);
+
+            $message = 'Ambulan ' . $assignedAmbulance->name . ' sedang menuju lokasi Anda! (Jarak: ' . round($shortestDistance, 2) . ' KM)';
+        } else {
+            // JIKA SEMUA AMBULAN SIBUK / TIDAK KETEMU
+            // Tetap simpan, tapi status PENDING agar masuk dashboard operator
+            $message = 'Mohon tunggu! Permintaan Anda telah masuk. Operator kami sedang mencarikan unit ambulan untuk Anda.';
         }
 
-        // 4. Simpan ke Database
-        EmergencyCall::create([
-            'user_id' => Auth::id(), 
-            'ambulance_id' => $nearestAmbulance->id,
-            "latitude" => $userLat,
-            "longitude" => $userLng,
-            
-            // --- PERBAIKAN DI SINI ---
-            // Kita isi kolom 'location' dengan koordinat agar tidak error
-            'location' => "{$userLat}, {$userLng}", 
-            // -------------------------
-            
-            'description' => $request->description,
-            'status' => 'pending', 
-        ]);
+        EmergencyCall::create($callData);
 
-        // 5. Update status ambulan jadi 'busy'
-        $nearestAmbulance->update(['status' => 'busy']);
-
-        return redirect()->route('dashboard')->with('success', 
-            'Ambulan ' . $nearestAmbulance->name . ' sedang menuju lokasi Anda! (Jarak: ' . round($shortestDistance, 2) . ' KM)');
+        return redirect()->route('dashboard')->with('success', $message);
     }
     //RUMUS MATEMATIKA
     //menghitung jarak antara dua titik koordinat 
@@ -95,8 +106,8 @@ class EmergencyController extends Controller
         $dLng = deg2rad($lng2 - $lng1);
 
         $a = sin($dLat / 2) * sin($dLat / 2) +
-             cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
-             sin($dLng / 2) * sin($dLng / 2);
+            cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+            sin($dLng / 2) * sin($dLng / 2);
         $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
 
         return $earthRadius * $c; // Jarak dalam kilometer
@@ -110,5 +121,109 @@ class EmergencyController extends Controller
             $ambulance->update(['status' => 'ready']);
         }
         return redirect()->route('lapangan.dashboard')->with('success', 'Tugas darurat telah selesai, Armada kembali siap (READY)');
+    }
+
+    // MANUAL DISPATCH (Untuk Operator)
+    public function assignAmbulance(Request $request, $id)
+    {
+        $request->validate([
+            'ambulance_id' => 'required|exists:ambulances,id',
+        ]);
+
+        $emergencyCall = EmergencyCall::findOrFail($id);
+        $newAmbulance = Ambulance::findOrFail($request->ambulance_id);
+
+        // Validasi: Pastikan ambulan baru statusnya READY (kecuali memaksa/override, tapi sementara kita strict dulu)
+        if ($newAmbulance->status != 'ready') {
+            return redirect()->back()->with('error', 'Gagal menugaskan. Ambulan ' . $newAmbulance->name . ' sedang sibuk (BUSY).');
+        }
+
+        // 1. Jika sudah ada ambulan sebelumnya, bebaskan (set ready)
+        if ($emergencyCall->ambulance_id) {
+            $oldAmbulance = Ambulance::find($emergencyCall->ambulance_id);
+            if ($oldAmbulance) {
+                $oldAmbulance->update(['status' => 'ready']);
+            }
+        }
+
+        // 2. Update Emergency Call
+        $emergencyCall->update([
+            'ambulance_id' => $newAmbulance->id,
+            'status' => 'process', // Langsung set process
+        ]);
+
+        // 3. Set Status Ambulan Baru jadi BUSY
+        $newAmbulance->update(['status' => 'busy']);
+
+        // 4. Catat Audit Log (Jika model AuditLog ada)
+        if (class_exists(\App\Models\AuditLog::class)) {
+            \App\Models\AuditLog::record(
+                'Manual Dispatch',
+                'Operator menugaskan ambulan ' . $newAmbulance->name . ' untuk kejadian ID: ' . $emergencyCall->id
+            );
+        }
+
+        return redirect()->back()->with('success', 'Ambulan ' . $newAmbulance->name . ' berhasil ditugaskan secara manual.');
+    }
+
+    // BATALKAN PANGGILAN
+    public function cancelCall(Request $request, $id)
+    {
+        $request->validate([
+            'cancellation_note' => 'required|string|max:255',
+        ]);
+
+        $emergencyCall = EmergencyCall::findOrFail($id);
+
+        // Jika sudah selesai, tidak bisa dibatalkan
+        if ($emergencyCall->status == 'completed') {
+            return redirect()->back()->with('error', 'Panggilan yang sudah selesai tidak dapat dibatalkan.');
+        }
+
+        // Release Ambulan jika ada
+        if ($emergencyCall->ambulance_id) {
+            $ambulance = Ambulance::find($emergencyCall->ambulance_id);
+            if ($ambulance) {
+                $ambulance->update(['status' => 'ready']);
+            }
+        }
+
+        $emergencyCall->update([
+            'status' => 'cancelled',
+            'description' => $emergencyCall->description . " [DIBATALKAN: " . $request->cancellation_note . "]",
+        ]);
+
+        if (class_exists(\App\Models\AuditLog::class)) {
+            \App\Models\AuditLog::record(
+                'Cancel Call',
+                'Operator membatalkan panggilan ID: ' . $id . '. Alasan: ' . $request->cancellation_note
+            );
+        }
+
+        return redirect()->back()->with('success', 'Panggilan berhasil dibatalkan dan armada telah dibebaskan.');
+    }
+
+    // SET RUMAH SAKIT TUJUAN
+    public function setDestination(Request $request, $id)
+    {
+        $request->validate([
+            'hospital_id' => 'required|exists:hospitals,id',
+        ]);
+
+        $emergencyCall = EmergencyCall::findOrFail($id);
+        $hospital = Hospital::findOrFail($request->hospital_id);
+
+        $emergencyCall->update([
+            'hospital_id' => $hospital->id,
+        ]);
+
+        if (class_exists(\App\Models\AuditLog::class)) {
+            \App\Models\AuditLog::record(
+                'Set Destination',
+                'Operator menetapkan tujuan RS: ' . $hospital->name . ' untuk kejadian ID: ' . $id
+            );
+        }
+
+        return redirect()->back()->with('success', 'Tujuan rujukan berhasil ditetapkan ke ' . $hospital->name);
     }
 }

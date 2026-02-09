@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Password default untuk semua akun dummy agar mudah diingat
-        $password = Hash::make('password');
+        $password = 'password';
 
         // ==========================================
         // 1. KELOMPOK ADMIN & MANAJEMEN

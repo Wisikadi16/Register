@@ -25,8 +25,23 @@ Route::middleware(['auth', 'role:masyarakat'])->group(function () {
 
     // Dashboard utama untuk masyarakat (Halaman SOS)
     Route::get('/dashboard', function () {
-        return view('dashboard');
+        $activeCall = \App\Models\EmergencyCall::where('user_id', Auth::id())
+            ->whereIn('status', ['pending', 'process'])
+            ->latest()
+            ->first();
+
+        // Ambil 5 riwayat terakhir
+        $history = \App\Models\EmergencyCall::where('user_id', Auth::id())
+            ->latest()
+            ->limit(5)
+            ->get();
+
+        return view('dashboard', compact('activeCall', 'history'));
     })->name('dashboard');
+
+    // Fitur Publik (Faskes & P3K)
+    Route::get('/layanan/faskes', [\App\Http\Controllers\PublicFeatureController::class, 'indexFaskes'])->name('public.faskes');
+    Route::get('/layanan/p3k', [\App\Http\Controllers\PublicFeatureController::class, 'indexP3K'])->name('public.p3k');
 });
 
 // Fitur SOS (Bisa diakses Admin/Driver untuk testing)
@@ -96,7 +111,7 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('super-admin')->group(fu
 // GROUP 2B: ADMIN DINAS KESEHATAN (OPERASIONAL)
 // Fokus: Monitoring, Laporan, Statistik, Inventori
 // ====================================================
-Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->group(function () {
+Route::middleware(['auth', 'role:admin,super_admin,ka,sie_rujukan,atem'])->prefix('admin')->group(function () {
 
     // Dashboard Admin Dinas
     Route::get('/dashboard', [\App\Http\Controllers\AdminDinkesController::class, 'dashboard'])->name('admin.dashboard');
@@ -141,7 +156,7 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->group(fu
 // ====================================================
 // GROUP 3: OPERATOR (CALL CENTER)
 // ====================================================
-Route::middleware(['auth', 'role:operator,super_admin,koordinator'])->prefix('operator')->group(function () {
+Route::middleware(['auth', 'role:operator,super_admin,ka'])->prefix('operator')->group(function () {
     Route::get('/dashboard', function () {
         $emergencies = \App\Models\EmergencyCall::with(['user', 'ambulance', 'hospital'])
             ->orderBy('created_at', 'desc')->get();

@@ -1,0 +1,39 @@
+
+  Dropping all tables  57.32ms DONE
+
+   INFO  Preparing database.  
+
+  Creating migration table  14.49ms DONE
+
+   INFO  Running migrations.  
+
+  0001_01_01_000000_create_users_table  53.09ms DONE
+  0001_01_01_000001_create_cache_table  17.02ms DONE
+  0001_01_01_000002_create_jobs_table  45.72ms DONE
+  2026_01_20_060520_create_emergency_calls_table  34.74ms DONE
+  2026_01_22_031157_create_basecamps_table  10.61ms DONE
+  2026_01_22_031158_create_ambulances_table  78.55ms DONE
+  2026_01_22_031158_create_hospitals_table  11.24ms DONE
+  2026_01_26_042955_add_status_to_users_table  3.17ms FAIL
+
+   Illuminate\Database\QueryException 
+
+  SQLSTATE[42S21]: Column already exists: 1060 Duplicate column name 'status' (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: db_regis, SQL: alter table `users` add `status` varchar(255) not null default 'active' after `password`)
+
+  at vendor\laravel\framework\src\Illuminate\Database\Connection.php:838
+    834Γûò             $exceptionType = $this->isUniqueConstraintError($e)
+    835Γûò                 ? UniqueConstraintViolationException::class
+    836Γûò                 : QueryException::class;
+    837Γûò 
+  Γ₧£ 838Γûò             throw new $exceptionType(
+    839Γûò                 $this->getNameWithReadWriteType(),
+    840Γûò                 $query,
+    841Γûò                 $this->prepareBindings($bindings),
+    842Γûò                 $e,
+
+  1   vendor\laravel\framework\src\Illuminate\Database\Connection.php:584
+      PDOException::("SQLSTATE[42S21]: Column already exists: 1060 Duplicate column name 'status'")
+
+  2   vendor\laravel\framework\src\Illuminate\Database\Connection.php:584
+      PDOStatement::execute()
+

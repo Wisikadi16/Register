@@ -43,29 +43,29 @@ class AuthenticatedSessionController extends Controller
 
         // Group admin
         if ($role === 'super_admin') {
-            return redirect()->intended(route('super-admin.dashboard', absolute: false));
+            return redirect()->route('super-admin.dashboard');
         }
 
         if (in_array($role, ['admin', 'ka', 'sie_rujukan', 'atem'])) {
-            return redirect()->intended(route('admin.dashboard', absolute: false));
+            return redirect()->route('admin.dashboard');
         }
 
         // Group operator
         if (in_array($role, ['operator'])) {
-            return redirect()->intended(route('operator.dashboard', absolute: false));
+            return redirect()->route('operator.dashboard');
         }
 
         // Group lapangan
         if (in_array($role, ['driver', 'nakes', 'peserta_bhd'])) {
-            return redirect()->intended(route('lapangan.dashboard', absolute: false));
+            return redirect()->route('lapangan.dashboard');
         }
 
         // Group faskes
         if (in_array($role, ['rumahsakit', 'klinik_utama', 'puskesmas', 'lab_medik'])) {
-            return redirect()->intended(route('faskes.dashboard', absolute: false));
+            return redirect()->route('faskes.dashboard');
         }
         if ($role === 'masyarakat') {
-            return redirect()->intended(route('dashboard', false));
+            return redirect()->route('dashboard');
         }
 
         // 🔴 ROLE TIDAK TERDAFTAR → TOLAK AKSES

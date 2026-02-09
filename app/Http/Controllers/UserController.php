@@ -35,7 +35,7 @@ class UserController extends Controller
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'password' => $request->password,
             'role' => $request->role, // Simpan Role yang dipilih
             'status' => 'active',
         ]);
@@ -85,7 +85,7 @@ class UserController extends Controller
             $request->validate([
                 'password' => ['confirmed', Rules\Password::defaults()],
             ]);
-            $data['password'] = Hash::make($request->password);
+            $data['password'] = $request->password;
         }
 
         $user->update($data);

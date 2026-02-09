@@ -24,7 +24,7 @@ class EmergencyController extends Controller
         $request->validate([
             'latitude' => 'required',
             'longitude' => 'required',
-            'description' => 'required|string',
+            'description' => 'nullable|string', // Ubah jadi nullable
             'photo' => 'nullable|image|max:5120', // Max 5MB
         ]);
 
@@ -71,7 +71,7 @@ class EmergencyController extends Controller
             'latitude' => $userLat,
             'longitude' => $userLng,
             'location' => "{$userLat}, {$userLng}",
-            'description' => $request->description,
+            'description' => $request->description ?? 'Panggilan Darurat (Tanpa Keterangan)',
             'photo' => $photoPath, // Simpan path foto
             'ambulance_id' => null, // Default
             'status' => 'pending', // Default

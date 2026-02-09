@@ -1,215 +1,186 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-red-600 leading-tight flex items-center gap-2">
-            <span class="animate-pulse">🚨</span> {{ __('PANGGILAN DARURAT (SOS)') }}
-        </h2>
-    </x-slot>
+    <div class="py-6 flex flex-col items-center justify-center min-h-[80vh] bg-gray-100 dark:bg-gray-900 px-4">
+        {{-- Header Section --}}
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-red-600 tracking-wider animate-pulse">DARURAT</h1>
+            <p class="text-gray-600 dark:text-gray-400 mt-2 text-sm" id="status-text">
+                <i class="fas fa-satellite-dish fa-spin mr-1"></i> Mencari lokasi Anda...
+            </p>
+        </div>
 
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+        {{-- Main Form --}}
+        <form id="sos-form" action="{{ route('emergency.store') }}" method="POST" enctype="multipart/form-data"
+            class="w-full max-w-md flex flex-col items-center gap-6">
+            @csrf
 
-    <div class="py-12 bg-gray-50 dark:bg-gray-900 min-h-screen">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <!-- Main Card -->
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-2xl sm:rounded-2xl border border-gray-100 dark:border-gray-700">
-                <div class="p-8">
+            {{-- Hidden Inputs for Geolocation --}}
+            <input type="hidden" name="latitude" id="latitude">
+            <input type="hidden" name="longitude" id="longitude">
 
-                    <!-- Header Section -->
-                    <div class="mb-8 border-b-2 border-red-500 pb-4 inline-block">
-                        <h2 class="text-3xl font-extrabold text-red-600 dark:text-red-500 tracking-tight">
-                            KONFIRMASI LOKASI KEJADIAN
-                        </h2>
-                        <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">
-                            Sistem melacak koordinat Anda. Geser pin pada peta jika lokasi kurang akurat.
-                        </p>
-                    </div>
+            {{-- Panic Button Container --}}
+            <div class="relative group">
+                {{-- Pulse Ring Effect --}}
+                <div class="absolute inset-0 bg-red-500 rounded-full opacity-75 animate-ping hidden" id="pulse-ring">
+                </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                {{-- Main Button --}}
+                <button type="submit" id="sos-btn" disabled
+                    class="relative w-64 h-64 bg-gray-400 rounded-full shadow-[0_0_30px_rgba(220,38,38,0.6)] flex flex-col items-center justify-center text-white transition-all duration-300 transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed border-4 border-white dark:border-gray-800">
+                    <span class="text-5xl font-extrabold tracking-widest drop-shadow-md">SOS</span>
+                    <span class="text-xs mt-2 opacity-80 uppercase tracking-wide">Tekan untuk Bantuan</span>
+                </button>
+            </div>
 
-                        <!-- Left Column: Map -->
-                        <div class="space-y-4">
-                            <div class="flex items-center justify-between">
-                                <h3 class="text-lg font-bold text-gray-700 dark:text-gray-300 flex items-center">
-                                    <span class="mr-2">📍</span> Titik Koordinat Anda
-                                </h3>
-                                <div id="gps-indicator" class="flex items-center gap-1.5">
-                                    <span class="relative flex h-3 w-3">
-                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-gray-400 opacity-75"></span>
-                                        <span id="indicator-dot" class="relative inline-flex rounded-full h-3 w-3 bg-gray-400"></span>
-                                    </span>
-                                    <span id="indicator-text" class="text-xs font-bold text-gray-400 uppercase tracking-widest">Mencari GPS...</span>
-                                </div>
-                            </div>
+            {{-- Optional Inputs Section --}}
+            <div class="w-full bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 mt-6 transition-all duration-300 transform translate-y-0 opacity-100"
+                id="extra-inputs">
 
-                            <div class="relative group">
-                                <div id="map" class="h-[450px] w-full rounded-2xl shadow-inner border-4 border-gray-100 dark:border-gray-600 z-0"></div>
-                                <div class="absolute bottom-4 left-4 bg-white/90 dark:bg-gray-800/90 backdrop-blur px-3 py-1 rounded shadow text-xs font-semibold text-gray-600 dark:text-gray-300 z-[400]">
-                                    Geser pin untuk penyesuaian lokasi presisi
-                                </div>
-                            </div>
-                        </div>
+                {{-- Photo Upload --}}
+                <div class="mb-4">
+                    <label
+                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
+                        <i class="fas fa-camera"></i> Foto Kejadian (Opsional)
+                    </label>
+                    <input type="file" name="photo" accept="image/*" capture="environment"
+                        class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 transition-colors">
+                </div>
 
-                        <!-- Right Column: Form -->
-                        <div class="flex flex-col justify-center">
-                            @if(session('error'))
-                                <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-r mb-6 animate-pulse">
-                                    <p class="font-bold">Gagal:</p>
-                                    <p>{{ session('error') }}</p>
-                                </div>
-                            @endif
-
-                            <form action="{{ route('emergency.store') }}" method="POST" class="space-y-6">
-                                @csrf
-
-                                <!-- Hidden Inputs for Coordinates -->
-                                <input type="hidden" name="latitude" id="latitude" required>
-                                <input type="hidden" name="longitude" id="longitude" required>
-
-                                <!-- Situasi Darurat -->
-                                <div>
-                                    <label for="description" class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
-                                        Kronologi / Situasi Darurat:
-                                    </label>
-                                    <textarea name="description" id="description" rows="5"
-                                        class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-4 focus:ring-red-200 focus:border-red-500 transition shadow-sm font-medium"
-                                        placeholder="Jelaskan kondisi saat ini (Contoh: Tabrakan beruntun 2 motor, 1 korban tidak sadar...)"
-                                        required></textarea>
-                                </div>
-
-                                <!-- Info Box -->
-                                <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 flex gap-3">
-                                    <span class="text-xl">ℹ️</span>
-                                    <p class="text-xs text-amber-800 dark:text-amber-200 leading-relaxed">
-                                        Dengan mengirimkan permintaan ini, lokasi Anda akan dikirim ke sistem <b>Auto-Assign</b> untuk menugaskan ambulan terdekat secara otomatis.
-                                    </p>
-                                </div>
-
-                                <!-- Submit Button -->
-                                <div>
-                                    <button type="submit" id="btn-submit"
-                                        class="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-extrabold py-5 px-6 rounded-2xl text-xl shadow-xl shadow-red-500/30 transition-all duration-300 transform hover:-translate-y-1 hover:scale-[1.02] flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                                        disabled>
-                                        <div id="btn-icon" class="animate-bounce">🚨</div>
-                                        KIRIM PERMINTAAN BANTUAN
-                                    </button>
-                                    
-                                    <p id="status-gps" class="text-center text-xs font-semibold text-gray-400 mt-4 tracking-wide uppercase italic">
-                                        Menunggu koordinat GPS yang valid...
-                                    </p>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
+                {{-- Description --}}
+                <div class="mb-2">
+                    <label
+                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
+                        <i class="fas fa-comment-medical"></i> Keterangan (Opsional)
+                    </label>
+                    <textarea name="description" rows="2"
+                        placeholder="Contoh: Kecelakaan motor, pingsan, sesak nafas..."
+                        class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:ring-red-500 focus:border-red-500 shadow-sm text-sm"></textarea>
                 </div>
             </div>
+
+            {{-- Alert Box (Hidden by default) --}}
+            <div id="error-alert"
+                class="hidden w-full bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md"
+                role="alert">
+                <p class="font-bold">Gagal Mendapatkan Lokasi</p>
+                <p class="text-sm">Mohon aktifkan GPS/Lokasi di browser Anda untuk menggunakan fitur ini.</p>
+                <button type="button" onclick="location.reload()"
+                    class="mt-2 text-xs bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">Coba Lagi</button>
+            </div>
+
+        </form>
+
+        {{-- Fullscreen Loading Overlay --}}
+        <div id="loading-overlay"
+            class="fixed inset-0 bg-gray-900 bg-opacity-90 z-50 flex flex-col items-center justify-center hidden">
+            <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-red-600 mb-4"></div>
+            <h2 class="text-white text-xl font-bold tracking-wider animate-pulse">MENGHUBUNGI OPERATOR...</h2>
+            <p class="text-gray-300 text-sm mt-2">Jangan tutup halaman ini.</p>
         </div>
     </div>
 
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-
+    {{-- Script for Logic --}}
     <script>
-        // 1. Inisialisasi Peta (Default Semarang)
-        var map = L.map('map').setView([-6.966667, 110.416664], 13);
+        document.addEventListener('DOMContentLoaded', function () {
+            const sosBtn = document.getElementById('sos-btn');
+            const statusText = document.getElementById('status-text');
+            const latInput = document.getElementById('latitude');
+            const lngInput = document.getElementById('longitude');
+            const pulseRing = document.getElementById('pulse-ring');
+            const errorAlert = document.getElementById('error-alert');
+            const form = document.getElementById('sos-form');
+            const loadingOverlay = document.getElementById('loading-overlay');
+            const pulseRingElement = document.getElementById('pulse-ring');
 
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; OpenStreetMap'
-        }).addTo(map);
-
-        var marker;
-        var dot = document.getElementById('indicator-dot');
-        var text = document.getElementById('indicator-text');
-        var statusLabel = document.getElementById('status-gps');
-        var submitBtn = document.getElementById('btn-submit');
-
-        // 2. Fungsi Deteksi Lokasi Otomatis
-        function getLocation() {
+            // 1. Get Geolocation on Load
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(showPosition, showError, {
+                // Tampilkan loading/mencari lokasi
+                sosBtn.disabled = true;
+
+                navigator.geolocation.getCurrentPosition(successLocation, errorLocation, {
                     enableHighAccuracy: true,
                     timeout: 10000,
                     maximumAge: 0
                 });
             } else {
-                alert("Browser Anda tidak mendukung Geolocation.");
+                showError("Browser tidak mendukung Geolocation.");
             }
-        }
 
-        // 3. Jika Lokasi Berhasil Didapatkan
-        function showPosition(position) {
-            var lat = position.coords.latitude;
-            var lng = position.coords.longitude;
+            // 2. Success Handler
+            function successLocation(position) {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
 
-            // Update Input Tersembunyi
-            document.getElementById('latitude').value = lat;
-            document.getElementById('longitude').value = lng;
+                latInput.value = lat;
+                lngInput.value = lng;
 
-            // Kelola Marker di Peta
-            if (marker) {
-                map.removeLayer(marker);
+                // Update UI: Ready state
+                sosBtn.removeAttribute('disabled');
+                sosBtn.classList.remove('bg-gray-400');
+                sosBtn.classList.add('bg-red-600', 'hover:bg-red-700');
+
+                statusText.innerHTML = '<i class="fas fa-map-marker-alt text-green-500"></i> Lokasi Ditemukan. Siap Panggil!';
+                statusText.classList.remove('text-gray-600');
+                statusText.classList.add('text-green-600', 'font-semibold');
+
+                // Activate animations
+                if (pulseRingElement) {
+                    pulseRingElement.classList.remove('hidden');
+                }
             }
-            
-            // Marker bisa digeser (draggable) jika GPS meleset
-            marker = L.marker([lat, lng], { 
-                draggable: true,
-                title: "Lokasi Anda"
-            }).addTo(map);
-            
-            map.setView([lat, lng], 17);
 
-            // Update UI Indikator
-            dot.classList.remove('bg-gray-400');
-            dot.classList.add('bg-green-500');
-            text.innerText = "GPS AKTIF";
-            text.classList.remove('text-gray-400');
-            text.classList.add('text-green-600');
+            // 3. Error Handler
+            function errorLocation(error) {
+                console.warn("Geolocation Error:", error);
 
-            // Aktifkan Tombol
-            submitBtn.removeAttribute('disabled');
-            statusLabel.innerText = "LOKASI DITEMUKAN. SILAKAN KIRIM PESAN DARURAT.";
-            statusLabel.classList.remove('text-gray-400');
-            statusLabel.classList.add('text-green-600');
+                let msg = "Gagal mendeteksi lokasi.";
+                switch (error.code) {
+                    case error.PERMISSION_DENIED:
+                        msg = "Izin lokasi ditolak. Harap izinkan akses lokasi.";
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        msg = "Informasi lokasi tidak tersedia.";
+                        break;
+                    case error.TIMEOUT:
+                        msg = "Waktu permintaan lokasi habis.";
+                        break;
+                }
+                showError(msg);
+            }
 
-            // Listener saat marker digeser manual
-            marker.on('dragend', function (event) {
-                var position = marker.getLatLng();
-                document.getElementById('latitude').value = position.lat;
-                document.getElementById('longitude').value = position.lng;
+            function showError(msg) {
+                sosBtn.setAttribute('disabled', 'true');
+                sosBtn.classList.add('bg-gray-400');
+                sosBtn.classList.remove('bg-red-600');
+
+                statusText.innerHTML = '<i class="fas fa-exclamation-triangle text-red-500"></i> ' + msg;
+                statusText.classList.remove('text-gray-600', 'text-green-600');
+                statusText.classList.add('text-red-500');
+
+                errorAlert.classList.remove('hidden');
+                // Use querySelector to safely find the p tag
+                const pTag = errorAlert.querySelectorAll('p')[1];
+                if (pTag) pTag.innerText = msg;
+            }
+
+            // 4. Form Submit Handler
+            form.addEventListener('submit', function (e) {
+                // Prevent multiple submits or submit without location
+                if (sosBtn.disabled) {
+                    e.preventDefault();
+                    return;
+                }
+
+                // Check again for latitude/longitude just in case
+                if (!latInput.value || !lngInput.value) {
+                    e.preventDefault();
+                    showError("Lokasi belum ditemukan!");
+                    return;
+                }
+
+                // Show Loading and Disable
+                loadingOverlay.classList.remove('hidden');
+                sosBtn.setAttribute('disabled', 'true');
             });
-        }
-
-        // 4. Penanganan Error GPS
-        function showError(error) {
-            var msg = "";
-            dot.classList.remove('bg-gray-400');
-            dot.classList.add('bg-red-500');
-            text.classList.remove('text-gray-400');
-            text.classList.add('text-red-600');
-
-            switch (error.code) {
-                case error.PERMISSION_DENIED:
-                    msg = "Izin lokasi ditolak.";
-                    break;
-                case error.POSITION_UNAVAILABLE:
-                    msg = "Lokasi tidak tersedia.";
-                    break;
-                case error.TIMEOUT:
-                    msg = "Waktu akses lokasi habis.";
-                    break;
-                case error.UNKNOWN_ERROR:
-                    msg = "Terjadi kesalahan sistem.";
-                    break;
-            }
-            text.innerText = "GPS ERROR";
-            statusLabel.innerText = "ERROR: " + msg + " Mohon izinkan GPS browser.";
-            statusLabel.classList.add('text-red-600');
-        }
-
-        // Jalankan pelacakan saat halaman terbuka
-        window.onload = getLocation;
+        });
     </script>
 </x-app-layout>

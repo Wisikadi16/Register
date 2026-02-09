@@ -1,61 +1,106 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-bold text-2xl text-gray-800 leading-tight">
-            📈 Rekap Pasien AH (Laporan Lengkap)
-        </h2>
-    </x-slot>
+    <div class="py-12 bg-slate-50 min-h-screen">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    
-                    <div class="flex justify-between items-center mb-6">
-                        <div>
-                            <h3 class="text-xl font-bold">Data Rekapitulasi Pasien</h3>
-                            <p class="text-sm text-gray-500">Menampilkan data pasien yang telah selesai ditangani (Status: Completed)</p>
-                        </div>
-                        <button onclick="window.print()" class="bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded shadow transition text-sm">
-                            🖨️ Cetak Rekap
-                        </button>
-                    </div>
+            <!-- Page Header -->
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div>
+                    <h2 class="text-3xl font-bold text-slate-800 tracking-tight">Rekapitulasi Pasien</h2>
+                    <p class="text-slate-500 mt-1">Data lengkap pasien yang telah selesai ditangani.</p>
+                </div>
+                <button onclick="window.print()"
+                    class="bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:shadow-slate-500/30 transition transform hover:-translate-y-1 flex items-center gap-2">
+                    <i class="fas fa-print"></i> Cetak Rekap
+                </button>
+            </div>
 
-                    <div class="overflow-x-auto border rounded-lg">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-100">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase">Waktu Kejadian</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase">Nama Pasien/Pelapor</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase">Alamat Lokasi</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase">Ambulans Penolong</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase">Rumah Sakit Rujukan</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase">Keterangan Medis</th>
+            <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden">
+                <div class="p-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
+                    <h3 class="font-bold text-lg text-slate-800 flex items-center gap-2">
+                        <span class="w-8 h-8 rounded-lg bg-teal-100 text-teal-600 flex items-center justify-center">
+                            <i class="fas fa-user-check"></i>
+                        </span>
+                        Data Pasien Selesai (Completed)
+                    </h3>
+                </div>
+
+                <div class="overflow-x-auto p-2">
+                    <table class="min-w-full divide-y divide-slate-50">
+                        <thead class="bg-white">
+                            <tr>
+                                <th
+                                    class="px-6 py-4 text-left text-xs font-black text-slate-400 uppercase tracking-wider">
+                                    Waktu Kejadian</th>
+                                <th
+                                    class="px-6 py-4 text-left text-xs font-black text-slate-400 uppercase tracking-wider">
+                                    Nama Pasien/Pelapor</th>
+                                <th
+                                    class="px-6 py-4 text-left text-xs font-black text-slate-400 uppercase tracking-wider">
+                                    Lokasi</th>
+                                <th
+                                    class="px-6 py-4 text-left text-xs font-black text-slate-400 uppercase tracking-wider">
+                                    Ambulans</th>
+                                <th
+                                    class="px-6 py-4 text-left text-xs font-black text-slate-400 uppercase tracking-wider">
+                                    RS Rujukan</th>
+                                <th
+                                    class="px-6 py-4 text-left text-xs font-black text-slate-400 uppercase tracking-wider">
+                                    Keterangan</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-slate-50 text-sm">
+                            @forelse($recap as $data)
+                                <tr class="hover:bg-slate-50 transition duration-150 group">
+                                    <td class="px-6 py-4 whitespace-nowrap font-bold text-slate-600">
+                                        {{ $data->created_at->format('d M Y H:i') }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap font-bold text-slate-800">
+                                        {{ $data->user->name }}
+                                    </td>
+                                    <td class="px-6 py-4 text-slate-500">
+                                        <div class="flex items-start gap-1">
+                                            <i class="fas fa-map-marker-alt text-red-400 mt-1 shrink-0"></i>
+                                            <span class="truncate max-w-[200px] block">{{ $data->location }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        @if($data->ambulance)
+                                            <div class="font-medium text-slate-700">{{ $data->ambulance->name }}</div>
+                                            <div class="text-[10px] text-slate-400">{{ $data->ambulance->plat_number }}</div>
+                                        @else
+                                            <span class="text-slate-400 italic">-</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        @if($data->hospital)
+                                            <span
+                                                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-teal-50 text-teal-700 font-bold text-xs border border-teal-100">
+                                                <i class="fas fa-hospital"></i> {{ $data->hospital->name }}
+                                            </span>
+                                        @else
+                                            <span class="text-slate-400 italic text-xs">Tidak dirujuk</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4 text-slate-500 italic max-w-[200px]">
+                                        {{ $data->description ?: '-' }}
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200 text-sm">
-                                @forelse($recap as $data)
-                                    <tr class="hover:bg-gray-50 transition">
-                                        <td class="px-6 py-4 whitespace-nowrap">{{ $data->created_at->format('d M Y H:i') }}</td>
-                                        <td class="px-6 py-4 font-bold text-gray-900">{{ $data->user->name }}</td>
-                                        <td class="px-6 py-4 text-gray-600">{{ $data->location }}</td>
-                                        <td class="px-6 py-4">
-                                            <span class="font-medium">{{ $data->ambulance->name ?? '-' }}</span>
-                                            <div class="text-xs text-gray-400">{{ $data->ambulance->plat_number ?? '' }}</div>
-                                        </td>
-                                        <td class="px-6 py-4 font-bold text-teal-700">{{ $data->hospital->name ?? 'Dibatalkan/Manual' }}</td>
-                                        <td class="px-6 py-4 text-gray-500 italic">{{ $data->description ?: '-' }}</td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="6" class="px-6 py-10 text-center text-gray-400 italic">Belum ada data pasien yang selesai ditangani.</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="px-6 py-12 text-center text-slate-400">
+                                        <div
+                                            class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-3">
+                                            <i class="fas fa-user-times text-2xl opacity-30"></i>
+                                        </div>
+                                        <p class="font-medium text-sm">Belum ada data pasien yang selesai ditangani.</p>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
+
         </div>
     </div>
 </x-app-layout>

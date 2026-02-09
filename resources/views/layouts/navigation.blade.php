@@ -6,7 +6,19 @@
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center gap-2">
                     <span class="text-3xl">🚑</span>
-                    <a href="{{ route('dashboard') }}"
+                    @php
+                        $homeRoute = 'dashboard';
+                        if (Auth::user()->role === 'super_admin') {
+                            $homeRoute = 'super-admin.dashboard';
+                        } elseif (Auth::user()->role === 'admin') {
+                            $homeRoute = 'admin.dashboard';
+                        } elseif (Auth::user()->role === 'operator') {
+                            $homeRoute = 'operator.dashboard';
+                        } elseif (in_array(Auth::user()->role, ['driver', 'nakes'])) {
+                            $homeRoute = 'lapangan.dashboard';
+                        }
+                    @endphp
+                    <a href="{{ route($homeRoute) }}"
                         class="text-white font-bold text-xl tracking-wider hover:text-gray-300 transition">
                         MEDZONE
                     </a>
@@ -147,8 +159,8 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden bg-gray-800">
         <div class="pt-2 pb-3 space-y-1">
-            @if(in_array(Auth::user()->role, ['super_admin', 'admin']))
-                <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
+            @if(Auth::user()->role == 'super_admin')
+                <x-responsive-nav-link :href="route('super-admin.dashboard')" :active="request()->routeIs('super-admin.dashboard')">
                     Dashboard
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
@@ -156,10 +168,37 @@
                 </x-responsive-nav-link>
             @endif
 
+            @if(Auth::user()->role == 'admin')
+                <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
+                    Dashboard
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.dinkes.reports')" :active="request()->routeIs('admin.dinkes.reports')">
+                    Kejadian
+                </x-responsive-nav-link>
+            @endif
+
             @if(Auth::user()->role == 'operator')
                 <x-responsive-nav-link :href="route('operator.dashboard')"
                     :active="request()->routeIs('operator.dashboard')">
                     Command Center
+                </x-responsive-nav-link>
+            @endif
+
+            @if(in_array(Auth::user()->role, ['driver', 'nakes']))
+                <x-responsive-nav-link :href="route('lapangan.dashboard')"
+                    :active="request()->routeIs('lapangan.dashboard')">
+                    Tugas Saya
+                </x-responsive-nav-link>
+            @endif
+
+            @if(Auth::user()->role == 'masyarakat')
+                <x-responsive-nav-link :href="route('dashboard')"
+                    :active="request()->routeIs('dashboard')">
+                    Home
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('emergency.create')"
+                    :active="request()->routeIs('emergency.*')" class="text-red-400 font-bold">
+                    Panggil Ambulan
                 </x-responsive-nav-link>
             @endif
         </div>

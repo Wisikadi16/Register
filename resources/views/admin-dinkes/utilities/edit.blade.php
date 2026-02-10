@@ -35,6 +35,16 @@
                             class="w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500">
                     </div>
 
+                    <div>
+                        <label class="block font-medium text-gray-700 mb-1">Status Pembayaran</label>
+                        <select name="status" required
+                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                            <option value="unpaid" {{ $utility->status == 'unpaid' ? 'selected' : '' }}>Belum Lunas
+                                (Unpaid)</option>
+                            <option value="paid" {{ $utility->status == 'paid' ? 'selected' : '' }}>Lunas (Paid)</option>
+                        </select>
+                    </div>
+
                     <div class="flex justify-end gap-2 pt-4">
                         <a href="{{ route('admin.dinkes.utilities.index') }}"
                             class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded shadow transition text-sm">

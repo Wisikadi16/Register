@@ -1,11 +1,22 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-bold text-2xl text-slate-800 dark:text-slate-200 leading-tight tracking-tight">
-            {{ __('Dashboard Overview') }}
-        </h2>
+        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+            <h2 class="text-3xl font-black text-gray-800 dark:text-white leading-tight">
+                Dashboard <span class="text-red-600">Pelayanan Darurat</span>
+            </h2>
+            <div
+                class="bg-white dark:bg-gray-800 px-4 py-2 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center gap-3">
+                <div class="p-2 bg-red-50 dark:bg-red-900/20 rounded-xl text-red-600">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                <div class="text-sm font-bold text-gray-700 dark:text-gray-300">
+                    {{ \Carbon\Carbon::now()->locale('id')->isoFormat('dddd, D MMMM Y') }}
+                </div>
+            </div>
+        </div>
     </x-slot>
 
-    <div class="py-8 min-h-screen bg-slate-50 dark:bg-slate-900">
+    <div class="py-12 min-h-screen bg-slate-50 dark:bg-slate-900">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
 
             {{-- Flash Message Success (Lebih Modern) --}}
@@ -100,93 +111,107 @@
                         </div>
                     </div>
 
-                    <div id="map" class="w-full h-96 rounded-2xl border-2 border-slate-200 dark:border-gray-600 z-0 text-slate-800"></div>
+                    <div id="map"
+                        class="w-full h-96 rounded-2xl border-2 border-slate-200 dark:border-gray-600 z-0 text-slate-800">
+                    </div>
                 </div>
 
                 @push('styles')
-                <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-                <style>
-                    /* Animasi berdenyut untuk marker user */
-                    .user-marker-icon {
-                        background-color: #3b82f6;
-                        border: 3px solid white;
-                        border-radius: 50%;
-                        width: 20px;
-                        height: 20px;
-                        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
-                        animation: pulse-blue 2s infinite;
-                    }
-                    @keyframes pulse-blue {
-                        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
-                        70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
-                        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
-                    }
-                </style>
+                    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+                    <style>
+                        /* Animasi berdenyut untuk marker user */
+                        .user-marker-icon {
+                            background-color: #3b82f6;
+                            border: 3px solid white;
+                            border-radius: 50%;
+                            width: 20px;
+                            height: 20px;
+                            box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+                            animation: pulse-blue 2s infinite;
+                        }
+
+                        @keyframes pulse-blue {
+                            0% {
+                                transform: scale(0.95);
+                                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+                            }
+
+                            70% {
+                                transform: scale(1);
+                                box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+                            }
+
+                            100% {
+                                transform: scale(0.95);
+                                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+                            }
+                        }
+                    </style>
                 @endpush
 
                 @push('scripts')
-                <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-                <script>
-                    document.addEventListener('DOMContentLoaded', function() {
-                        // Cek apakah elemen map ada
-                        var mapElement = document.getElementById('map');
-                        if (!mapElement) return;
+                    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            // Cek apakah elemen map ada
+                            var mapElement = document.getElementById('map');
+                            if (!mapElement) return;
 
-                        // 1. Inisialisasi Peta (Default ke Monas dulu sebelum dapat lokasi)
-                        var map = L.map('map').setView([-6.175392, 106.827153], 15);
+                            // 1. Inisialisasi Peta (Default ke Monas dulu sebelum dapat lokasi)
+                            var map = L.map('map').setView([-6.175392, 106.827153], 15);
 
-                        // 2. Pasang Tile Layer (OpenStreetMap - Gratis)
-                        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                            maxZoom: 19,
-                            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                        }).addTo(map);
+                            // 2. Pasang Tile Layer (OpenStreetMap - Gratis)
+                            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                maxZoom: 19,
+                                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                            }).addTo(map);
 
-                        // 3. Icon Custom
-                        var ambulanceIcon = L.icon({
-                            iconUrl: 'https://cdn-icons-png.flaticon.com/512/263/263086.png', // Gambar Ambulan
-                            iconSize: [40, 40],
-                            iconAnchor: [20, 20],
-                            popupAnchor: [0, -20]
+                            // 3. Icon Custom
+                            var ambulanceIcon = L.icon({
+                                iconUrl: 'https://cdn-icons-png.flaticon.com/512/263/263086.png', // Gambar Ambulan
+                                iconSize: [40, 40],
+                                iconAnchor: [20, 20],
+                                popupAnchor: [0, -20]
+                            });
+
+                            var userIcon = L.divIcon({ className: 'user-marker-icon' });
+
+                            // 4. Data Dummy Awal (Ganti dengan data real dari Backend nanti)
+                            var ambulanceId = "{{ $activeCall->ambulance_id ?? 1 }}";
+
+                            // Lokasi User (Pemanggil)
+                            var userLat = {{ $activeCall->latitude ?? -6.175392 }};
+                            var userLng = {{ $activeCall->longitude ?? 106.827153 }};
+                            var userMarker = L.marker([userLat, userLng], { icon: userIcon }).addTo(map).bindPopup("Lokasi Anda").openPopup();
+
+                            // Marker Ambulan (Akan bergerak)
+                            var ambulanceMarker = L.marker([userLat, userLng], { icon: ambulanceIcon }).addTo(map);
+
+                            // 5. Fungsi Update Lokasi Ambulan (Real-time Polling)
+                            function updateAmbulanceLocation() {
+                                fetch(`/api/ambulance/${ambulanceId}/location`)
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        if (data.latitude && data.longitude) {
+                                            var newLatLng = new L.LatLng(data.latitude, data.longitude);
+                                            ambulanceMarker.setLatLng(newLatLng); // Pindahkan marker
+
+                                            // Update popup info
+                                            ambulanceMarker.bindPopup(`<b>Ambulan ${data.unit}</b><br>Update: ${data.last_update}`).openPopup();
+
+                                            // Auto zoom supaya User & Ambulan masuk dalam layar
+                                            var group = new L.featureGroup([userMarker, ambulanceMarker]);
+                                            map.fitBounds(group.getBounds().pad(0.1));
+                                        }
+                                    })
+                                    .catch(error => console.error('Gagal ambil lokasi:', error));
+                            }
+
+                            // Jalankan update setiap 5 detik
+                            setInterval(updateAmbulanceLocation, 5000);
+                            updateAmbulanceLocation(); // Jalankan sekali di awal
                         });
-
-                        var userIcon = L.divIcon({ className: 'user-marker-icon' });
-
-                        // 4. Data Dummy Awal (Ganti dengan data real dari Backend nanti)
-                        var ambulanceId = "{{ $activeCall->ambulance_id ?? 1 }}"; 
-                        
-                        // Lokasi User (Pemanggil)
-                        var userLat = {{ $activeCall->latitude ?? -6.175392 }}; 
-                        var userLng = {{ $activeCall->longitude ?? 106.827153 }};
-                        var userMarker = L.marker([userLat, userLng], {icon: userIcon}).addTo(map).bindPopup("Lokasi Anda").openPopup();
-
-                        // Marker Ambulan (Akan bergerak)
-                        var ambulanceMarker = L.marker([userLat, userLng], {icon: ambulanceIcon}).addTo(map);
-
-                        // 5. Fungsi Update Lokasi Ambulan (Real-time Polling)
-                        function updateAmbulanceLocation() {
-                            fetch(`/api/ambulance/${ambulanceId}/location`)
-                                .then(response => response.json())
-                                .then(data => {
-                                    if(data.latitude && data.longitude) {
-                                        var newLatLng = new L.LatLng(data.latitude, data.longitude);
-                                        ambulanceMarker.setLatLng(newLatLng); // Pindahkan marker
-                                        
-                                        // Update popup info
-                                        ambulanceMarker.bindPopup(`<b>Ambulan ${data.unit}</b><br>Update: ${data.last_update}`).openPopup();
-                                        
-                                        // Auto zoom supaya User & Ambulan masuk dalam layar
-                                        var group = new L.featureGroup([userMarker, ambulanceMarker]);
-                                        map.fitBounds(group.getBounds().pad(0.1));
-                                    }
-                                })
-                                .catch(error => console.error('Gagal ambil lokasi:', error));
-                        }
-
-                        // Jalankan update setiap 5 detik
-                        setInterval(updateAmbulanceLocation, 5000);
-                        updateAmbulanceLocation(); // Jalankan sekali di awal
-                    });
-                </script>
+                    </script>
                 @endpush
             @else
                 {{-- SAFE STATE (Lebih Fresh & Calm) --}}
@@ -224,22 +249,32 @@
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
 
                 {{-- Emergency Button (Primary) --}}
+                {{-- Emergency Button (Primary - URGENT STYLE) --}}
                 <a href="{{ route('emergency.create') }}"
-                    class="col-span-2 group relative overflow-hidden bg-white dark:bg-gray-800 p-1 rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                    class="col-span-2 group relative overflow-hidden rounded-3xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                    <div class="absolute inset-0 bg-gradient-to-br from-red-600 to-rose-700"></div>
+
                     <div
-                        class="absolute inset-0 bg-gradient-to-r from-red-500 to-rose-500 opacity-0 group-hover:opacity-10 transition-opacity duration-300">
+                        class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] mix-blend-overlay">
                     </div>
+
                     <div
-                        class="h-full bg-white dark:bg-gray-800 rounded-[20px] p-6 border border-slate-100 dark:border-gray-700 flex flex-col items-center justify-center text-center gap-4 relative z-10">
+                        class="absolute -top-10 -right-10 w-32 h-32 bg-red-400 rounded-full blur-3xl opacity-30 animate-pulse">
+                    </div>
+
+                    <div
+                        class="h-full relative z-10 p-6 flex flex-col items-center justify-center text-center gap-4 text-white">
                         <div
-                            class="w-20 h-20 bg-red-50 dark:bg-red-900/20 rounded-2xl flex items-center justify-center text-4xl text-red-500 group-hover:scale-110 group-hover:bg-red-500 group-hover:text-white transition-all duration-300 shadow-sm">
-                            <i class="fas fa-procedures"></i>
+                            class="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center text-4xl shadow-inner group-hover:scale-110 transition-transform duration-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                stroke="currentColor" class="w-12 h-12 text-white animate-pulse">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                            </svg>
                         </div>
                         <div>
-                            <h3
-                                class="font-bold text-slate-800 dark:text-white text-xl group-hover:text-red-600 transition-colors">
-                                Panggil Ambulan</h3>
-                            <p class="text-sm text-slate-500 mt-1">Sinyal SOS Darurat</p>
+                            <h3 class="font-bold text-2xl tracking-tight drop-shadow-sm">Panggil Ambulan</h3>
+                            <p class="text-sm text-red-100 font-medium mt-1">Sinyal SOS Darurat (Klik Disini!)</p>
                         </div>
                     </div>
                 </a>
@@ -295,7 +330,7 @@
                                                 <div class="flex items-center gap-5">
                                                     <div
                                                         class="w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm text-lg shrink-0
-                                                                                                    {{ $call->status == 'completed' ? 'bg-emerald-100 text-emerald-600' :
+                                                                                                                                            {{ $call->status == 'completed' ? 'bg-emerald-100 text-emerald-600' :
                             ($call->status == 'cancelled' ? 'bg-slate-100 text-slate-500' :
                                 ($call->status == 'process' ? 'bg-amber-100 text-amber-600' : 'bg-red-100 text-red-600')) }}">
                                                         @if($call->status == 'completed') <i class="fas fa-check"></i>
@@ -322,7 +357,7 @@
 
                                                 <span
                                                     class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider
-                                                                                                {{ $call->status == 'completed' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
+                                                                                                                                        {{ $call->status == 'completed' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
                             ($call->status == 'cancelled' ? 'bg-slate-50 text-slate-500 border border-slate-100' :
                                 ($call->status == 'process' ? 'bg-amber-50 text-amber-600 border border-amber-100' : 'bg-red-50 text-red-600 border border-red-100')) }}">
                                                     {{ ucfirst($call->status) }}

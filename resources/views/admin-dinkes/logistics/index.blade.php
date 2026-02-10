@@ -167,14 +167,33 @@
                                             Rp {{ number_format($log->amount, 0, ',', '.') }}
                                         </td>
                                         <td class="px-6 py-4 text-center">
-                                            <span
-                                                class="px-3 py-1 text-[10px] rounded-full font-bold bg-blue-100 text-blue-700 uppercase border border-blue-200">
-                                                {{ $log->status }}
-                                            </span>
+                                            @if($log->status == 'completed')
+                                                <span class="px-3 py-1 text-[10px] rounded-full font-bold bg-emerald-100 text-emerald-700 uppercase border border-emerald-200">
+                                                    SELESAI
+                                                </span>
+                                            @else
+                                                <span class="px-3 py-1 text-[10px] rounded-full font-bold bg-amber-100 text-amber-700 uppercase border border-amber-200">
+                                                    PROSES
+                                                </span>
+                                            @endif
                                         </td>
                                         <td class="px-6 py-4 text-center">
                                             <div
-                                                class="flex justify-center gap-2 opacity-50 group-hover:opacity-100 transition">
+                                                class="flex justify-center gap-2 opacity-100 transition">
+                                                
+                                                @if($log->status != 'completed')
+                                                <form action="{{ route('admin.dinkes.logistics.mark-as-completed', $log->id) }}"
+                                                    method="POST">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <button type="submit"
+                                                        class="text-emerald-500 hover:text-white p-2 hover:bg-emerald-500 rounded-lg transition shadow-sm"
+                                                        title="Tandai Selesai">
+                                                        <i class="fas fa-check-circle"></i>
+                                                    </button>
+                                                </form>
+                                                @endif
+
                                                 <a href="{{ route('admin.dinkes.logistics.edit', $log->id) }}"
                                                     class="text-blue-500 hover:text-white p-2 hover:bg-blue-500 rounded-lg transition shadow-sm"
                                                     title="Edit">

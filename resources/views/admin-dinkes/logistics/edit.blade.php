@@ -49,6 +49,19 @@
                     </div>
 
                     <div>
+                        <label class="block font-medium text-gray-700 mb-1">Status Pengajuan</label>
+                        <select name="status" required
+                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option value="pending" {{ $logistic->status == 'pending' ? 'selected' : '' }}>Pending
+                                (Menunggu)</option>
+                            <option value="approved" {{ $logistic->status == 'approved' ? 'selected' : '' }}>Disetujui
+                                (Approved)</option>
+                            <option value="completed" {{ $logistic->status == 'completed' ? 'selected' : '' }}>Selesai
+                                (Completed)</option>
+                        </select>
+                    </div>
+
+                    <div>
                         <label class="block font-medium text-gray-700 mb-1">Keterangan Tambahan</label>
                         <textarea name="description" rows="3"
                             class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ old('description', $logistic->description) }}</textarea>

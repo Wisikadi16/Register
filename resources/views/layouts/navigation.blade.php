@@ -58,7 +58,7 @@
                         </x-nav-link>
                         <x-nav-link :href="route('admin.dinkes.inventory.index')"
                             :active="request()->routeIs('admin.dinkes.inventory.*')">
-                            Inventori
+                            Inventaris
                         </x-nav-link>
                         <x-nav-link :href="route('admin.dinkes.logistics.index')"
                             :active="request()->routeIs('admin.dinkes.logistics.*')">
@@ -160,7 +160,8 @@
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden bg-gray-800">
         <div class="pt-2 pb-3 space-y-1">
             @if(Auth::user()->role == 'super_admin')
-                <x-responsive-nav-link :href="route('super-admin.dashboard')" :active="request()->routeIs('super-admin.dashboard')">
+                <x-responsive-nav-link :href="route('super-admin.dashboard')"
+                    :active="request()->routeIs('super-admin.dashboard')">
                     Dashboard
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
@@ -172,7 +173,8 @@
                 <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
                     Dashboard
                 </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('admin.dinkes.reports')" :active="request()->routeIs('admin.dinkes.reports')">
+                <x-responsive-nav-link :href="route('admin.dinkes.reports')"
+                    :active="request()->routeIs('admin.dinkes.reports')">
                     Kejadian
                 </x-responsive-nav-link>
             @endif
@@ -192,12 +194,11 @@
             @endif
 
             @if(Auth::user()->role == 'masyarakat')
-                <x-responsive-nav-link :href="route('dashboard')"
-                    :active="request()->routeIs('dashboard')">
+                <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                     Home
                 </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('emergency.create')"
-                    :active="request()->routeIs('emergency.*')" class="text-red-400 font-bold">
+                <x-responsive-nav-link :href="route('emergency.create')" :active="request()->routeIs('emergency.*')"
+                    class="text-red-400 font-bold">
                     Panggil Ambulan
                 </x-responsive-nav-link>
             @endif

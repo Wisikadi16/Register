@@ -1,11 +1,21 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Dashboard Tim Lapangan') }}
-        </h2>
+        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+            <h2 class="text-3xl font-black text-gray-800 leading-tight">
+                Dashboard <span class="text-blue-600">Tim Lapangan</span>
+            </h2>
+            <div class="bg-white px-4 py-2 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-3">
+                <div class="p-2 bg-blue-50 rounded-xl text-blue-600">
+                    <i class="fas fa-ambulance"></i>
+                </div>
+                <div class="text-sm font-bold text-gray-700">
+                    {{ \Carbon\Carbon::now()->locale('id')->isoFormat('dddd, D MMMM Y') }}
+                </div>
+            </div>
+        </div>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-12 bg-slate-50 min-h-screen">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
             {{-- WELCOME CARD --}}
@@ -29,7 +39,7 @@
                                                 <span class="text-sm font-bold text-slate-400 uppercase tracking-wider">Status Unit</span>
                                                 <span
                                                     class="px-4 py-2 rounded-xl text-sm font-bold shadow-sm border
-                                                                                                                                    {{ $ambulance->status == 'ready' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                                                                                                                                                        {{ $ambulance->status == 'ready' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
                             ($ambulance->status == 'busy' ? 'bg-red-50 text-red-600 border-red-100' : 'bg-slate-50 text-slate-600 border-slate-100') }}">
                                                     <i
                                                         class="fas fa-circle text-[10px] mr-1.5 {{ $ambulance->status == 'ready' ? 'text-emerald-500' : ($ambulance->status == 'busy' ? 'text-red-500' : 'text-slate-400') }}"></i>

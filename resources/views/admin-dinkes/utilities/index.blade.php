@@ -123,14 +123,34 @@
                                             Rp {{ number_format($util->amount, 0, ',', '.') }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-center">
-                                            <span
-                                                class="px-3 py-1 text-[10px] rounded-full font-bold bg-green-100 text-green-700 uppercase border border-green-200">
-                                                {{ $util->status }}
-                                            </span>
+                                            @if($util->status == 'paid')
+                                                <span
+                                                    class="px-3 py-1 text-[10px] rounded-full font-bold bg-emerald-100 text-emerald-700 uppercase border border-emerald-200">
+                                                    LUNAS
+                                                </span>
+                                            @else
+                                                <span
+                                                    class="px-3 py-1 text-[10px] rounded-full font-bold bg-rose-100 text-rose-700 uppercase border border-rose-200">
+                                                    BELUM LUNAS
+                                                </span>
+                                            @endif
                                         </td>
                                         <td class="px-6 py-4 text-center">
-                                            <div
-                                                class="flex justify-center gap-2 opacity-50 group-hover:opacity-100 transition">
+                                            <div class="flex justify-center gap-2 opacity-100 transition">
+
+                                                @if($util->status == 'unpaid')
+                                                    <form action="{{ route('admin.dinkes.utilities.mark-as-paid', $util->id) }}"
+                                                        method="POST">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <button type="submit"
+                                                            class="text-emerald-500 hover:text-white p-2 hover:bg-emerald-500 rounded-lg transition shadow-sm"
+                                                            title="Tandai Lunas">
+                                                            <i class="fas fa-check-circle"></i>
+                                                        </button>
+                                                    </form>
+                                                @endif
+
                                                 <a href="{{ route('admin.dinkes.utilities.edit', $util->id) }}"
                                                     class="text-blue-500 hover:text-white p-2 hover:bg-blue-500 rounded-lg transition shadow-sm"
                                                     title="Edit">

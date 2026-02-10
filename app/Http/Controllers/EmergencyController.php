@@ -77,18 +77,17 @@ class EmergencyController extends Controller
             'status' => 'pending', // Default
         ];
 
-        // Jika berhasil mendapatkan ambulan
+        // 5. UPDATE: MATIKAN AUTO-DISPATCH
+        // Agar Operator memiliki kontrol penuh ("Mengatur"), kita tidak langsung assign.
+        // Sistem hanya memberikan rekomendasi jarak terdekat, tapi status tetap PENDING.
+
+        $callData['ambulance_id'] = null; // Biarkan null
+        $callData['status'] = 'pending'; // Wajib pending agar Operator bisa Terima/Tolak
+
         if ($assignedAmbulance) {
-            $callData['ambulance_id'] = $assignedAmbulance->id;
-            $callData['status'] = 'process';
-
-            // Update status ambulan jadi 'busy'
-            $assignedAmbulance->update(['status' => 'busy']);
-
-            $message = 'Ambulan ' . $assignedAmbulance->name . ' sedang menuju lokasi Anda! (Jarak: ' . round($shortestDistance, 2) . ' KM)';
+            // Kita bisa simpan 'recommended_ambulance_id' jika ada kolomnya, tapi saat ini cukup beri info di flash message atau biarkan Operator memilih sendiri.
+            $message = 'Permintaan terkirim! Sistem mendeteksi ambulan terdekat (' . $assignedAmbulance->name . '). Mohon tunggu konfirmasi Operator.';
         } else {
-            // JIKA SEMUA AMBULAN SIBUK / TIDAK KETEMU
-            // Tetap simpan, tapi status PENDING agar masuk dashboard operator
             $message = 'Mohon tunggu! Permintaan Anda telah masuk. Operator kami sedang mencarikan unit ambulan untuk Anda.';
         }
 
@@ -134,9 +133,9 @@ class EmergencyController extends Controller
         $newAmbulance = Ambulance::findOrFail($request->ambulance_id);
 
         // Validasi: Pastikan ambulan baru statusnya READY (kecuali memaksa/override, tapi sementara kita strict dulu)
-        if ($newAmbulance->status != 'ready') {
-            return redirect()->back()->with('error', 'Gagal menugaskan. Ambulan ' . $newAmbulance->name . ' sedang sibuk (BUSY).');
-        }
+        // if ($newAmbulance->status != 'ready') {
+        //     return redirect()->back()->with('error', 'Gagal menugaskan. Ambulan ' . $newAmbulance->name . ' sedang sibuk (BUSY).');
+        // }
 
         // 1. Jika sudah ada ambulan sebelumnya, bebaskan (set ready)
         if ($emergencyCall->ambulance_id) {

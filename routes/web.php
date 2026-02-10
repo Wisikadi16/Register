@@ -134,6 +134,7 @@ Route::middleware(['auth', 'role:admin,super_admin,ka,sie_rujukan,atem'])->prefi
     Route::post('/logistics', [\App\Http\Controllers\AdminDinkesController::class, 'logisticStore'])->name('admin.dinkes.logistics.store');
     Route::get('/logistics/{id}/edit', [\App\Http\Controllers\AdminDinkesController::class, 'logisticEdit'])->name('admin.dinkes.logistics.edit');
     Route::put('/logistics/{id}', [\App\Http\Controllers\AdminDinkesController::class, 'logisticUpdate'])->name('admin.dinkes.logistics.update');
+    Route::patch('/logistics/{id}/mark-as-completed', [\App\Http\Controllers\AdminDinkesController::class, 'logisticMarkAsCompleted'])->name('admin.dinkes.logistics.mark-as-completed');
     Route::delete('/logistics/{id}', [\App\Http\Controllers\AdminDinkesController::class, 'logisticDestroy'])->name('admin.dinkes.logistics.destroy');
 
     // Modul Utilitas
@@ -141,6 +142,7 @@ Route::middleware(['auth', 'role:admin,super_admin,ka,sie_rujukan,atem'])->prefi
     Route::post('/utilities', [\App\Http\Controllers\AdminDinkesController::class, 'utilityStore'])->name('admin.dinkes.utilities.store');
     Route::get('/utilities/{id}/edit', [\App\Http\Controllers\AdminDinkesController::class, 'utilityEdit'])->name('admin.dinkes.utilities.edit');
     Route::put('/utilities/{id}', [\App\Http\Controllers\AdminDinkesController::class, 'utilityUpdate'])->name('admin.dinkes.utilities.update');
+    Route::patch('/utilities/{id}/mark-as-paid', [\App\Http\Controllers\AdminDinkesController::class, 'utilityMarkAsPaid'])->name('admin.dinkes.utilities.mark-as-paid');
     Route::delete('/utilities/{id}', [\App\Http\Controllers\AdminDinkesController::class, 'utilityDestroy'])->name('admin.dinkes.utilities.destroy');
 
     // Rekap Pasien

@@ -5,7 +5,7 @@
             <!-- Page Header -->
             <div class="flex justify-between items-center">
                 <div>
-                    <h2 class="text-3xl font-bold text-slate-800 tracking-tight">Manajemen Inventori</h2>
+                    <h2 class="text-3xl font-bold text-slate-800 tracking-tight">Manajemen Inventaris</h2>
                     <p class="text-slate-500 mt-1">Monitoring stok alkes, obat, dan kebutuhan operasional.</p>
                 </div>
                 <div class="hidden md:flex gap-3">
@@ -110,7 +110,7 @@
                         </div>
 
                         <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-blue-500/30 transition transform hover:-translate-y-1 mt-4 flex items-center justify-center gap-2">
-                            <i class="fas fa-save"></i> Simpan ke Inventori
+                            <i class="fas fa-save"></i> Simpan ke Inventaris
                         </button>
                     </form>
                 </div>
@@ -201,7 +201,7 @@
                                             <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-3">
                                                  <i class="fas fa-box-open text-2xl opacity-50"></i>
                                             </div>
-                                            <p class="font-medium">Belum ada data inventori.</p>
+                                            <p class="font-medium">Belum ada data inventaris.</p>
                                         </td>
                                     </tr>
                                 @endforelse

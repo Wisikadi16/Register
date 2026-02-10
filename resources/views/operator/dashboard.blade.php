@@ -1,248 +1,284 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-bold text-xl text-gray-800 leading-tight">
-            🚑 Dashboard Operator Command Center
-        </h2>
-    </x-slot>
+    <div class="py-12 bg-slate-50 min-h-screen">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-
-            <!-- Welcome Card -->
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 border-l-4 border-blue-600">
-                <h3 class="font-bold text-lg text-gray-900">Halo, {{ Auth::user()->name }}!</h3>
-                <p class="text-gray-600">Pantau panggilan masuk, kelola penugasan, dan rujukan armada ambulan dari sini.
-                </p>
-            </div>
-
-            <!-- Emergency Calls List -->
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6">
-                    <h3 class="font-bold text-lg mb-4 text-red-600 flex items-center gap-2">
-                        🚨 Panggilan Darurat Masuk
-                        <span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">{{ $emergencies->count() }}
-                            Total</span>
-                    </h3>
-
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50 uppercase tracking-wider text-xs font-bold text-gray-500">
-                                <tr>
-                                    <th class="px-6 py-4 text-left">Waktu</th>
-                                    <th class="px-6 py-4 text-left">Pelapor</th>
-                                    <th class="px-6 py-4 text-left">Lokasi/Kejadian</th>
-                                    <th class="px-6 py-4 text-center">Status</th>
-                                    <th class="px-6 py-4 text-center">Armada & Tujuan</th>
-                                    <th class="px-6 py-4 text-center">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200 text-sm">
-                                @forelse($emergencies as $emergency)
-                                    <tr class="hover:bg-gray-50">
-                                        <td class="px-6 py-4 text-gray-500">
-                                            {{ $emergency->created_at->format('d/m/Y H:i') }}<br>
-                                            <span
-                                                class="text-xs text-gray-400">{{ $emergency->created_at->diffForHumans() }}</span>
-                                        </td>
-                                        <td class="px-6 py-4 font-bold">{{ $emergency->user->name ?? 'Anonim' }}</td>
-                                        <td class="px-6 py-4">
-                                            <div class="font-bold text-gray-900 truncate w-48"
-                                                title="{{ $emergency->description }}">
-                                                {{ $emergency->description }}
-                                            </div>
-                                            <div class="text-xs text-blue-600 mt-1 cursor-pointer hover:underline"
-                                                onclick="window.open('https://www.google.com/maps?q={{ $emergency->latitude }},{{ $emergency->longitude }}', '_blank')">
-                                                📍 Lihat Peta
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 text-center">
-                                            <span class="px-2 py-1 text-xs rounded-full font-bold uppercase
-                                                    @if($emergency->status == 'pending') bg-red-500 text-white animate-pulse
-                                                    @elseif($emergency->status == 'process') bg-yellow-400 text-yellow-900
-                                                    @elseif($emergency->status == 'cancelled') bg-gray-500 text-white
-                                                    @else bg-green-500 text-white @endif">
-                                                {{ $emergency->status }}
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4 text-center">
-                                            @if($emergency->ambulance)
-                                                <div class="font-bold text-blue-800">{{ $emergency->ambulance->name }}</div>
-                                                <div class="text-xs text-gray-500 mb-1">{{ $emergency->ambulance->plat_number }}
-                                                </div>
-                                            @else
-                                                <div class="text-gray-400 italic font-bold">- Belum Ada -</div>
-                                            @endif
-
-                                            @if($emergency->hospital)
-                                                <div class="mt-1 pt-1 border-t border-gray-200">
-                                                    <div class="text-xs text-gray-500">Tujuan:</div>
-                                                    <div class="font-bold text-green-700 text-xs">
-                                                        {{ $emergency->hospital->name }}</div>
-                                                </div>
-                                            @endif
-                                        </td>
-                                        <td class="px-6 py-4 text-center">
-                                            @if($emergency->status == 'pending' || $emergency->status == 'process')
-                                                <div class="flex flex-col gap-1">
-                                                    <!-- Assign/Re-assign -->
-                                                    <button
-                                                        onclick="openAssignModal({{ $emergency->id }}, '{{ $emergency->ambulance_id }}')"
-                                                        class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded text-xs shadow transition">
-                                                        🚑 Penugasan
-                                                    </button>
-
-                                                    <!-- Set Destination (Hanya jika process) -->
-                                                    @if($emergency->status == 'process')
-                                                        <button onclick="openDestinationModal({{ $emergency->id }})"
-                                                            class="bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-3 rounded text-xs shadow transition">
-                                                            🏥 Set Tujuan
-                                                        </button>
-                                                    @endif
-
-                                                    <!-- Cancel -->
-                                                    <button onclick="openCancelModal({{ $emergency->id }})"
-                                                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-1 px-3 rounded text-xs shadow transition">
-                                                        ❌ Batalkan
-                                                    </button>
-                                                </div>
-                                            @elseif($emergency->status == 'completed')
-                                                <span class="text-green-600 font-bold text-xs">✓ Selesai</span>
-                                            @elseif($emergency->status == 'cancelled')
-                                                <span class="text-gray-500 font-bold text-xs">✕ Dibatalkan</span>
-                                            @endif
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="6" class="px-6 py-8 text-center text-gray-500 italic">
-                                            Belum ada panggilan darurat.
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+            <!-- Header Section -->
+            <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
+                <div>
+                    <h2 class="text-3xl font-black text-gray-800">
+                        <span class="text-teal-600">Command</span> Center
+                    </h2>
+                    <p class="text-gray-500 mt-1">Monitoring operasional armada dan panggilan darurat real-time.</p>
+                </div>
+                <div class="bg-white px-4 py-2 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-3">
+                    <div class="p-2 bg-teal-50 rounded-xl text-teal-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <div class="text-sm font-bold text-gray-700">
+                        {{ \Carbon\Carbon::now()->locale('id')->isoFormat('dddd, D MMMM Y') }}
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Modal Penugasan Manual -->
-    <div id="assignModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
-        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-            <h3 class="text-lg leading-6 font-medium text-gray-900 text-center">Pilih Armada Ambulan</h3>
-            <div class="mt-2 text-center">
-                <form id="assignForm" method="POST" action="">
-                    @csrf
-                    <div class="mb-4 text-left">
-                        <label class="block text-sm font-bold text-gray-700 mb-2">Pilih Ambulan Ready:</label>
-                        <select name="ambulance_id" id="ambulanceSelect" required
-                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                            <option value="" disabled selected>-- Pilih Ambulan --</option>
-                            @foreach($ambulances as $amb)
-                                <option value="{{ $amb->id }}"
-                                    class="{{ $amb->status == 'busy' ? 'text-gray-400 bg-gray-100' : 'text-green-700 font-bold' }}"
-                                    {{ $amb->status == 'busy' ? 'disabled' : '' }}>
-                                    {{ $amb->name }} ({{ strtoupper($amb->status) }})
-                                </option>
+            <!-- Top Grid: Status & Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+
+                <!-- Card 1: Panggilan Aktif -->
+                <div
+                    class="bg-white rounded-[2rem] p-8 shadow-sm hover:shadow-lg transition duration-300 border border-gray-100 group relative overflow-hidden">
+                    <div
+                        class="absolute top-0 right-0 w-24 h-24 bg-red-50 rounded-bl-[100%] transition-all group-hover:scale-150 duration-500">
+                    </div>
+                    <div class="relative z-10">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">Panggilan Aktif</p>
+                                <h4 class="text-5xl font-black text-gray-800 mt-2 group-hover:text-red-600 transition">
+                                    {{ $emergencies->where('status', '!=', 'completed')->count() }}
+                                </h4>
+                            </div>
+                            <div class="p-4 bg-red-100 rounded-3xl text-red-600">
+                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z">
+                                    </path>
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="text-sm font-medium text-red-500 flex items-center gap-2">
+                            <span class="flex w-2 h-2 bg-red-600 rounded-full animate-pulse"></span>
+                            Membutuhkan Penanganan
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Card 2: Status Armada -->
+                <div
+                    class="bg-white rounded-[2rem] p-8 shadow-sm hover:shadow-lg transition duration-300 border border-gray-100 group relative overflow-hidden">
+                    <div
+                        class="absolute top-0 right-0 w-24 h-24 bg-green-50 rounded-bl-[100%] transition-all group-hover:scale-150 duration-500">
+                    </div>
+                    <div class="relative z-10 w-full">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="p-3 bg-green-100 rounded-2xl text-green-600">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800">Status Armada</h3>
+                        </div>
+                        <div class="space-y-3">
+                            @foreach($ambulances->take(3) as $amb)
+                                                    <div class="flex justify-between items-center bg-gray-50 p-3 rounded-2xl">
+                                                        <span class="font-bold text-gray-700 text-sm">{{ $amb->name }}</span>
+                                                        <span
+                                                            class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider
+                                                            {{ $amb->status == 'ready' ? 'bg-green-200 text-green-800' :
+                                ($amb->status == 'busy' ? 'bg-red-200 text-red-800' : 'bg-gray-200 text-gray-600') }}">
+                                                            {{ $amb->status }}
+                                                        </span>
+                                                    </div>
                             @endforeach
-                        </select>
+                            @if($ambulances->count() > 3)
+                                <div class="text-center mt-2">
+                                    <span class="text-xs font-bold text-gray-400">+{{ $ambulances->count() - 3 }}
+                                        Lainnya</span>
+                                </div>
+                            @endif
+                        </div>
                     </div>
-                    <div class="flex justify-center gap-2 mt-4">
-                        <button type="button" onclick="document.getElementById('assignModal').classList.add('hidden')"
-                            class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Batal</button>
-                        <button type="submit"
-                            class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Simpan</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+                </div>
 
-    <!-- Modal Set Destination -->
-    <div id="destinationModal"
-        class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
-        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-            <h3 class="text-lg leading-6 font-medium text-gray-900 text-center">Set Rumah Sakit Tujuan</h3>
-            <div class="mt-2 text-center">
-                <p class="text-sm text-gray-500 mb-4">Pilih RS rujukan berdasarkan ketersediaan Bed IGD.</p>
-                <form id="destinationForm" method="POST" action="">
-                    @csrf
-                    <div class="mb-4 text-left">
-                        <label class="block text-sm font-bold text-gray-700 mb-2">Pilih Rumah Sakit:</label>
-                        <select name="hospital_id" id="hospitalSelect" required
-                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
-                            <option value="" disabled selected>-- Pilih RS Tujuan --</option>
+                <!-- Card 3: Bed RS (Scrollable) -->
+                <div
+                    class="bg-white rounded-[2rem] p-8 shadow-sm hover:shadow-lg transition duration-300 border border-gray-100 group relative overflow-hidden">
+                    <div
+                        class="absolute top-0 right-0 w-24 h-24 bg-blue-50 rounded-bl-[100%] transition-all group-hover:scale-150 duration-500">
+                    </div>
+                    <div class="relative z-10 w-full h-full flex flex-col">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="p-3 bg-blue-100 rounded-2xl text-blue-600">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                                    </path>
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800">Ketersediaan Bed</h3>
+                        </div>
+                        <div class="overflow-y-auto max-h-[160px] pr-2 space-y-3 custom-scrollbar">
                             @foreach($hospitals as $rs)
-                                <option value="{{ $rs->id }}">
-                                    {{ $rs->name }} (Bed IGD: {{ $rs->available_bed_igd }})
-                                </option>
+                                <div
+                                    class="flex justify-between items-center bg-gray-50 p-3 rounded-2xl border-l-4 border-blue-400">
+                                    <span class="font-medium text-gray-700 text-xs truncate w-2/3">{{ $rs->name }}</span>
+                                    <span class="font-black text-blue-600 text-sm">{{ $rs->available_bed_igd }} Bed</span>
+                                </div>
                             @endforeach
-                        </select>
+                        </div>
                     </div>
-                    <div class="flex justify-center gap-2 mt-4">
-                        <button type="button"
-                            onclick="document.getElementById('destinationModal').classList.add('hidden')"
-                            class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Batal</button>
-                        <button type="submit"
-                            class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Tetapkan
-                            Tujuan</button>
-                    </div>
-                </form>
+                </div>
+
             </div>
+
+            <!-- Main List: Emergency Calls -->
+            <div class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-gray-100">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h3 class="text-2xl font-black text-gray-800">📞 Daftar Panggilan Darurat</h3>
+                        <p class="text-sm text-gray-500">Kelola dan tugaskan ambulan untuk setiap panggilan.</p>
+                    </div>
+                    <span
+                        class="px-5 py-2 bg-teal-50 text-teal-700 rounded-2xl font-bold text-sm border border-teal-100">
+                        Today: {{ $emergencies->count() }} Calls
+                    </span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr
+                                class="text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100">
+                                <th class="pb-4 pl-4">Waktu</th>
+                                <th class="pb-4">Pelapor</th>
+                                <th class="pb-4">Lokasi Kejadian</th>
+                                <th class="pb-4">Status</th>
+                                <th class="pb-4">Ambulan</th>
+                                <th class="pb-4 pr-4 text-right">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-50">
+                            @forelse($emergencies as $emergency)
+                                <tr class="hover:bg-gray-50 transition duration-200 group">
+                                    <td class="py-5 pl-4 font-mono text-sm text-gray-500">
+                                        {{ $emergency->created_at->format('H:i') }}</td>
+                                    <td class="py-5">
+                                        <div class="font-bold text-gray-800 group-hover:text-teal-600 transition">
+                                            {{ $emergency->user->name ?? 'Anonim' }}</div>
+                                        <div class="text-xs text-gray-400">{{ $emergency->user->phone_number ?? '-' }}</div>
+                                    </td>
+                                    <td class="py-5">
+                                        <div
+                                            class="max-w-xs truncate text-sm text-gray-600 bg-gray-50 px-3 py-1 rounded-xl">
+                                            {{ $emergency->address ?? 'Lokasi via GPS' }}
+                                        </div>
+                                    </td>
+                                    <td class="py-5">
+                                        @php
+                                            $badgeClass = match ($emergency->status) {
+                                                'pending' => 'bg-yellow-100 text-yellow-800',
+                                                'process' => 'bg-blue-100 text-blue-800',
+                                                'completed' => 'bg-green-100 text-green-800',
+                                                'cancelled' => 'bg-red-100 text-red-800',
+                                                default => 'bg-gray-100 text-gray-800'
+                                            };
+                                        @endphp
+                                        <span class="px-3 py-1 rounded-full text-xs font-black uppercase {{ $badgeClass }}">
+                                            {{ ucfirst($emergency->status) }}
+                                        </span>
+                                    </td>
+                                    <td class="py-5">
+                                        @if($emergency->ambulance)
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-2 h-2 rounded-full bg-teal-500"></div>
+                                                <span
+                                                    class="font-bold text-gray-700 text-sm">{{ $emergency->ambulance->name }}</span>
+                                            </div>
+                                        @else
+                                            <span class="text-gray-400 text-xs italic">- Belum assigned -</span>
+                                        @endif
+                                    </td>
+                                    <td class="py-5 pr-4 text-right">
+                                        @if($emergency->status == 'pending')
+                                            <form action="{{ route('operator.emergency.assign', $emergency->id) }}"
+                                                method="POST" class="inline-flex items-center gap-2">
+                                                @csrf
+                                                <select name="ambulance_id"
+                                                    class="text-xs border-gray-200 bg-gray-50 rounded-xl focus:ring-teal-500 py-2"
+                                                    required>
+                                                    <option value="">Pilih Unit...</option>
+                                                    @foreach($ambulances as $amb)
+                                                        @if($amb->status == 'ready' || $amb->status == 'busy')
+                                                            <option value="{{ $amb->id }}">{{ $amb->name }} ({{ $amb->status }})
+                                                            </option>
+                                                        @endif
+                                                    @endforeach
+                                                </select>
+                                                <button type="submit"
+                                                    class="bg-teal-600 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-teal-700 shadow-md hover:shadow-lg transition">
+                                                    Dispatch
+                                                </button>
+                                            </form>
+                                        @else
+                                            <div class="flex items-center justify-end gap-2">
+                                                <button class="text-blue-600 font-bold text-xs hover:underline">Detail</button>
+                                                @if($emergency->status != 'completed' && $emergency->status != 'cancelled')
+                                                    <form action="{{ route('operator.emergency.cancel', $emergency->id) }}"
+                                                        method="POST" onsubmit="return confirm('Batalkan?')">
+                                                        @csrf
+                                                        <button type="submit"
+                                                            class="w-8 h-8 rounded-full bg-red-50 text-red-500 hover:bg-red-100 flex items-center justify-center transition">
+                                                            <i class="fas fa-times text-xs"></i>
+                                                        </button>
+                                                    </form>
+                                                @endif
+                                            </div>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="py-12 text-center">
+                                        <div class="flex flex-col items-center justify-center">
+                                            <div
+                                                class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                                                <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                </svg>
+                                            </div>
+                                            <p class="text-gray-400 font-medium">Belum ada panggilan darurat hari ini.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
         </div>
     </div>
 
-    <!-- Modal Cancel -->
-    <div id="cancelModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
-        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-            <h3 class="text-lg leading-6 font-medium text-red-600 text-center">Batalkan Panggilan?</h3>
-            <div class="mt-2 text-center">
-                <p class="text-sm text-gray-500 mb-4">
-                    Tindakan ini akan membatalkan panggilan dan membebaskan ambulan yang bertugas.
-                </p>
-                <form id="cancelForm" method="POST" action="">
-                    @csrf
-                    <div class="mb-4 text-left">
-                        <label class="block text-sm font-bold text-gray-700 mb-2">Alasan Pembatalan:</label>
-                        <textarea name="cancellation_note" rows="3" required
-                            placeholder="Contoh: Prank, Salah Sambung, Sudah dibawa kendaraan sendiri..."
-                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"></textarea>
-                    </div>
-                    <div class="flex justify-center gap-2 mt-4">
-                        <button type="button" onclick="document.getElementById('cancelModal').classList.add('hidden')"
-                            class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Kembali</button>
-                        <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Batalkan
-                            Panggilan</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        function openAssignModal(id) {
-            document.getElementById('assignForm').action = `/operator/emergency/${id}/assign`;
-            document.getElementById('ambulanceSelect').value = "";
-            document.getElementById('assignModal').classList.remove('hidden');
+    @push('scripts')
+        <script>
+            // Auto-refresh halaman setiap 30 detik
+            setTimeout(function () {
+                window.location.reload(1);
+            }, 30000);
+        </script>
+    @endpush
+    <style>
+        /* Custom Scrollbar for Bed List */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
         }
 
-        function openDestinationModal(id) {
-            document.getElementById('destinationForm').action = `/operator/emergency/${id}/set-destination`;
-            document.getElementById('hospitalSelect').value = "";
-            document.getElementById('destinationModal').classList.remove('hidden');
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
         }
 
-        function openCancelModal(id) {
-            document.getElementById('cancelForm').action = `/operator/emergency/${id}/cancel`;
-            document.getElementById('cancelModal').classList.remove('hidden');
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
         }
 
-        // Close logic for clicking outside modals
-        window.onclick = function (event) {
-            if (event.target.classList.contains('fixed')) {
-                event.target.classList.add('hidden');
-            }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
         }
-    </script>
+    </style>
 </x-app-layout>

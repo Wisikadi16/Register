@@ -17,7 +17,7 @@ class AmbulanceLocationController extends Controller
         ]);
 
         $ambulance = Ambulance::findOrFail($id);
-        
+
         $ambulance->update([
             'latitude' => $request->latitude,
             'longitude' => $request->longitude,
@@ -43,15 +43,41 @@ class AmbulanceLocationController extends Controller
             'status' => $ambulance->status
         ]);
     }
-    
+
     // Ambil SEMUA lokasi (Dipakai oleh Dashboard Admin Monitoring)
     public function all()
     {
-        // Hanya ambil ambulan yang aktif dan punya lokasi
-        $ambulances = Ambulance::where('is_active', true)
-            ->whereNotNull('latitude')
-            ->get(['id', 'unit_number', 'police_number', 'latitude', 'longitude', 'status']);
+        // Ambil data latitude & longitude yang tidak null
+        $ambulances = Ambulance::whereNotNull('latitude')
+            ->whereNotNull('longitude')
+            ->get([
+                'id',
+                'name',
+                'plat_number',
+                'latitude',
+                'longitude',
+                'status',
+                'last_location_update'
+            ]);
 
-        return response()->json($ambulances);
+        // Format data agar lebih mudah dibaca frontend
+        $data = $ambulances->map(function ($amb) {
+            // Cek apakah data offline (lebih dari 1 jam tidak update)
+            $lastUpdate = \Carbon\Carbon::parse($amb->last_location_update);
+            $isOffline = $lastUpdate->diffInHours(now()) > 1;
+
+            return [
+                'id' => $amb->id,
+                'name' => $amb->name,
+                'plat_number' => $amb->plat_number,
+                'latitude' => $amb->latitude,
+                'longitude' => $amb->longitude,
+                'status' => $isOffline ? 'offline' : $amb->status, // Override status jika offline
+                'last_update' => $lastUpdate->diffForHumans(),
+                'speed' => '0 km/h', // Placeholder
+            ];
+        });
+
+        return response()->json($data);
     }
 }

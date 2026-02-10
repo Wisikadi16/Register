@@ -187,11 +187,19 @@ class AdminDinkesController extends Controller
             'type' => 'required|string',
             'amount' => 'required|numeric',
             'request_date' => 'required|date',
+            'status' => 'required|string|in:pending,approved,completed',
         ]);
 
         $logistic = Logistic::findOrFail($id);
         $logistic->update($request->all());
         return redirect()->route('admin.dinkes.logistics.index')->with('success', 'Data logistik berhasil diperbarui.');
+    }
+
+    public function logisticMarkAsCompleted($id)
+    {
+        $logistic = Logistic::findOrFail($id);
+        $logistic->update(['status' => 'completed']);
+        return redirect()->back()->with('success', 'Status logistik berhasil diperbarui menjadi Selesai.');
     }
 
     public function logisticDestroy($id)
@@ -232,11 +240,19 @@ class AdminDinkesController extends Controller
             'type' => 'required|string',
             'amount' => 'required|numeric',
             'billing_period' => 'required|string',
+            'status' => 'required|string|in:unpaid,paid',
         ]);
 
         $utility = Utility::findOrFail($id);
         $utility->update($request->all());
         return redirect()->route('admin.dinkes.utilities.index')->with('success', 'Data utilitas berhasil diperbarui.');
+    }
+
+    public function utilityMarkAsPaid($id)
+    {
+        $utility = Utility::findOrFail($id);
+        $utility->update(['status' => 'paid']);
+        return redirect()->back()->with('success', 'Tagihan berhasil ditandai LUNAS.');
     }
 
     public function utilityDestroy($id)

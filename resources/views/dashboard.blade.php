@@ -81,6 +81,113 @@
                         </div>
                     </div>
                 </div>
+
+                {{-- MAP TRACKING CARD --}}
+                <div
+                    class="mt-8 bg-white dark:bg-gray-800 rounded-[2rem] shadow-xl p-6 border border-slate-100 dark:border-gray-700">
+                    <div class="mb-6 flex justify-between items-center">
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                                <i class="fas fa-map-marked-alt text-blue-500"></i> Pantau Lokasi Ambulan
+                            </h3>
+                            <p class="text-slate-500 text-sm mt-1">Estimasi tiba: <span id="estimasi"
+                                    class="font-bold text-slate-800 dark:text-gray-200">- menit</span></p>
+                        </div>
+                        <div
+                            class="animate-pulse flex items-center gap-2 text-blue-600 bg-blue-50 px-3 py-1 rounded-full text-xs font-bold">
+                            <span class="w-2 h-2 bg-blue-600 rounded-full"></span>
+                            LIVE TRACKING
+                        </div>
+                    </div>
+
+                    <div id="map" class="w-full h-96 rounded-2xl border-2 border-slate-200 dark:border-gray-600 z-0 text-slate-800"></div>
+                </div>
+
+                @push('styles')
+                <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+                <style>
+                    /* Animasi berdenyut untuk marker user */
+                    .user-marker-icon {
+                        background-color: #3b82f6;
+                        border: 3px solid white;
+                        border-radius: 50%;
+                        width: 20px;
+                        height: 20px;
+                        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+                        animation: pulse-blue 2s infinite;
+                    }
+                    @keyframes pulse-blue {
+                        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+                        70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+                        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+                    }
+                </style>
+                @endpush
+
+                @push('scripts')
+                <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // Cek apakah elemen map ada
+                        var mapElement = document.getElementById('map');
+                        if (!mapElement) return;
+
+                        // 1. Inisialisasi Peta (Default ke Monas dulu sebelum dapat lokasi)
+                        var map = L.map('map').setView([-6.175392, 106.827153], 15);
+
+                        // 2. Pasang Tile Layer (OpenStreetMap - Gratis)
+                        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                            maxZoom: 19,
+                            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                        }).addTo(map);
+
+                        // 3. Icon Custom
+                        var ambulanceIcon = L.icon({
+                            iconUrl: 'https://cdn-icons-png.flaticon.com/512/263/263086.png', // Gambar Ambulan
+                            iconSize: [40, 40],
+                            iconAnchor: [20, 20],
+                            popupAnchor: [0, -20]
+                        });
+
+                        var userIcon = L.divIcon({ className: 'user-marker-icon' });
+
+                        // 4. Data Dummy Awal (Ganti dengan data real dari Backend nanti)
+                        var ambulanceId = "{{ $activeCall->ambulance_id ?? 1 }}"; 
+                        
+                        // Lokasi User (Pemanggil)
+                        var userLat = {{ $activeCall->latitude ?? -6.175392 }}; 
+                        var userLng = {{ $activeCall->longitude ?? 106.827153 }};
+                        var userMarker = L.marker([userLat, userLng], {icon: userIcon}).addTo(map).bindPopup("Lokasi Anda").openPopup();
+
+                        // Marker Ambulan (Akan bergerak)
+                        var ambulanceMarker = L.marker([userLat, userLng], {icon: ambulanceIcon}).addTo(map);
+
+                        // 5. Fungsi Update Lokasi Ambulan (Real-time Polling)
+                        function updateAmbulanceLocation() {
+                            fetch(`/api/ambulance/${ambulanceId}/location`)
+                                .then(response => response.json())
+                                .then(data => {
+                                    if(data.latitude && data.longitude) {
+                                        var newLatLng = new L.LatLng(data.latitude, data.longitude);
+                                        ambulanceMarker.setLatLng(newLatLng); // Pindahkan marker
+                                        
+                                        // Update popup info
+                                        ambulanceMarker.bindPopup(`<b>Ambulan ${data.unit}</b><br>Update: ${data.last_update}`).openPopup();
+                                        
+                                        // Auto zoom supaya User & Ambulan masuk dalam layar
+                                        var group = new L.featureGroup([userMarker, ambulanceMarker]);
+                                        map.fitBounds(group.getBounds().pad(0.1));
+                                    }
+                                })
+                                .catch(error => console.error('Gagal ambil lokasi:', error));
+                        }
+
+                        // Jalankan update setiap 5 detik
+                        setInterval(updateAmbulanceLocation, 5000);
+                        updateAmbulanceLocation(); // Jalankan sekali di awal
+                    });
+                </script>
+                @endpush
             @else
                 {{-- SAFE STATE (Lebih Fresh & Calm) --}}
                 <div
@@ -188,7 +295,7 @@
                                                 <div class="flex items-center gap-5">
                                                     <div
                                                         class="w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm text-lg shrink-0
-                                                                                {{ $call->status == 'completed' ? 'bg-emerald-100 text-emerald-600' :
+                                                                                                    {{ $call->status == 'completed' ? 'bg-emerald-100 text-emerald-600' :
                             ($call->status == 'cancelled' ? 'bg-slate-100 text-slate-500' :
                                 ($call->status == 'process' ? 'bg-amber-100 text-amber-600' : 'bg-red-100 text-red-600')) }}">
                                                         @if($call->status == 'completed') <i class="fas fa-check"></i>
@@ -215,7 +322,7 @@
 
                                                 <span
                                                     class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider
-                                                                            {{ $call->status == 'completed' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
+                                                                                                {{ $call->status == 'completed' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
                             ($call->status == 'cancelled' ? 'bg-slate-50 text-slate-500 border border-slate-100' :
                                 ($call->status == 'process' ? 'bg-amber-50 text-amber-600 border border-amber-100' : 'bg-red-50 text-red-600 border border-red-100')) }}">
                                                     {{ ucfirst($call->status) }}

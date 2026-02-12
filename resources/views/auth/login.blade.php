@@ -6,18 +6,18 @@
             class="hidden lg:flex w-1/2 bg-blue-900 flex-col justify-center items-center text-white relative overflow-hidden">
             <!-- Background Pattern/Image -->
             <div class="absolute inset-0 opacity-20 bg-cover bg-center"
-                style="background-image: url('https://i.pinimg.com/1200x/af/48/43/af48435a71106620efcfe205e38dab92.jpg'); background-blend-mode: multiply;">
+                style="background-image: url('https://pbs.twimg.com/profile_images/1888867171604037632/4TxJ_vsz_400x400.jpg'); background-blend-mode: multiply;">
             </div>
             <div class="absolute inset-0 bg-gradient-to-br from-blue-900 to-slate-900 opacity-20"></div>
 
             <div class="relative z-10 text-center px-12">
                 <div class="text-7xl mb-6 animate-pulse">🚑</div>
-                <h2 class="text-5xl font-extrabold mb-4 tracking-tight">MEDZONE</h2>
-                <h3 class="text-2xl font-semibold text-blue-200 mb-6">EMERGENCY 119</h3>
+                <h2 class="text-5xl font-extrabold mb-4 tracking-tight">AMBULAN HEBAT</h2>
+                <h3 class="text-2xl font-semibold text-blue-200 mb-6">EMERGENCY 112 </h3>
                 <div class="w-24 h-1 bg-blue-400 mx-auto rounded mb-6"></div>
                 <p class="text-blue-100 text-lg leading-relaxed max-w-md mx-auto">
                     Sistem Penanggulangan Gawat Darurat Terpadu.<br>
-                    <span class="text-white font-semibold">Cepat logic. Tepat. Selamat.</span>
+                    <span class="text-white font-semibold">Cepat. Tepat. Selamat.</span>
                 </p>
             </div>
 
@@ -94,7 +94,7 @@
 
                     <button
                         class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-blue-500/30 transition duration-300 transform hover:-translate-y-0.5 focus:outline-none focus:ring-4 focus:ring-blue-300">
-                        {{ __('MASUK AGENT') }}
+                        {{ __('MASUK') }}
                     </button>
 
                     <div class="mt-8 text-center text-sm text-slate-500">

@@ -77,15 +77,11 @@ class EmergencyController extends Controller
             'status' => 'pending', // Default
         ];
 
-        // 5. UPDATE: MATIKAN AUTO-DISPATCH
-        // Agar Operator memiliki kontrol penuh ("Mengatur"), kita tidak langsung assign.
-        // Sistem hanya memberikan rekomendasi jarak terdekat, tapi status tetap PENDING.
-
-        $callData['ambulance_id'] = null; // Biarkan null
-        $callData['status'] = 'pending'; // Wajib pending agar Operator bisa Terima/Tolak
+        $callData['ambulance_id'] = null; 
+        $callData['status'] = 'pending'; 
 
         if ($assignedAmbulance) {
-            // Kita bisa simpan 'recommended_ambulance_id' jika ada kolomnya, tapi saat ini cukup beri info di flash message atau biarkan Operator memilih sendiri.
+            
             $message = 'Permintaan terkirim! Sistem mendeteksi ambulan terdekat (' . $assignedAmbulance->name . '). Mohon tunggu konfirmasi Operator.';
         } else {
             $message = 'Mohon tunggu! Permintaan Anda telah masuk. Operator kami sedang mencarikan unit ambulan untuk Anda.';

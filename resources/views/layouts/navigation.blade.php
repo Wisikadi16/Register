@@ -20,7 +20,7 @@
                     @endphp
                     <a href="{{ route($homeRoute) }}"
                         class="text-white font-bold text-xl tracking-wider hover:text-gray-300 transition">
-                        MEDZONE
+                        AMBULAN HEBAT
                     </a>
                 </div>
 

@@ -6,7 +6,7 @@
             class="hidden lg:flex w-1/2 bg-blue-900 flex-col justify-center items-center text-white relative overflow-hidden">
             <!-- Background Pattern/Image -->
             <div class="absolute inset-0 opacity-20 bg-cover bg-center"
-                style="background-image: url('https://i.pinimg.com/1200x/af/48/43/af48435a71106620efcfe205e38dab92.jpg'); background-blend-mode: multiply;">
+                style="background-image: url('https://pbs.twimg.com/profile_images/1888867171604037632/4TxJ_vsz_400x400.jpg'); background-blend-mode: multiply;">
             </div>
             <div class="absolute inset-0 bg-gradient-to-br from-blue-900 to-slate-900 opacity-20"></div>
 

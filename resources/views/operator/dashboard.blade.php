@@ -6,7 +6,7 @@
             <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
                 <div>
                     <h2 class="text-3xl font-black text-gray-800">
-                        <span class="text-teal-600">Command</span> Center
+                        <span class="text-teal-600">Call</span> Center
                     </h2>
                     <p class="text-gray-500 mt-1">Monitoring operasional armada dan panggilan darurat real-time.</p>
                 </div>
@@ -23,9 +23,55 @@
                 </div>
             </div>
 
+            <!-- NEW: Menu Grid (Sesuai Flowchart) -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+                <!-- Menu 1: Input Jadwal -->
+                <a href="{{ route('operator.schedules.index') }}"
+                    class="group bg-white p-6 rounded-3xl shadow-sm border border-slate-100 hover:shadow-lg hover:border-teal-200 transition-all text-center">
+                    <div
+                        class="w-14 h-14 mx-auto bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 mb-4 group-hover:scale-110 transition">
+                        <i class="fas fa-calendar-alt text-2xl"></i>
+                    </div>
+                    <h3 class="font-bold text-gray-800 group-hover:text-blue-600 transition">Input Jadwal</h3>
+                    <p class="text-xs text-slate-400 mt-1">Shift Driver & Nakes</p>
+                </a>
+
+                <!-- Menu 2: Rekap Pasien -->
+                <a href="{{ route('operator.reports.index') }}"
+                    class="group bg-white p-6 rounded-3xl shadow-sm border border-slate-100 hover:shadow-lg hover:border-teal-200 transition-all text-center">
+                    <div
+                        class="w-14 h-14 mx-auto bg-purple-50 rounded-2xl flex items-center justify-center text-purple-600 mb-4 group-hover:scale-110 transition">
+                        <i class="fas fa-file-medical-alt text-2xl"></i>
+                    </div>
+                    <h3 class="font-bold text-gray-800 group-hover:text-purple-600 transition">Rekap Pasien</h3>
+                    <p class="text-xs text-slate-400 mt-1">Laporan & Histori</p>
+                </a>
+
+                <!-- Menu 3: Ambulan Swasta -->
+                <a href="{{ route('operator.ambulances.private') }}"
+                    class="group bg-white p-6 rounded-3xl shadow-sm border border-slate-100 hover:shadow-lg hover:border-teal-200 transition-all text-center">
+                    <div
+                        class="w-14 h-14 mx-auto bg-orange-50 rounded-2xl flex items-center justify-center text-orange-600 mb-4 group-hover:scale-110 transition">
+                        <i class="fas fa-ambulance text-2xl"></i>
+                    </div>
+                    <h3 class="font-bold text-gray-800 group-hover:text-orange-600 transition">Ambulan Swasta</h3>
+                    <p class="text-xs text-slate-400 mt-1">Kelola Unit Luar</p>
+                </a>
+
+                <!-- Menu 4: Hubungi Driver -->
+                <a href="{{ route('operator.contacts.index') }}"
+                    class="group bg-white p-6 rounded-3xl shadow-sm border border-slate-100 hover:shadow-lg hover:border-teal-200 transition-all text-center">
+                    <div
+                        class="w-14 h-14 mx-auto bg-green-50 rounded-2xl flex items-center justify-center text-green-600 mb-4 group-hover:scale-110 transition">
+                        <i class="fas fa-phone-alt text-2xl"></i>
+                    </div>
+                    <h3 class="font-bold text-gray-800 group-hover:text-green-600 transition">Hubungi Driver</h3>
+                    <p class="text-xs text-slate-400 mt-1">Kontak Cepat</p>
+                </a>
+            </div>
+
             <!-- Top Grid: Status & Stats -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-
                 <!-- Card 1: Panggilan Aktif -->
                 <div
                     class="bg-white rounded-[2rem] p-8 shadow-sm hover:shadow-lg transition duration-300 border border-gray-100 group relative overflow-hidden">
@@ -41,11 +87,7 @@
                                 </h4>
                             </div>
                             <div class="p-4 bg-red-100 rounded-3xl text-red-600">
-                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z">
-                                    </path>
-                                </svg>
+                                <i class="fas fa-phone-volume text-2xl"></i>
                             </div>
                         </div>
                         <p class="text-sm font-medium text-red-500 flex items-center gap-2">
@@ -64,10 +106,7 @@
                     <div class="relative z-10 w-full">
                         <div class="flex items-center gap-4 mb-6">
                             <div class="p-3 bg-green-100 rounded-2xl text-green-600">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                                </svg>
+                                <i class="fas fa-shipping-fast text-xl"></i>
                             </div>
                             <h3 class="text-xl font-bold text-gray-800">Status Armada</h3>
                         </div>
@@ -77,18 +116,12 @@
                                                         <span class="font-bold text-gray-700 text-sm">{{ $amb->name }}</span>
                                                         <span
                                                             class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider
-                                                            {{ $amb->status == 'ready' ? 'bg-green-200 text-green-800' :
+                                                                {{ $amb->status == 'ready' ? 'bg-green-200 text-green-800' :
                                 ($amb->status == 'busy' ? 'bg-red-200 text-red-800' : 'bg-gray-200 text-gray-600') }}">
                                                             {{ $amb->status }}
                                                         </span>
                                                     </div>
                             @endforeach
-                            @if($ambulances->count() > 3)
-                                <div class="text-center mt-2">
-                                    <span class="text-xs font-bold text-gray-400">+{{ $ambulances->count() - 3 }}
-                                        Lainnya</span>
-                                </div>
-                            @endif
                         </div>
                     </div>
                 </div>
@@ -102,11 +135,7 @@
                     <div class="relative z-10 w-full h-full flex flex-col">
                         <div class="flex items-center gap-4 mb-6">
                             <div class="p-3 bg-blue-100 rounded-2xl text-blue-600">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
-                                    </path>
-                                </svg>
+                                <i class="fas fa-procedures text-xl"></i>
                             </div>
                             <h3 class="text-xl font-bold text-gray-800">Ketersediaan Bed</h3>
                         </div>
@@ -121,7 +150,6 @@
                         </div>
                     </div>
                 </div>
-
             </div>
 
             <!-- Main List: Emergency Calls -->
@@ -154,10 +182,12 @@
                             @forelse($emergencies as $emergency)
                                 <tr class="hover:bg-gray-50 transition duration-200 group">
                                     <td class="py-5 pl-4 font-mono text-sm text-gray-500">
-                                        {{ $emergency->created_at->format('H:i') }}</td>
+                                        {{ $emergency->created_at->format('H:i') }}
+                                    </td>
                                     <td class="py-5">
                                         <div class="font-bold text-gray-800 group-hover:text-teal-600 transition">
-                                            {{ $emergency->user->name ?? 'Anonim' }}</div>
+                                            {{ $emergency->user->name ?? 'Anonim' }}
+                                        </div>
                                         <div class="text-xs text-gray-400">{{ $emergency->user->phone_number ?? '-' }}</div>
                                     </td>
                                     <td class="py-5">
@@ -235,11 +265,7 @@
                                         <div class="flex flex-col items-center justify-center">
                                             <div
                                                 class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
-                                                <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                                </svg>
+                                                <i class="fas fa-phone-slash text-3xl text-gray-300"></i>
                                             </div>
                                             <p class="text-gray-400 font-medium">Belum ada panggilan darurat hari ini.</p>
                                         </div>
@@ -263,7 +289,7 @@
         </script>
     @endpush
     <style>
-        /* Custom Scrollbar for Bed List */
+        /* Custom Scrollbar */
         .custom-scrollbar::-webkit-scrollbar {
             width: 4px;
         }

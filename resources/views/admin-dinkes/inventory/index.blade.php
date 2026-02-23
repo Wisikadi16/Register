@@ -13,6 +13,32 @@
                 </div>
             </div>
 
+            <!-- Category Tabs -->
+            <div class="border-b border-gray-200">
+                <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                    <a href="{{ route('admin.dinkes.inventory.index') }}"
+                       class="{{ !request('category') ? 'border-teal-500 text-teal-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                        Semua Barang
+                    </a>
+                    <a href="{{ route('admin.dinkes.inventory.index', ['category' => 'medicine']) }}"
+                       class="{{ request('category') == 'medicine' ? 'border-teal-500 text-teal-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                        💊 Obat-obatan
+                    </a>
+                    <a href="{{ route('admin.dinkes.inventory.index', ['category' => 'oxygen']) }}"
+                       class="{{ request('category') == 'oxygen' ? 'border-teal-500 text-teal-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                        💨 Oksigen
+                    </a>
+                    <a href="{{ route('admin.dinkes.inventory.index', ['category' => 'atk']) }}"
+                       class="{{ request('category') == 'atk' ? 'border-teal-500 text-teal-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                        📝 ATK
+                    </a>
+                    <a href="{{ route('admin.dinkes.inventory.index', ['category' => 'household']) }}"
+                       class="{{ request('category') == 'household' ? 'border-teal-500 text-teal-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                        🏠 Kebutuhan RT
+                    </a>
+                </nav>
+            </div>
+
             <!-- Stats Overview Cards (Medical Dashboard Style) -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <!-- Total Barang -->

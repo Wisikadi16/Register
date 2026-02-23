@@ -75,10 +75,17 @@ class AdminDinkesController extends Controller
     }
 
     // --- MODUL INVENTORI (Sesuai Use Case) ---
-    public function inventoryIndex()
+    public function inventoryIndex(Request $request)
     {
-        $inventories = Inventory::orderBy('category')->get();
-        return view('admin-dinkes.inventory.index', compact('inventories'));
+        $category = $request->query('category');
+        $query = Inventory::query();
+
+        if ($category) {
+            $query->where('category', $category);
+        }
+
+        $inventories = $query->orderBy('category')->get();
+        return view('admin-dinkes.inventory.index', compact('inventories', 'category'));
     }
 
     public function inventoryStore(Request $request)
@@ -273,4 +280,7 @@ class AdminDinkesController extends Controller
 
         return view('admin-dinkes.reports.patient-recap', compact('recap'));
     }
+
+
 }
+

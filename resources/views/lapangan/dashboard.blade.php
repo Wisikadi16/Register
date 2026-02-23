@@ -39,16 +39,80 @@
                                                 <span class="text-sm font-bold text-slate-400 uppercase tracking-wider">Status Unit</span>
                                                 <span
                                                     class="px-4 py-2 rounded-xl text-sm font-bold shadow-sm border
-                                                                                                                                                        {{ $ambulance->status == 'ready' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                                                                                                                                                                                                                                                            {{ $ambulance->status == 'ready' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
                             ($ambulance->status == 'busy' ? 'bg-red-50 text-red-600 border-red-100' : 'bg-slate-50 text-slate-600 border-slate-100') }}">
                                                     <i
                                                         class="fas fa-circle text-[10px] mr-1.5 {{ $ambulance->status == 'ready' ? 'text-emerald-500' : ($ambulance->status == 'busy' ? 'text-red-500' : 'text-slate-400') }}"></i>
                                                     {{ strtoupper($ambulance->status) }}
                                                 </span>
                                             </div>
+                                            <form action="{{ route('lapangan.update-status') }}" method="POST" class="inline-block ml-4">
+                                                @csrf
+                                                <input type="hidden" name="status"
+                                                    value="{{ $ambulance->status == 'ready' ? 'offline' : 'ready' }}">
+                                                <button type="submit"
+                                                    class="px-4 py-2 rounded-full font-bold text-white text-xs shadow-lg transition transform hover:scale-105
+                                                                                                                                                        {{ $ambulance->status == 'ready' ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-500 hover:bg-gray-600' }}">
+                                                    {{ $ambulance->status == 'ready' ? '🟢 SIAP TUGAS' : '⚫ ISTIRAHAT (OFF)' }}
+                                                </button>
+                                            </form>
+
                         @endif
                     </div>
                 </div>
+            </div>
+
+            {{-- MENU GRID (HYBRID DASHBOARD) --}}
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-2">
+                <!-- 1. Jadwal -->
+                <a href="{{ route('lapangan.schedules.index') }}"
+                    class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-blue-300 transition text-center group">
+                    <div
+                        class="w-12 h-12 mx-auto bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition">
+                        <i class="fas fa-calendar-alt text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 text-sm group-hover:text-blue-600">Input Jadwal</span>
+                </a>
+
+                <!-- 2. Pesan -->
+                <a href="{{ route('lapangan.messages.index') }}"
+                    class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-blue-300 transition text-center group">
+                    <div
+                        class="w-12 h-12 mx-auto bg-yellow-50 text-yellow-600 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition">
+                        <i class="fas fa-envelope text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 text-sm group-hover:text-yellow-600">Pesan Masuk</span>
+                </a>
+
+                <!-- 3. Order (Scroll) -->
+                <a href="#active-job-card"
+                    class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-blue-300 transition text-center group">
+                    <div
+                        class="w-12 h-12 mx-auto bg-red-50 text-red-600 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition">
+                        <i class="fas fa-exclamation-circle text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 text-sm group-hover:text-red-600">Order/Tugas</span>
+                </a>
+
+                <!-- 4. Sterilisasi -->
+                <a href="{{ route('lapangan.sterilizations.create') }}"
+                    class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-blue-300 transition text-center group">
+                    <div
+                        class="w-12 h-12 mx-auto bg-teal-50 text-teal-600 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition">
+                        <i class="fas fa-pump-soap text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 text-sm group-hover:text-teal-600">Lapor Sterilisasi</span>
+                </a>
+
+                <!-- 5. Respon Time -->
+                <a href="{{ route('lapangan.performance.index') }}"
+                    class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-blue-300 transition text-center group">
+                    <div
+                        class="w-12 h-12 mx-auto bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition">
+                        <i class="fas fa-stopwatch text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 text-sm group-hover:text-purple-600">Respon Time</span>
+                </a>
             </div>
 
             {{-- GPS TRACKER CARD --}}
@@ -86,7 +150,7 @@
 
             {{-- ACTIVE JOB CARD --}}
             @if(isset($activeJob) && $activeJob)
-                <div
+                <div id="active-job-card"
                     class="bg-white rounded-[2rem] shadow-2xl shadow-red-500/10 border-2 border-red-100 overflow-hidden relative group">
                     <div class="absolute top-0 left-0 w-full h-2 bg-red-500 animate-loading-bar"></div>
 
@@ -133,6 +197,11 @@
                                 class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-center font-bold py-4 px-6 rounded-2xl text-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2">
                                 <i class="fas fa-location-arrow"></i> NAVIGASI MAPS
                             </a>
+
+                            <button onclick="document.getElementById('medicalModal').classList.remove('hidden')"
+                                class="flex-1 bg-purple-600 text-white font-bold py-4 px-6 rounded-2xl text-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2">
+                                <i class="fas fa-notes-medical"></i> INPUT MEDIS
+                            </button>
 
                             <form action="{{ route('lapangan.finish', $activeJob->id) }}" method="POST" class="flex-1">
                                 @csrf
@@ -231,6 +300,191 @@
             @endif
 
         </div>
+
+        {{-- MODAL INPUT MEDIS --}}
+        <div id="medicalModal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto">
+                <h3 class="text-xl font-bold mb-4">Rekam Medis Lapangan</h3>
+                <form action="{{ route('lapangan.medical-record.store') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <input type="hidden" name="emergency_call_id" value="{{ $activeJob->id ?? '' }}">
+
+                    <div class="grid grid-cols-2 gap-4 mb-3">
+                        <input type="text" name="tensi" placeholder="Tensi (120/80)"
+                            class="w-full rounded-lg border-gray-300">
+                        <input type="number" name="nadi" placeholder="Nadi (bpm)"
+                            class="w-full rounded-lg border-gray-300">
+                        <input type="number" step="0.1" name="suhu" placeholder="Suhu (C)"
+                            class="w-full rounded-lg border-gray-300">
+                        <input type="number" name="nafas" placeholder="Nafas (x/m)"
+                            class="w-full rounded-lg border-gray-300">
+                    </div>
+
+                    <textarea name="keluhan_utama" placeholder="Keluhan Utama"
+                        class="w-full rounded-lg border-gray-300 mb-3"></textarea>
+                    <textarea name="tindakan" placeholder="Tindakan yang dilakukan"
+                        class="w-full rounded-lg border-gray-300 mb-3"></textarea>
+
+                    <label class="block text-sm font-bold mb-1">Foto Kejadian</label>
+                    <input type="file" name="foto_kejadian" class="block w-full text-sm mb-4">
+
+                    <div class="flex justify-end gap-2">
+                        <button type="button" onclick="document.getElementById('medicalModal').classList.add('hidden')"
+                            class="bg-gray-200 px-4 py-2 rounded-lg font-bold">Batal</button>
+                        <button type="submit"
+                            class="bg-purple-600 text-white px-4 py-2 rounded-lg font-bold">Simpan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {{-- DISASTER REPORT BUTTON --}}
+        <button onclick="document.getElementById('disasterModal').classList.remove('hidden')"
+            class="fixed bottom-24 right-6 z-50 w-16 h-16 bg-orange-500 rounded-full shadow-2xl border-4 border-white flex items-center justify-center text-white hover:scale-110 transition group">
+            <i class="fas fa-bullhorn text-2xl group-hover:animate-wobble"></i>
+            <span
+                class="absolute right-20 bg-orange-600 text-white text-xs font-bold px-3 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition whitespace-nowrap">
+                Lapor Bencana
+            </span>
+        </button>
+
+        {{-- MODAL LAPOR BENCANA --}}
+        <div id="disasterModal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold text-gray-800">🚑 Laporan Bencana (RHA)</h3>
+                    <button onclick="document.getElementById('disasterModal').classList.add('hidden')"
+                        class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <form action="{{ route('lapangan.disaster-report.store') }}" method="POST"
+                    enctype="multipart/form-data">
+                    @csrf
+                    <!-- Lokasi Otomatis (Hidden) -->
+                    <input type="hidden" name="latitude" id="rha_lat">
+                    <input type="hidden" name="longitude" id="rha_long">
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">Judul Kejadian</label>
+                            <input type="text" name="title" placeholder="Contoh: Tanah Longsor Desa X" required
+                                class="w-full rounded-xl border-gray-200 focus:border-orange-500 focus:ring-orange-500">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">Lokasi</label>
+                            <input type="text" name="location" placeholder="Nama Jalan / Area" required
+                                class="w-full rounded-xl border-gray-200 focus:border-orange-500 focus:ring-orange-500">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">Deskripsi Kejadian &
+                                Kerusakan</label>
+                            <textarea name="description" rows="3" placeholder="Jelaskan situasi dan kerusakan..."
+                                required
+                                class="w-full rounded-xl border-gray-200 focus:border-orange-500 focus:ring-orange-500"></textarea>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase">Luka Ringan</label>
+                                <input type="number" name="casualties_light" value="0" min="0"
+                                    class="w-full rounded-xl border-gray-200">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase">Luka Berat</label>
+                                <input type="number" name="casualties_heavy" value="0" min="0"
+                                    class="w-full rounded-xl border-gray-200">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase">Meninggal</label>
+                                <input type="number" name="casualties_deceased" value="0" min="0"
+                                    class="w-full rounded-xl border-gray-200">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase">Hilang</label>
+                                <input type="number" name="casualties_missing" value="0" min="0"
+                                    class="w-full rounded-xl border-gray-200">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">Foto Bukti</label>
+                            <input type="file" name="photo_proof" accept="image/*" required
+                                class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
+                        </div>
+                    </div>
+
+                    <div class="mt-6 flex justify-end gap-2">
+                        <button type="button" onclick="document.getElementById('disasterModal').classList.add('hidden')"
+                            class="px-5 py-2.5 rounded-xl font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 transition">
+                            Batal
+                        </button>
+                        <button type="submit" onclick="return confirm('Kirim Laporan Bencana?')"
+                            class="px-5 py-2.5 rounded-xl font-bold text-white bg-orange-600 hover:bg-orange-700 shadow-lg hover:shadow-orange-500/30 transition">
+                            Kirim Laporan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {{-- PANIC BUTTON --}}
+        <button onclick="triggerPanic()"
+            class="fixed bottom-6 right-6 z-50 w-16 h-16 bg-red-600 rounded-full shadow-2xl border-4 border-white flex items-center justify-center animate-pulse text-white hover:scale-110 transition">
+            <i class="fas fa-exclamation-triangle text-2xl"></i>
+        </button>
+
+        <script>
+            function triggerPanic() {
+                if (!confirm("DARURAT: Kirim sinyal bahaya ke pusat?")) return;
+
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function (position) {
+                        fetch("{{ route('lapangan.panic-button') }}", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                            },
+                            body: JSON.stringify({
+                                latitude: position.coords.latitude,
+                                longitude: position.coords.longitude
+                            })
+                        }).then(res => res.json()).then(data => {
+                            alert(data.message);
+                        });
+                    });
+                } else {
+                    alert("GPS mati.");
+                }
+            }
+        </script>
+        <script>
+            // Auto-fill Location when RHA Modal Opens
+            const rhaModal = document.getElementById('disasterModal');
+            if (rhaModal) {
+                const observer = new MutationObserver(function (mutations) {
+                    mutations.forEach(function (mutation) {
+                        if (mutation.attributeName === "class") {
+                            if (!rhaModal.classList.contains('hidden')) {
+                                // Modal Opened - Get Location
+                                if (navigator.geolocation) {
+                                    navigator.geolocation.getCurrentPosition(function (position) {
+                                        document.getElementById('rha_lat').value = position.coords.latitude;
+                                        document.getElementById('rha_long').value = position.coords.longitude;
+                                        // Optional: Reverse Geocoding here if needed
+                                    });
+                                }
+                            }
+                        }
+                    });
+                });
+                observer.observe(rhaModal, { attributes: true });
+            }
+        </script>
     </div>
     @push('scripts')
         {{-- SweetAlert2 --}}

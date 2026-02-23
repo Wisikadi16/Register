@@ -41,7 +41,7 @@ class DatabaseSeeder extends Seeder
 
         // 3. KA (Koordinator)
         User::create([
-            'name' => 'Ibu Koordinator',
+            'name' => 'Koordinator',
             'email' => 'ka@dinkes.com',
             'password' => $password,
             'role' => 'ka',

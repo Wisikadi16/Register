@@ -304,6 +304,20 @@
                         <p class="text-xs text-slate-500 mt-1">Pertolongan Pertama</p>
                     </div>
                 </a>
+
+                {{-- Data Bencana (PUSAKA) --}}
+                <a href="https://lookerstudio.google.com/reporting/b6f0e801-078f-479e-aa20-3975c4d6d0c1/page/RmqZF"
+                    target="_blank"
+                    class="group bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-gray-700 hover:shadow-lg hover:border-teal-200 transition-all duration-300 hover:-translate-y-1 flex flex-col items-center justify-center text-center gap-4">
+                    <div
+                        class="w-16 h-16 bg-teal-50 dark:bg-teal-900/20 rounded-2xl flex items-center justify-center text-2xl text-teal-600 group-hover:rotate-12 transition-transform duration-300">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-800 dark:text-white text-lg">Data Krisis</h3>
+                        <p class="text-xs text-slate-500 mt-1">Monitoring PUSAKA</p>
+                    </div>
+                </a>
             </div>
 
             {{-- 3. CONTENT SECTION --}}
@@ -330,7 +344,7 @@
                                                 <div class="flex items-center gap-5">
                                                     <div
                                                         class="w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm text-lg shrink-0
-                                                                                                                                            {{ $call->status == 'completed' ? 'bg-emerald-100 text-emerald-600' :
+                                                                                                                                                                {{ $call->status == 'completed' ? 'bg-emerald-100 text-emerald-600' :
                             ($call->status == 'cancelled' ? 'bg-slate-100 text-slate-500' :
                                 ($call->status == 'process' ? 'bg-amber-100 text-amber-600' : 'bg-red-100 text-red-600')) }}">
                                                         @if($call->status == 'completed') <i class="fas fa-check"></i>
@@ -357,7 +371,7 @@
 
                                                 <span
                                                     class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider
-                                                                                                                                        {{ $call->status == 'completed' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
+                                                                                                                                                            {{ $call->status == 'completed' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
                             ($call->status == 'cancelled' ? 'bg-slate-50 text-slate-500 border border-slate-100' :
                                 ($call->status == 'process' ? 'bg-amber-50 text-amber-600 border border-amber-100' : 'bg-red-50 text-red-600 border border-red-100')) }}">
                                                     {{ ucfirst($call->status) }}

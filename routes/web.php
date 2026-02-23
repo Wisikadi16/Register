@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\EmergencyController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\HospitalController;
+use App\Http\Controllers\LapanganController;
 
 /*
 |--------------------------------------------------------------------------
@@ -111,7 +112,7 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('super-admin')->group(fu
 // GROUP 2B: ADMIN DINAS KESEHATAN (OPERASIONAL)
 // Fokus: Monitoring, Laporan, Statistik, Inventori
 // ====================================================
-Route::middleware(['auth', 'role:admin,super_admin,ka,sie_rujukan,atem'])->prefix('admin')->group(function () {
+Route::middleware(['auth', 'role:admin,super_admin,ka,sie_rujukan'])->prefix('admin')->group(function () {
 
     // Dashboard Admin Dinas
     Route::get('/dashboard', [\App\Http\Controllers\AdminDinkesController::class, 'dashboard'])->name('admin.dashboard');
@@ -145,13 +146,16 @@ Route::middleware(['auth', 'role:admin,super_admin,ka,sie_rujukan,atem'])->prefi
     Route::patch('/utilities/{id}/mark-as-paid', [\App\Http\Controllers\AdminDinkesController::class, 'utilityMarkAsPaid'])->name('admin.dinkes.utilities.mark-as-paid');
     Route::delete('/utilities/{id}', [\App\Http\Controllers\AdminDinkesController::class, 'utilityDestroy'])->name('admin.dinkes.utilities.destroy');
 
+    // Modul Maintenance (Baru)
+    Route::resource('maintenance', \App\Http\Controllers\AdminMaintenanceController::class)->names('admin.dinkes.maintenance');
+
+    // Modul Referral / Rujukan (Baru)
+    Route::get('/referrals', [\App\Http\Controllers\AdminReferralController::class, 'index'])->name('admin.dinkes.referrals.index');
+    Route::put('/referrals/{id}', [\App\Http\Controllers\AdminReferralController::class, 'update'])->name('admin.dinkes.referrals.update');
+
     // Rekap Pasien
     Route::get('/patient-recap', [\App\Http\Controllers\AdminDinkesController::class, 'patientRecap'])->name('admin.dinkes.patient-recap');
 
-    // Integrasi PUSAKA (Dashboard Embed)
-    Route::get('/pusaka', function () {
-        return view('admin.pusaka');
-    })->name('admin.pusaka');
 });
 
 
@@ -159,13 +163,23 @@ Route::middleware(['auth', 'role:admin,super_admin,ka,sie_rujukan,atem'])->prefi
 // GROUP 3: OPERATOR (CALL CENTER)
 // ====================================================
 Route::middleware(['auth', 'role:operator,super_admin,ka'])->prefix('operator')->group(function () {
-    Route::get('/dashboard', function () {
-        $emergencies = \App\Models\EmergencyCall::with(['user', 'ambulance', 'hospital'])
-            ->orderBy('created_at', 'desc')->get();
-        $ambulances = \App\Models\Ambulance::all();
-        $hospitals = \App\Models\Hospital::orderBy('name')->get();
-        return view('operator.dashboard', compact('emergencies', 'ambulances', 'hospitals'));
-    })->name('operator.dashboard');
+    // 1. Dashboard Utama
+    Route::get('/dashboard', [\App\Http\Controllers\OperatorController::class, 'dashboard'])->name('operator.dashboard');
+
+    // 2. Menu Input Jadwal
+    Route::get('/schedules', [\App\Http\Controllers\OperatorController::class, 'scheduleIndex'])->name('operator.schedules.index');
+    Route::post('/schedules', [\App\Http\Controllers\OperatorController::class, 'scheduleStore'])->name('operator.schedules.store');
+
+    // 3. Menu Rekap Laporan Pasien
+    Route::get('/reports', [\App\Http\Controllers\OperatorController::class, 'reports'])->name('operator.reports.index');
+
+    // 4. Menu Ambulan Swasta
+    Route::get('/ambulances/private', [\App\Http\Controllers\OperatorController::class, 'privateAmbulances'])->name('operator.ambulances.private');
+
+    // 5. Menu Hubungi Driver
+    Route::get('/contacts', [\App\Http\Controllers\OperatorController::class, 'contacts'])->name('operator.contacts.index');
+
+    // Action Routes (Assign/Cancel/Dst - Tetap Menggunakan EmergencyController untuk Logic Bisnis)
     Route::post('/emergency/{id}/assign', [\App\Http\Controllers\EmergencyController::class, 'assignAmbulance'])->name('operator.emergency.assign');
     Route::post('/emergency/{id}/cancel', [\App\Http\Controllers\EmergencyController::class, 'cancelCall'])->name('operator.emergency.cancel');
     Route::post('/emergency/{id}/set-destination', [\App\Http\Controllers\EmergencyController::class, 'setDestination'])->name('operator.emergency.set-destination');
@@ -191,7 +205,25 @@ Route::middleware(['auth', 'role:driver,nakes,peserta_bhd'])->prefix('lapangan')
         return view('lapangan.dashboard', compact('ambulance', 'activeJob', 'hospitals'));
     })->name('lapangan.dashboard');
 
-    Route::post('/finish-job/{id}', [\App\Http\Controllers\EmergencyController::class, 'finishJob'])->name('lapangan.finish');
+    Route::post('/finish-job/{id}', [\App\Http\Controllers\LapanganController::class, 'finishJob'])->name('lapangan.finish');
+    Route::post('/medical-record', [\App\Http\Controllers\LapanganController::class, 'storeMedicalRecord'])->name('lapangan.medical-record.store');
+    Route::post('/panic-button', [\App\Http\Controllers\LapanganController::class, 'panicButton'])->name('lapangan.panic-button');
+    Route::post('/update-status', [\App\Http\Controllers\LapanganController::class, 'updateStatus'])->name('lapangan.update-status');
+    Route::post('/disaster-report', [\App\Http\Controllers\LapanganController::class, 'storeDisasterReport'])->name('lapangan.disaster-report.store');
+
+    // Fitur Baru: Jadwal Driver
+    Route::get('/schedules', [\App\Http\Controllers\LapanganController::class, 'scheduleIndex'])->name('lapangan.schedules.index');
+    Route::post('/schedules', [\App\Http\Controllers\LapanganController::class, 'scheduleStore'])->name('lapangan.schedules.store');
+
+    // Fitur Baru: Pesan/Inbox
+    Route::get('/messages', [\App\Http\Controllers\LapanganController::class, 'messagesIndex'])->name('lapangan.messages.index');
+
+    // Fitur Baru: Laporan Sterilisasi
+    Route::get('/sterilizations', [\App\Http\Controllers\LapanganController::class, 'sterilizationCreate'])->name('lapangan.sterilizations.create');
+    Route::post('/sterilizations', [\App\Http\Controllers\LapanganController::class, 'sterilizationStore'])->name('lapangan.sterilizations.store');
+
+    // Fitur Baru: Respon Time / Kinerja
+    Route::get('/performance', [\App\Http\Controllers\LapanganController::class, 'performanceIndex'])->name('lapangan.performance.index');
 });
 
 
@@ -212,5 +244,38 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+
+
+
+// ====================================================
+// GROUP 6: ATEM (TEKNISI)
+// ====================================================
+Route::middleware(['auth', 'role:atem'])->prefix('atem')->group(function () {
+    Route::get('/dashboard', [\App\Http\Controllers\AtemController::class, 'dashboard'])->name('atem.dashboard');
+    Route::get('/input-data', [\App\Http\Controllers\AtemController::class, 'inputData'])->name('atem.data');
+    Route::post('/input-data', [\App\Http\Controllers\AtemController::class, 'storeData'])->name('atem.data.store');
+    Route::get('/usulan', [\App\Http\Controllers\AtemController::class, 'inputUsulan'])->name('atem.usulan');
+    Route::post('/usulan', [\App\Http\Controllers\AtemController::class, 'storeUsulan'])->name('atem.usulan.store');
+});
+
+// ====================================================
+// GROUP BARU: LAB PUSKESMAS / MEDIK
+// ====================================================
+Route::middleware(['auth', 'role:puskesmas,lab_medik'])->prefix('puskesmas')->group(function () {
+
+    // Dashboard
+    Route::get('/dashboard', [\App\Http\Controllers\LabPuskesmasController::class, 'dashboard'])->name('puskesmas.dashboard');
+
+    // Menu 1: Data Supervisor
+    Route::get('/supervisors', [\App\Http\Controllers\LabPuskesmasController::class, 'supervisorIndex'])->name('puskesmas.supervisors.index');
+    Route::post('/supervisors', [\App\Http\Controllers\LabPuskesmasController::class, 'supervisorStore'])->name('puskesmas.supervisors.store');
+
+    // Menu 2: Laporan BHD
+    Route::get('/bhd-reports', [\App\Http\Controllers\LabPuskesmasController::class, 'bhdIndex'])->name('puskesmas.bhd.index');
+    Route::post('/bhd-reports', [\App\Http\Controllers\LabPuskesmasController::class, 'bhdStore'])->name('puskesmas.bhd.store');
+});
+
+
 
 require __DIR__ . '/auth.php';

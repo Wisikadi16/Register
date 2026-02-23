@@ -46,8 +46,12 @@ class AuthenticatedSessionController extends Controller
             return redirect()->route('super-admin.dashboard');
         }
 
-        if (in_array($role, ['admin', 'ka', 'sie_rujukan', 'atem'])) {
+        if (in_array($role, ['admin', 'ka', 'sie_rujukan'])) {
             return redirect()->route('admin.dashboard');
+        }
+
+        if ($role === 'atem') {
+            return redirect()->route('atem.dashboard');
         }
 
         // Group operator
@@ -61,8 +65,13 @@ class AuthenticatedSessionController extends Controller
         }
 
         // Group faskes
-        if (in_array($role, ['rumahsakit', 'klinik_utama', 'puskesmas', 'lab_medik'])) {
+        if (in_array($role, ['rumahsakit', 'klinik_utama'])) {
             return redirect()->route('faskes.dashboard');
+        }
+
+        // Group Lab Puskesmas
+        if (in_array($role, ['puskesmas', 'lab_medik'])) {
+            return redirect()->route('puskesmas.dashboard');
         }
         if ($role === 'masyarakat') {
             return redirect()->route('dashboard');

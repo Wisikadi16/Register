@@ -14,6 +14,8 @@
                             $homeRoute = 'admin.dashboard';
                         } elseif (Auth::user()->role === 'operator') {
                             $homeRoute = 'operator.dashboard';
+                        } elseif (Auth::user()->role === 'atem') {
+                            $homeRoute = 'atem.dashboard';
                         } elseif (in_array(Auth::user()->role, ['driver', 'nakes'])) {
                             $homeRoute = 'lapangan.dashboard';
                         }
@@ -27,62 +29,155 @@
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     @if(Auth::user()->role == 'super_admin')
-                        {{-- Super Admin Menu: System Management --}}
+                        {{-- Super Admin --}}
                         <x-nav-link :href="route('super-admin.dashboard')"
                             :active="request()->routeIs('super-admin.dashboard')">
                             Dashboard
                         </x-nav-link>
-                        <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
-                            Kelola User
+
+                        {{-- Dropdown: Manajemen Sistem --}}
+                        <div class="hidden sm:flex sm:items-center sm:ms-2">
+                            <x-dropdown align="right" width="48">
+                                <x-slot name="trigger">
+                                    <button
+                                        class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-300 hover:text-white hover:border-gray-300 focus:outline-none focus:text-white focus:border-gray-300 transition duration-150 ease-in-out">
+                                        <div>Manajemen Sistem</div>
+                                        <div class="ms-1">
+                                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
+                                                viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd"
+                                                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                    </button>
+                                </x-slot>
+                                <x-slot name="content">
+                                    <x-dropdown-link :href="route('admin.users.index')">Kelola User</x-dropdown-link>
+                                    <x-dropdown-link :href="route('admin.logs.index')">Audit Log</x-dropdown-link>
+                                    <x-dropdown-link :href="route('admin.settings.index')">Pengaturan</x-dropdown-link>
+                                    <x-dropdown-link :href="route('admin.notifications.index')">Broadcast</x-dropdown-link>
+
+                                </x-slot>
+                            </x-dropdown>
+                        </div>
+
+                        <x-nav-link
+                            href="https://lookerstudio.google.com/reporting/b6f0e801-078f-479e-aa20-3975c4d6d0c1/page/RmqZF"
+                            target="_blank">
+                            Monitoring PUSAKA
                         </x-nav-link>
-                        <x-nav-link :href="route('admin.logs.index')" :active="request()->routeIs('admin.logs.*')">
-                            Audit Log
+                    @endif
+
+                    @if(Auth::user()->role == 'atem')
+                        <x-nav-link :href="route('atem.dashboard')" :active="request()->routeIs('atem.dashboard')">
+                            Dashboard
                         </x-nav-link>
-                        <x-nav-link :href="route('admin.settings.index')" :active="request()->routeIs('admin.settings.*')">
-                            Pengaturan
+                        <x-nav-link :href="route('atem.data')" :active="request()->routeIs('atem.data')">
+                            Input Data
                         </x-nav-link>
-                        <x-nav-link :href="route('admin.notifications.index')"
-                            :active="request()->routeIs('admin.notifications.*')">
-                            Broadcast
+                        <x-nav-link :href="route('atem.usulan')" :active="request()->routeIs('atem.usulan')">
+                            Laporan Usulan
                         </x-nav-link>
                     @endif
 
                     @if(Auth::user()->role == 'admin')
-                        {{-- Admin Dinas Menu: Operational & Logistics --}}
+                        {{-- Admin Dinas --}}
                         <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
                             Dashboard
                         </x-nav-link>
+
                         <x-nav-link :href="route('admin.dinkes.reports')"
                             :active="request()->routeIs('admin.dinkes.reports')">
                             Kejadian
                         </x-nav-link>
-                        <x-nav-link :href="route('admin.dinkes.inventory.index')"
-                            :active="request()->routeIs('admin.dinkes.inventory.*')">
-                            Inventaris
-                        </x-nav-link>
-                        <x-nav-link :href="route('admin.dinkes.logistics.index')"
-                            :active="request()->routeIs('admin.dinkes.logistics.*')">
-                            Logistik
-                        </x-nav-link>
-                        <x-nav-link :href="route('admin.dinkes.utilities.index')"
-                            :active="request()->routeIs('admin.dinkes.utilities.*')">
-                            Utilitas
-                        </x-nav-link>
-                        <x-nav-link :href="route('admin.dinkes.patient-recap')"
-                            :active="request()->routeIs('admin.dinkes.patient-recap')">
-                            Rekap Pasien
+
+                        {{-- Dropdown: Pelayanan Medis --}}
+                        <div class="hidden sm:flex sm:items-center sm:ms-2">
+                            <x-dropdown align="right" width="48">
+                                <x-slot name="trigger">
+                                    <button
+                                        class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-300 hover:text-white hover:border-gray-300 focus:outline-none focus:text-white focus:border-gray-300 transition duration-150 ease-in-out">
+                                        <div>Pelayanan Medis</div>
+                                        <div class="ms-1">
+                                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
+                                                viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd"
+                                                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                    </button>
+                                </x-slot>
+                                <x-slot name="content">
+                                    <x-dropdown-link :href="route('admin.dinkes.referrals.index')">Validasi
+                                        Rujukan</x-dropdown-link>
+                                    <x-dropdown-link :href="route('admin.dinkes.patient-recap')">Rekap
+                                        Pasien</x-dropdown-link>
+                                </x-slot>
+                            </x-dropdown>
+                        </div>
+
+                        {{-- Dropdown: Aset & Maintenance --}}
+                        <div class="hidden sm:flex sm:items-center sm:ms-2">
+                            <x-dropdown align="right" width="48">
+                                <x-slot name="trigger">
+                                    <button
+                                        class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-300 hover:text-white hover:border-gray-300 focus:outline-none focus:text-white focus:border-gray-300 transition duration-150 ease-in-out">
+                                        <div>Aset & Logistik</div>
+                                        <div class="ms-1">
+                                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
+                                                viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd"
+                                                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                    </button>
+                                </x-slot>
+                                <x-slot name="content">
+                                    <div class="block px-4 py-2 text-xs text-gray-400">Inventaris</div>
+                                    <x-dropdown-link :href="route('admin.dinkes.inventory.index')">Data
+                                        Aset</x-dropdown-link>
+                                    <x-dropdown-link :href="route('admin.dinkes.inventory.index', ['category' => 'household'])">Kebutuhan Rumah Tangga</x-dropdown-link>
+                                    <x-dropdown-link :href="route('admin.dinkes.maintenance.index')">Jadwal
+                                        Maintenance</x-dropdown-link>
+                                    <div class="border-t border-gray-100 my-1"></div>
+                                    <div class="block px-4 py-2 text-xs text-gray-400">Operasional</div>
+                                    <x-dropdown-link :href="route('admin.dinkes.logistics.index')">BBM &
+                                        Service</x-dropdown-link>
+                                    <x-dropdown-link :href="route('admin.dinkes.utilities.index')">Listrik &
+                                        Air</x-dropdown-link>
+                                </x-slot>
+                            </x-dropdown>
+                        </div>
+
+                        <x-nav-link
+                            href="https://lookerstudio.google.com/reporting/b6f0e801-078f-479e-aa20-3975c4d6d0c1/page/RmqZF"
+                            target="_blank">
+                            Monitoring PUSAKA
                         </x-nav-link>
                     @endif
 
                     @if(Auth::user()->role == 'operator')
                         <x-nav-link :href="route('operator.dashboard')" :active="request()->routeIs('operator.dashboard')">
-                            Command Center
+                            Call Center
+                        </x-nav-link>
+                        <x-nav-link
+                            href="https://lookerstudio.google.com/reporting/b6f0e801-078f-479e-aa20-3975c4d6d0c1/page/RmqZF"
+                            target="_blank">
+                            Monitoring PUSAKA
                         </x-nav-link>
                     @endif
 
                     @if(in_array(Auth::user()->role, ['driver', 'nakes']))
                         <x-nav-link :href="route('lapangan.dashboard')" :active="request()->routeIs('lapangan.dashboard')">
                             Tugas Saya
+                        </x-nav-link>
+                        <x-nav-link
+                            href="https://lookerstudio.google.com/reporting/b6f0e801-078f-479e-aa20-3975c4d6d0c1/page/RmqZF"
+                            target="_blank">
+                            Monitoring PUSAKA
                         </x-nav-link>
                     @endif
 
@@ -93,6 +188,11 @@
                         <x-nav-link :href="route('emergency.create')" :active="request()->routeIs('emergency.*')"
                             class="text-red-400 font-bold">
                             Panggil Ambulan
+                        </x-nav-link>
+                        <x-nav-link
+                            href="https://lookerstudio.google.com/reporting/b6f0e801-078f-479e-aa20-3975c4d6d0c1/page/RmqZF"
+                            target="_blank">
+                            Monitoring PUSAKA
                         </x-nav-link>
                     @endif
                 </div>
@@ -161,46 +261,57 @@
         <div class="pt-2 pb-3 space-y-1">
             @if(Auth::user()->role == 'super_admin')
                 <x-responsive-nav-link :href="route('super-admin.dashboard')"
-                    :active="request()->routeIs('super-admin.dashboard')">
-                    Dashboard
-                </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
-                    Kelola User
-                </x-responsive-nav-link>
+                    :active="request()->routeIs('super-admin.dashboard')">Dashboard</x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.users.index')"
+                    :active="request()->routeIs('admin.users.*')">Kelola User</x-responsive-nav-link>
+                <x-responsive-nav-link
+                    href="https://lookerstudio.google.com/reporting/b6f0e801-078f-479e-aa20-3975c4d6d0c1/page/RmqZF"
+                    target="_blank">Monitoring PUSAKA</x-responsive-nav-link>
+            @endif
+
+            @if(Auth::user()->role == 'atem')
+                <x-responsive-nav-link :href="route('atem.dashboard')"
+                    :active="request()->routeIs('atem.dashboard')">Dashboard</x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('atem.data')" :active="request()->routeIs('atem.data')">Input
+                    Data</x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('atem.usulan')" :active="request()->routeIs('atem.usulan')">Laporan
+                    Usulan</x-responsive-nav-link>
             @endif
 
             @if(Auth::user()->role == 'admin')
-                <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
-                    Dashboard
-                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.dashboard')"
+                    :active="request()->routeIs('admin.dashboard')">Dashboard</x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('admin.dinkes.reports')"
-                    :active="request()->routeIs('admin.dinkes.reports')">
-                    Kejadian
-                </x-responsive-nav-link>
+                    :active="request()->routeIs('admin.dinkes.reports')">Kejadian</x-responsive-nav-link>
+                <x-responsive-nav-link
+                    href="https://lookerstudio.google.com/reporting/b6f0e801-078f-479e-aa20-3975c4d6d0c1/page/RmqZF"
+                    target="_blank">Monitoring PUSAKA</x-responsive-nav-link>
             @endif
 
             @if(Auth::user()->role == 'operator')
                 <x-responsive-nav-link :href="route('operator.dashboard')"
-                    :active="request()->routeIs('operator.dashboard')">
-                    Command Center
-                </x-responsive-nav-link>
+                    :active="request()->routeIs('operator.dashboard')">Call Center</x-responsive-nav-link>
+                <x-responsive-nav-link
+                    href="https://lookerstudio.google.com/reporting/b6f0e801-078f-479e-aa20-3975c4d6d0c1/page/RmqZF"
+                    target="_blank">Monitoring PUSAKA</x-responsive-nav-link>
             @endif
 
             @if(in_array(Auth::user()->role, ['driver', 'nakes']))
                 <x-responsive-nav-link :href="route('lapangan.dashboard')"
-                    :active="request()->routeIs('lapangan.dashboard')">
-                    Tugas Saya
-                </x-responsive-nav-link>
+                    :active="request()->routeIs('lapangan.dashboard')">Tugas Saya</x-responsive-nav-link>
+                <x-responsive-nav-link
+                    href="https://lookerstudio.google.com/reporting/b6f0e801-078f-479e-aa20-3975c4d6d0c1/page/RmqZF"
+                    target="_blank">Monitoring PUSAKA</x-responsive-nav-link>
             @endif
 
             @if(Auth::user()->role == 'masyarakat')
-                <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                    Home
-                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('dashboard')"
+                    :active="request()->routeIs('dashboard')">Home</x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('emergency.create')" :active="request()->routeIs('emergency.*')"
-                    class="text-red-400 font-bold">
-                    Panggil Ambulan
-                </x-responsive-nav-link>
+                    class="text-red-400 font-bold">Panggil Ambulan</x-responsive-nav-link>
+                <x-responsive-nav-link
+                    href="https://lookerstudio.google.com/reporting/b6f0e801-078f-479e-aa20-3975c4d6d0c1/page/RmqZF"
+                    target="_blank">Monitoring PUSAKA</x-responsive-nav-link>
             @endif
         </div>
 

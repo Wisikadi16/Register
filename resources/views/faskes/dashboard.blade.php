@@ -46,11 +46,18 @@
                 </div>
             </div>
 
-            <div class="flex items-center gap-3 pl-2 mt-8 mb-4">
-                <div class="w-8 h-8 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center text-sm">
-                    <i class="fas fa-edit"></i>
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pl-2 mt-8 mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center text-sm">
+                        <i class="fas fa-edit"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-charcoal">Update Ketersediaan Bed</h3>
                 </div>
-                <h3 class="text-lg font-bold text-charcoal">Update Ketersediaan Bed</h3>
+
+                <a href="{{ route('faskes.requests.index') }}"
+                    class="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md transition flex items-center gap-2">
+                    <i class="fas fa-ticket-alt"></i> Pengajuan & Komplain
+                </a>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">

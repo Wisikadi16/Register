@@ -27,10 +27,12 @@ class EmergencyController extends Controller
             'longitude' => 'required',
             'description' => 'nullable|string', // Ubah jadi nullable
             'photo' => 'nullable|image|max:5120', // Max 5MB
+            'type' => 'nullable|string|in:ambulance,phone_call', // Baru
         ]);
 
         $userLat = $request->latitude;
         $userLng = $request->longitude;
+        $callType = $request->type ?? 'ambulance';
 
         // Handle File Upload
         $photoPath = null;
@@ -38,29 +40,29 @@ class EmergencyController extends Controller
             $photoPath = $request->file('photo')->store('emergency_photos', 'public');
         }
 
-        // 2. Ambil Semua Ambulan yang 'READY' saja
-        $readyAmbulances = Ambulance::where('status', 'ready')->get();
-
         $assignedAmbulance = null;
         $shortestDistance = null;
         $status = 'pending'; // Default status jika tidak dapat ambulan
 
-        // 3. Logika DSS (Jika ada ambulan ready)
-        if ($readyAmbulances->isNotEmpty()) {
-            $shortestDistance = 999999999;
-            foreach ($readyAmbulances as $ambulance) {
-                // Pastikan ambulan punya lokasi GPS valid
-                if ($ambulance->current_latitude && $ambulance->current_longitude) {
-                    $distance = $this->calculateDistance(
-                        $userLat,
-                        $userLng,
-                        $ambulance->current_latitude,
-                        $ambulance->current_longitude
-                    );
+        // 3. Logika DSS (Jika jenis panggilan adalah ambulan & ada ambulan ready)
+        if ($callType === 'ambulance') {
+            $readyAmbulances = Ambulance::where('status', 'ready')->get();
+            if ($readyAmbulances->isNotEmpty()) {
+                $shortestDistance = 999999999;
+                foreach ($readyAmbulances as $ambulance) {
+                    // Pastikan ambulan punya lokasi GPS valid
+                    if ($ambulance->current_latitude && $ambulance->current_longitude) {
+                        $distance = $this->calculateDistance(
+                            $userLat,
+                            $userLng,
+                            $ambulance->current_latitude,
+                            $ambulance->current_longitude
+                        );
 
-                    if ($distance < $shortestDistance) {
-                        $shortestDistance = $distance;
-                        $assignedAmbulance = $ambulance;
+                        if ($distance < $shortestDistance) {
+                            $shortestDistance = $distance;
+                            $assignedAmbulance = $ambulance;
+                        }
                     }
                 }
             }
@@ -71,18 +73,21 @@ class EmergencyController extends Controller
         try {
             $callData = [
                 'user_id' => Auth::id(),
+                'type' => $callType,
                 'latitude' => $userLat,
                 'longitude' => $userLng,
                 'location' => "{$userLat}, {$userLng}",
-                'description' => $request->description ?? 'Panggilan Darurat (Tanpa Keterangan)',
+                'description' => $request->description ?? ($callType == 'phone_call' ? 'Permintaan Telepon Call Center 112' : 'Panggilan Darurat (Tanpa Keterangan)'),
                 'photo' => $photoPath,
                 'ambulance_id' => $assignedAmbulance ? $assignedAmbulance->id : null, // SIMPAN ID NYA!
-                'status' => $assignedAmbulance ? 'process' : 'pending', // LANGSUNG PROSES KALAU DAPAT
+                'status' => $callType == 'phone_call' ? 'pending' : ($assignedAmbulance ? 'process' : 'pending'), // LANGSUNG PROSES KALAU DAPAT AMBULAN
             ];
 
             $emergencyCall = EmergencyCall::create($callData);
 
-            if ($assignedAmbulance) {
+            if ($callType === 'phone_call') {
+                $message = 'Permintaan telepon terkirim. Operator kami akan segera menghubungi Anda. Harap pastikan nomor HP Anda aktif.';
+            } elseif ($assignedAmbulance) {
                 // Jangan lupa ubah status ambulan jadi sibuk
                 $assignedAmbulance->update(['status' => 'busy']);
                 $message = 'Permintaan terkirim! Sistem mendeteksi ambulan terdekat (' . $assignedAmbulance->name . '). Tim sedang meluncur.';

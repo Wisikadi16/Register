@@ -43,19 +43,29 @@ class LapanganController extends Controller
      * Menandakan tugas telah selesai.
      * Mengembalikan status ambulan menjadi 'ready'.
      */
-    public function finishJob($id)
+    public function finishJob(Request $request, $id) // Tambahkan Request $request
     {
+        // Validasi input nama petugas
+        $request->validate([
+            'driver_name' => 'required|string|max:255',
+            'nakes_name' => 'nullable|string|max:255', // Nullable kalau misal berangkat tanpa nakes
+        ]);
+
         $job = EmergencyCall::findOrFail($id);
 
-        // Update status panggilan menjadi completed
-        $job->update(['status' => 'completed']);
+        // Update status panggilan menjadi completed dan simpan nama petugas
+        $job->update([
+            'status' => 'completed',
+            'driver_name' => $request->driver_name,
+            'nakes_name' => $request->nakes_name ?? 'Tidak ada pendamping',
+        ]);
 
         // Update status ambulan kembali menjadi ready agar bisa dipanggil lagi oleh sistem
         if ($job->ambulance_id) {
             Ambulance::where('id', $job->ambulance_id)->update(['status' => 'ready']);
         }
 
-        return redirect()->route('lapangan.dashboard')->with('success', 'Tugas selesai! Status Anda kembali standby.');
+        return redirect()->route('lapangan.dashboard')->with('success', 'Tugas selesai! Laporan petugas jaga berhasil dicatat.');
     }
     public function storeMedicalRecord(Request $request)
     {

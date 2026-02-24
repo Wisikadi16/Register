@@ -21,7 +21,7 @@
 
             {{-- WELCOME MESSAGE (Clean, Glassy Card) --}}
             <div
-                class="bg-gradient-to-r from-rescue-red to-gray-600 p-8 md:p-10 shadow-lg relative overflow-hidden flex items-center justify-between group">
+                class="bg-gradient-to-r from-rescue-red to-red-600 p-8 md:p-10 shadow-lg relative overflow-hidden flex items-center justify-between group">
                 <div class="relative z-10 max-w-2xl">
                     <h3 class="text-2xl font-bold text-white mb-3">Selamat Datang, {{ Auth::user()->name }}</h3>
                     <p class="text-red-50 leading-relaxed">
@@ -82,7 +82,7 @@
                                                 <span class="font-bold text-charcoal text-xs truncate max-w-[120px]">{{ $amb->name }}</span>
                                                 <span
                                                     class="px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider
-                                                                                                                                                                                {{ $amb->status == 'ready' ? 'bg-teal-50 text-teal-600' :
+                                                                                                                                                                                                                                            {{ $amb->status == 'ready' ? 'bg-teal-50 text-teal-600' :
                             ($amb->status == 'busy' ? 'bg-rescue-red border border-rescue-red/20 text-white shadow-sm shadow-rescue-red/30' : 'bg-slate-200 text-slate-600') }}">
                                                     {{ $amb->status }}
                                                 </span>
@@ -123,7 +123,7 @@
                 <h3 class="text-lg font-black text-charcoal mb-5 px-1 flex items-center gap-2">
                     Aksi & Modul
                 </h3>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-5">
 
                     <!-- Nav Button 1 -->
                     <a href="{{ route('operator.schedules.index') }}"
@@ -177,6 +177,210 @@
                         </div>
                     </a>
 
+                    <!-- Nav Button 5 (Tiket Faskes) -->
+                    <a href="{{ route('operator.requests.index') }}"
+                        class="group bg-white border border-slate-200 hover:border-purple-500 rounded-[2rem] p-6 flex flex-col gap-4 transition duration-300 hover:shadow-lg hover:shadow-purple-500/10">
+                        <div
+                            class="w-14 h-14 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center text-xl transition shadow-sm group-hover:scale-110">
+                            <i class="fas fa-ticket-alt"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-charcoal text-sm mb-1">Tiket Faskes</h4>
+                            <p class="text-[11px] font-medium text-slate-400">Bantuan & Logistik</p>
+                        </div>
+                    </a>
+
+                </div>
+            </div>
+
+            {{-- DAFTAR PANGGILAN DARURAT (MISSING LIST RESTORED) --}}
+            <div>
+                <div class="flex justify-between items-center mb-5 px-1">
+                    <h3 class="text-lg font-black text-charcoal flex items-center gap-2">
+                        Panggilan Masuk & Aktif
+                    </h3>
+                </div>
+
+                <div class="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm whitespace-nowrap">
+                            <thead class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider text-[10px]">
+                                <tr>
+                                    <th class="px-6 py-4 rounded-tl-3xl">Waktu & Pelapor</th>
+                                    <th class="px-6 py-4">Lokasi Kejadian</th>
+                                    <th class="px-6 py-4">Status & Armada</th>
+                                    <th class="px-6 py-4 rounded-tr-3xl text-right">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                @forelse($emergencies as $call)
+                                    <tr class="hover:bg-slate-50 transition duration-200">
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-center gap-3">
+                                                <div
+                                                    class="w-10 h-10 rounded-full bg-{{ $call->status == 'pending' ? 'red' : ($call->status == 'process' ? 'amber' : 'teal') }}-50 text-{{ $call->status == 'pending' ? 'rescue-red' : ($call->status == 'process' ? 'amber-600' : 'teal-600') }} flex items-center justify-center font-bold {{ $call->type == 'phone_call' && $call->status == 'pending' ? 'animate-pulse' : '' }}">
+
+                                                    @if($call->type == 'phone_call')
+                                                        <i class="fas fa-phone-volume"></i>
+                                                    @else
+                                                        <i
+                                                            class="fas fa-{{ $call->status == 'pending' ? 'bell' : ($call->status == 'process' ? 'spinner fa-spin' : 'check') }}"></i>
+                                                    @endif
+                                                </div>
+                                                <div>
+                                                    <p class="font-bold text-charcoal text-sm">
+                                                        {{ $call->user->name ?? 'Anonim' }}
+                                                    </p>
+                                                    <p class="text-xs text-slate-400 font-medium">
+                                                        {{ $call->created_at->format('H:i') }} WIB
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <p class="font-bold text-charcoal text-sm truncate max-w-[200px]"
+                                                title="{{ $call->location }}">{{ $call->location }}</p>
+                                            <p class="text-xs text-slate-400 truncate max-w-[200px]"
+                                                title="{{ $call->description }}">{{ $call->description }}</p>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            @if($call->type == 'phone_call')
+                                                <span
+                                                    class="bg-blue-50 text-blue-600 px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border border-blue-100 mr-1">Tlp
+                                                    112</span>
+                                            @endif
+
+                                            @if($call->status == 'pending')
+                                                <span
+                                                    class="bg-red-50 text-rescue-red px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border border-red-100">Menunggu</span>
+                                            @elseif($call->status == 'process')
+                                                <span
+                                                    class="bg-amber-50 text-amber-600 px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border border-amber-100">Diproses</span>
+                                            @else
+                                                <span
+                                                    class="bg-teal-50 text-teal-600 px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border border-teal-100">Selesai</span>
+                                            @endif
+
+                                            @if($call->ambulance)
+                                                <p class="text-xs font-bold text-slate-600 mt-1"><i
+                                                        class="fas fa-ambulance mr-1"></i> {{ $call->ambulance->name }}</p>
+                                            @endif
+                                        </td>
+                                        <td class="px-6 py-4 text-right">
+                                            @if($call->status != 'completed' && $call->status != 'cancelled')
+                                                <button
+                                                    onclick="document.getElementById('actionModal-{{ $call->id }}').classList.remove('hidden')"
+                                                    class="bg-white border border-slate-200 hover:border-slate-300 text-slate-600 font-bold py-2 px-4 rounded-xl text-xs transition shadow-sm">
+                                                    Kelola <i class="fas fa-chevron-right ml-1 text-[10px]"></i>
+                                                </button>
+                                            @else
+                                                <span class="text-xs font-bold text-slate-400">Tidak ada aksi</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+
+                                    <!-- Action Modal -->
+                                    <div id="actionModal-{{ $call->id }}"
+                                        class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4">
+                                        <div class="bg-white rounded-2xl max-w-md w-full p-6 text-left whitespace-normal">
+                                            <div class="flex justify-between items-center mb-4">
+                                                <h3 class="text-xl font-bold text-gray-800">Kelola Panggilan
+                                                    #{{ $call->id }}</h3>
+                                                <button
+                                                    onclick="document.getElementById('actionModal-{{ $call->id }}').classList.add('hidden')"
+                                                    class="text-gray-400 hover:text-gray-600">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+
+                                            <div class="mb-6 bg-slate-50 p-4 rounded-xl text-sm">
+                                                <p><strong>Pelapor:</strong> {{ $call->user->name ?? 'Anonim' }}</p>
+                                                <p><strong>Lokasi:</strong> {{ $call->location }}</p>
+                                                <p><strong>Keterangan:</strong> {{ $call->description }}</p>
+                                            </div>
+
+                                            <div class="space-y-3">
+                                                <div class="border-t border-slate-100 pt-3">
+                                                    <h4 class="font-bold text-sm mb-2 text-charcoal">Tugaskan Ambulan</h4>
+                                                    <form action="{{ route('operator.emergency.assign', $call->id) }}"
+                                                        method="POST" class="flex gap-2">
+                                                        @csrf
+                                                        <select name="ambulance_id"
+                                                            class="flex-1 rounded-xl border-gray-200 text-sm focus:ring-blue-500 focus:border-blue-500"
+                                                            required>
+                                                            <option value="" disabled selected>-- Pilih Ambulan --</option>
+                                                            @foreach($ambulances->where('status', 'ready') as $amb)
+                                                                <option value="{{ $amb->id }}">{{ $amb->name }}
+                                                                    ({{ $amb->plat_number }})</option>
+                                                            @endforeach
+                                                        </select>
+                                                        <button type="submit"
+                                                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 rounded-xl font-bold text-sm transition shadow-sm">
+                                                            Tugaskan
+                                                        </button>
+                                                    </form>
+                                                </div>
+
+                                                <div class="border-t border-slate-100 pt-3">
+                                                    <h4 class="font-bold text-sm mb-2 text-charcoal">Atur Tujuan Rujukan
+                                                        (RS)</h4>
+                                                    <form
+                                                        action="{{ route('operator.emergency.set-destination', $call->id) }}"
+                                                        method="POST" class="flex gap-2">
+                                                        @csrf
+                                                        <select name="hospital_id"
+                                                            class="flex-1 rounded-xl border-gray-200 text-sm focus:ring-teal-500 focus:border-teal-500"
+                                                            required>
+                                                            <option value="" disabled selected>-- Pilih Rumah Sakit --
+                                                            </option>
+                                                            @foreach($hospitals as $rs)
+                                                                <option value="{{ $rs->id }}">{{ $rs->name }} (IGD:
+                                                                    {{ $rs->available_bed_igd }})
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                        <button type="submit"
+                                                            class="bg-teal-600 hover:bg-teal-700 text-white px-4 rounded-xl font-bold text-sm transition shadow-sm">
+                                                            Simpan
+                                                        </button>
+                                                    </form>
+                                                </div>
+
+                                                <div class="border-t border-slate-100 pt-3">
+                                                    <h4 class="font-bold text-sm mb-2 text-rescue-red">Batalkan Panggilan
+                                                    </h4>
+                                                    <form action="{{ route('operator.emergency.cancel', $call->id) }}"
+                                                        method="POST" class="flex gap-2">
+                                                        @csrf
+                                                        <input type="text" name="cancellation_note"
+                                                            placeholder="Alasan pembatalan..." required
+                                                            class="flex-1 rounded-xl border-gray-200 text-sm focus:ring-rescue-red focus:border-rescue-red">
+                                                        <button type="submit"
+                                                            onclick="return confirm('Yakin batalkan panggilan ini?');"
+                                                            class="bg-rescue-red hover:bg-red-700 text-white px-4 rounded-xl font-bold text-sm transition shadow-sm">
+                                                            Batalkan
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <tr>
+                                        <td colspan="4" class="px-6 py-12 text-center text-slate-400">
+                                            <div class="flex flex-col items-center justify-center">
+                                                <i class="fas fa-check-circle text-4xl mb-3 text-slate-200"></i>
+                                                <p class="font-bold text-slate-500">Bagus! Tidak ada panggilan darurat
+                                                    masuk.</p>
+                                                <p class="text-xs mt-1">Sistem akan menampilkan pembaruan secara otomatis
+                                                    jika ada.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 

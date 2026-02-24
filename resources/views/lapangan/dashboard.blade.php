@@ -174,13 +174,10 @@
                                         class="flex-1 bg-charcoal hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl text-sm transition-all flex items-center justify-center gap-2 shadow-md">
                                         <i class="fas fa-notes-medical relative"><span class="absolute -top-1 -right-1 flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rescue-red opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-rescue-red"></span></span></i> Input Medis
                                     </button>
-                                    <form action="{{ route('lapangan.finish', $activeJob->id) }}" method="POST" class="flex-1">
-                                        @csrf
-                                        <button type="submit" onclick="return confirm('Selesaikan penanganan pasien ini?');"
-                                            class="w-full bg-teal-500 hover:bg-teal-600 text-white font-bold py-3.5 rounded-xl text-sm shadow-md transition-all flex items-center justify-center gap-2">
-                                            <i class="fas fa-check-circle"></i> Selesai
-                                        </button>
-                                    </form>
+                                    <button type="button" onclick="document.getElementById('finishJobModal').classList.remove('hidden')"
+                                        class="flex-1 bg-teal-500 hover:bg-teal-600 text-white font-bold py-3.5 rounded-xl text-sm shadow-md transition-all flex items-center justify-center gap-2">
+                                        <i class="fas fa-check-circle"></i> Selesai
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -372,6 +369,47 @@
                 </form>
             </div>
         </div>
+
+        {{-- MODAL SELESAIKAN TUGAS (INPUT PETUGAS JAGA) --}}
+        @if(isset($activeJob) && $activeJob)
+        <div id="finishJobModal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl max-w-md w-full p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold text-gray-800">✅ Selesaikan Tugas</h3>
+                    <button onclick="document.getElementById('finishJobModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <p class="text-sm text-slate-500 mb-5 pb-4 border-b border-slate-100">Untuk laporan dinas, mohon isi nama petugas yang mengoperasikan unit armada pada shift ini.</p>
+                
+                <form action="{{ route('lapangan.finish', $activeJob->id) }}" method="POST">
+                    @csrf
+                    <div class="space-y-4 mb-6">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">Nama Driver Utama</label>
+                            <input type="text" name="driver_name" placeholder="Cth: Budi Santoso" required
+                                class="w-full rounded-xl border-gray-200 focus:border-teal-500 focus:ring-teal-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">Nama Nakes Pendamping</label>
+                            <input type="text" name="nakes_name" placeholder="Cth: Suster Siti / Kosongkan jika tidak ada"
+                                class="w-full rounded-xl border-gray-200 focus:border-teal-500 focus:ring-teal-500">
+                        </div>
+                    </div>
+                    <div class="flex justify-end gap-2">
+                        <button type="button" onclick="document.getElementById('finishJobModal').classList.add('hidden')"
+                            class="px-5 py-2.5 rounded-xl font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 transition">
+                            Batal
+                        </button>
+                        <button type="submit"
+                            class="px-5 py-2.5 rounded-xl font-bold text-white bg-teal-500 hover:bg-teal-600 shadow-lg hover:shadow-teal-500/30 transition">
+                            Simpan Laporan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        @endif
 
         {{-- PANIC BUTTON --}}
         <button onclick="triggerPanic()"

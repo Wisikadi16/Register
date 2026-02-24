@@ -160,6 +160,10 @@ Route::middleware(['auth', 'role:operator,super_admin,ka'])->prefix('operator')-
     Route::post('/emergency/{id}/assign', [\App\Http\Controllers\EmergencyController::class, 'assignAmbulance'])->name('operator.emergency.assign');
     Route::post('/emergency/{id}/cancel', [\App\Http\Controllers\EmergencyController::class, 'cancelCall'])->name('operator.emergency.cancel');
     Route::post('/emergency/{id}/set-destination', [\App\Http\Controllers\EmergencyController::class, 'setDestination'])->name('operator.emergency.set-destination');
+
+    // Manajemen Tiket Faskes (Operator)
+    Route::get('/requests', [\App\Http\Controllers\FacilityRequestController::class, 'operatorIndex'])->name('operator.requests.index');
+    Route::post('/requests/{id}/process', [\App\Http\Controllers\FacilityRequestController::class, 'operatorUpdate'])->name('operator.requests.update');
 });
 
 
@@ -197,6 +201,9 @@ Route::middleware(['auth', 'role:driver,peserta_bhd'])->prefix('lapangan')->grou
 Route::middleware(['auth', 'role:rumahsakit,klinik_utama,puskesmas,lab_medik'])->prefix('faskes')->group(function () {
     Route::get('/dashboard', [HospitalController::class, 'index'])->name('faskes.dashboard');
     Route::post('/update', [HospitalController::class, 'update'])->name('faskes.update');
+    // Tiket Laporan Logistik & Maintenance (Faskes)
+    Route::get('/requests', [\App\Http\Controllers\FacilityRequestController::class, 'faskesIndex'])->name('faskes.requests.index');
+    Route::post('/requests', [\App\Http\Controllers\FacilityRequestController::class, 'faskesStore'])->name('faskes.requests.store');
 });
 
 
@@ -238,6 +245,10 @@ Route::middleware(['auth', 'role:puskesmas,lab_medik'])->prefix('puskesmas')->gr
     // Menu 2: Laporan BHD
     Route::get('/bhd-reports', [\App\Http\Controllers\LabPuskesmasController::class, 'bhdIndex'])->name('puskesmas.bhd.index');
     Route::post('/bhd-reports', [\App\Http\Controllers\LabPuskesmasController::class, 'bhdStore'])->name('puskesmas.bhd.store');
+
+    // Tiket Laporan Logistik & Maintenance (Puskesmas)
+    Route::get('/requests', [\App\Http\Controllers\FacilityRequestController::class, 'faskesIndex'])->name('puskesmas.requests.index');
+    Route::post('/requests', [\App\Http\Controllers\FacilityRequestController::class, 'faskesStore'])->name('puskesmas.requests.store');
 });
 
 // ====================================================

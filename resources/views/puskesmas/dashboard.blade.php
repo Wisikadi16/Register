@@ -53,7 +53,7 @@
                 <h3 class="text-lg font-bold text-charcoal">Menu Admin Puskesmas</h3>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16 mt-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <!-- Data Supervisor -->
                 <a href="{{ route('puskesmas.supervisors.index') }}"
                     class="group bg-white rounded-[2rem] p-8 shadow-sm hover:shadow-lg border border-slate-100 hover:border-blue-300 transition-all duration-300 relative overflow-hidden flex flex-col items-start gap-4 hover:-translate-y-1">
@@ -114,6 +114,33 @@
 
                     <i
                         class="fas fa-file-medical-alt absolute -right-6 -bottom-6 text-9xl text-slate-50 opacity-50 transform -rotate-12 group-hover:rotate-0 transition duration-700"></i>
+                </a>
+
+                <!-- Tiket Bantuan & Logistik -->
+                <a href="{{ route('puskesmas.requests.index') }}"
+                    class="group bg-white rounded-[2rem] p-8 shadow-sm hover:shadow-lg border border-slate-100 hover:border-purple-500/30 transition-all duration-300 relative overflow-hidden flex flex-col items-start gap-4 hover:-translate-y-1">
+
+                    <div class="w-full flex justify-between items-start mb-2">
+                        <div
+                            class="w-16 h-16 bg-slate-50 group-hover:bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center text-3xl shadow-sm transition-colors duration-300">
+                            <i class="fas fa-ticket-alt"></i>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="font-black text-charcoal text-xl mb-2 group-hover:text-purple-600 transition-colors">
+                            Pengajuan & Komplain</h4>
+                        <p class="text-slate-500 text-sm leading-relaxed">Ajukan permintaan logistik, maintenance alat
+                            medis, atau komplain fasilitas ke pusat.</p>
+                    </div>
+
+                    <div
+                        class="mt-4 inline-flex items-center gap-2 text-xs font-bold text-purple-600 group-hover:translate-x-2 transition-transform">
+                        Buat Laporan <i class="fas fa-arrow-right"></i>
+                    </div>
+
+                    <i
+                        class="fas fa-tools absolute -right-6 -bottom-6 text-9xl text-slate-50 opacity-50 transform -rotate-12 group-hover:rotate-0 transition duration-700"></i>
                 </a>
             </div>
 

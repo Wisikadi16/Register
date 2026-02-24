@@ -37,6 +37,10 @@
             {{ $slot }}
         </main>
     </div>
+
+    <!-- Global Notifications -->
+    <x-floating-notifications />
+
     @stack('scripts')
 </body>
 

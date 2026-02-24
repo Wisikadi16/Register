@@ -196,29 +196,29 @@
                 @endpush
 
             @else
-                {{-- SAFE STATE (Clean, Premium Greeting) --}}
+                {{-- SAFE STATE (Compact Greeting) --}}
                 <div
-                    class="bg-gradient-to-r from-rescue-red to-red-600 rounded-[2rem] p-8 md:p-12 shadow-lg flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden group">
+                    class="bg-gradient-to-r from-rescue-red to-red-600 rounded-[1.5rem] p-6 shadow-md flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden group">
                     <div
-                        class="absolute top-0 right-0 w-64 h-64 bg-white rounded-full blur-3xl opacity-10 -translate-y-1/2 translate-x-1/2 text-white">
+                        class="absolute top-0 right-0 w-48 h-48 bg-white rounded-full blur-3xl opacity-10 -translate-y-1/2 translate-x-1/2 text-white">
                     </div>
 
-                    <div class="relative z-10 max-w-2xl text-center md:text-left">
+                    <div class="relative z-10 w-full text-center md:text-left flex-1 md:pr-4">
                         <div
-                            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/20 border border-white/20 text-white text-[10px] font-black uppercase tracking-widest mb-4 shadow-sm backdrop-blur-sm">
-                            <i class="fas fa-shield-alt text-white"></i> Sistem Siaga Penuh
+                            class="inline-flex items-center gap-2 px-2.5 py-1 rounded bg-white/20 border border-white/20 text-white text-[9px] font-black uppercase tracking-widest mb-3 shadow-sm backdrop-blur-sm">
+                            <i class="fas fa-shield-alt text-white text-xs"></i> Sistem Siaga Penuh
                         </div>
-                        <h1 class="text-3xl md:text-5xl font-black text-white tracking-tight mb-4">
+                        <h1 class="text-2xl md:text-3xl font-black text-white tracking-tight mb-2">
                             Halo, {{ Auth::user()->name }} 👋
                         </h1>
-                        <p class="text-red-50 text-lg leading-relaxed">
-                            Akses layanan kesehatan terpadu dan tanggap darurat dalam satu genggaman. Tekan tombol <strong
+                        <p class="text-red-50 text-sm md:text-base leading-snug">
+                            Akses layanan kesehatan terpadu dan tanggap darurat. Tekan tombol <strong
                                 class="text-white">SOS</strong> jika Anda berada dalam kondisi medis mendesak.
                         </p>
                     </div>
 
                     <div
-                        class="relative z-10 hidden md:flex w-32 h-32 bg-white/20 border border-white/20 rounded-[2rem] shadow-inner items-center justify-center text-white/70 text-6xl group-hover:scale-105 group-hover:-rotate-3 transition duration-700 backdrop-blur-sm">
+                        class="relative z-10 hidden md:flex shrink-0 w-24 h-24 bg-white/20 border border-white/20 rounded-2xl shadow-inner items-center justify-center text-white/70 text-4xl group-hover:scale-105 group-hover:-rotate-3 transition duration-700 backdrop-blur-sm">
                         <i class="fas fa-heartbeat text-white"></i>
                     </div>
                 </div>
@@ -250,29 +250,61 @@
                     </div>
                 </a>
 
+                {{-- CALL CENTER BUTTON (In-App Request) --}}
+                <form id="phoneCallForm" action="{{ route('emergency.store') }}" method="POST" class="col-span-2">
+                    @csrf
+                    <input type="hidden" name="type" value="phone_call">
+                    <input type="hidden" name="latitude" id="pc_latitude" value="-6.175392">
+                    <input type="hidden" name="longitude" id="pc_longitude" value="106.827153">
+                    <input type="hidden" name="description" value="Permintaan Telepon Call Center 112">
+
+                    <button type="button" onclick="submitPhoneCall()"
+                        class="w-full h-full group bg-blue-600 rounded-[2rem] p-8 shadow-xl shadow-blue-600/20 relative overflow-hidden flex items-center justify-center border border-blue-500 hover:shadow-2xl hover:shadow-blue-600/30 transition-all duration-300 transform hover:-translate-y-1 text-left">
+                        <div class="absolute inset-0 bg-gradient-to-tr from-black/10 to-transparent"></div>
+                        <div
+                            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-white/10 rounded-full blur-2xl">
+                        </div>
+
+                        <div class="relative z-10 flex flex-col items-center text-center gap-3">
+                            <div
+                                class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-12 transition-transform duration-300">
+                                <i class="fas fa-headset text-4xl text-blue-600"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-black text-3xl text-white tracking-tight drop-shadow-sm mb-1 uppercase">
+                                    Call Center 112</h3>
+                                <p class="text-[11px] text-white/80 font-bold uppercase tracking-widest">Minta Ditelepon
+                                    Operator</p>
+                            </div>
+                        </div>
+                    </button>
+                </form>
+
                 {{-- Cari Faskes --}}
                 <a href="{{ route('public.faskes') }}"
-                    class="group bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 hover:border-blue-500 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 flex flex-col items-center justify-center text-center gap-4">
+                    class="col-span-1 md:col-span-2 group bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 hover:border-blue-500 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 flex flex-col items-center justify-center text-center gap-4">
                     <div
                         class="w-14 h-14 bg-slate-50 group-hover:bg-blue-50 rounded-2xl flex items-center justify-center text-2xl text-slate-400 group-hover:text-blue-600 transition-colors">
                         <i class="fas fa-hospital-alt"></i>
                     </div>
                     <div>
                         <h3 class="font-bold text-charcoal text-base mb-1">Cari Faskes</h3>
-                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">RS & Klinik</p>
+                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">RS & Klinik Terdekat
+                        </p>
                     </div>
                 </a>
 
                 {{-- Panduan P3K --}}
                 <a href="{{ route('public.p3k') }}"
-                    class="group bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 hover:border-amber-500 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 flex flex-col items-center justify-center text-center gap-4">
+                    class="col-span-1 md:col-span-2 group bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 hover:border-amber-500 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 flex flex-col items-center justify-center text-center gap-4">
                     <div
                         class="w-14 h-14 bg-slate-50 group-hover:bg-amber-50 rounded-2xl flex items-center justify-center text-2xl text-slate-400 group-hover:text-amber-500 transition-colors">
                         <i class="fas fa-book-medical"></i>
                     </div>
                     <div>
                         <h3 class="font-bold text-charcoal text-base mb-1">Panduan P3K</h3>
-                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">P. Pertama</p>
+                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Pertolongan Pertama
+                        </p>
                     </div>
                 </a>
             </div>
@@ -302,7 +334,7 @@
                                                 <div class="flex items-start sm:items-center gap-4">
                                                     <div
                                                         class="w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0 border border-slate-100/50 shadow-sm
-                                                                                {{ $call->status == 'completed' ? 'bg-teal-50 text-teal-600' :
+                                                                                                                                            {{ $call->status == 'completed' ? 'bg-teal-50 text-teal-600' :
                             ($call->status == 'cancelled' ? 'bg-white text-slate-400' :
                                 ($call->status == 'process' ? 'bg-amber-50 text-amber-600' : 'bg-red-50 text-rescue-red')) }}">
                                                         @if($call->status == 'completed') <i class="fas fa-check"></i>
@@ -327,7 +359,7 @@
                                                 <div class="self-end sm:self-center">
                                                     <span
                                                         class="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest
-                                                                                {{ $call->status == 'completed' ? 'bg-teal-50 text-teal-600 border border-teal-100' :
+                                                                                                                                            {{ $call->status == 'completed' ? 'bg-teal-50 text-teal-600 border border-teal-100' :
                             ($call->status == 'cancelled' ? 'bg-slate-100 text-slate-500' :
                                 ($call->status == 'process' ? 'bg-amber-50 text-amber-600 border border-amber-100' : 'bg-red-50 text-rescue-red border border-red-100')) }}">
                                                         {{ $call->status }}
@@ -428,4 +460,29 @@
             }
         }
     </style>
+
+    @push('scripts')
+        <script>
+            function submitPhoneCall() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        function(position) {
+                            document.getElementById('pc_latitude').value = position.coords.latitude;
+                            document.getElementById('pc_longitude').value = position.coords.longitude;
+                            document.getElementById('phoneCallForm').submit();
+                        },
+                        function(error) {
+                            console.warn("Geolocation denied or failed. Submitting with default coordinates.");
+                            // Submit anyway with default coordinates
+                            document.getElementById('phoneCallForm').submit();
+                        },
+                        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+                    );
+                } else {
+                    // Browser doesn't support Geolocation
+                    document.getElementById('phoneCallForm').submit();
+                }
+            }
+        </script>
+    @endpush
 </x-app-layout>

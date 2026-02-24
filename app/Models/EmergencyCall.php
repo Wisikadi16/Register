@@ -12,6 +12,7 @@ class EmergencyCall extends Model
     // KITA TAMBAHKAN KOLOM PENTING YANG HILANG
     protected $fillable = [
         'user_id',
+        'type', // Panggilan ambulan atau telepon
         'caller_name',
         'caller_phone',
         'patient_name',
@@ -24,7 +25,9 @@ class EmergencyCall extends Model
         'photo',        // <--- Tambahkan Baris INI (Foto Bukti)
         'status',
         'latitude',     // <--- Wajib untuk peta
-        'longitude'     // <--- Wajib untuk peta
+        'longitude',    // <--- Wajib untuk peta
+        'driver_name',
+        'nakes_name'
     ];
 
     // Relasi: Setiap panggilan dimiliki oleh satu User

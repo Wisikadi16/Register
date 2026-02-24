@@ -8,6 +8,7 @@ use App\Models\Hospital;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage; // <--- Tambahkan Library Storage
+use Illuminate\Support\Facades\DB;
 
 class EmergencyController extends Controller
 {
@@ -65,31 +66,36 @@ class EmergencyController extends Controller
             }
         }
 
-        // 4. Tentukan Data untuk Disimpan
-        $callData = [
-            'user_id' => Auth::id(),
-            'latitude' => $userLat,
-            'longitude' => $userLng,
-            'location' => "{$userLat}, {$userLng}",
-            'description' => $request->description ?? 'Panggilan Darurat (Tanpa Keterangan)',
-            'photo' => $photoPath, // Simpan path foto
-            'ambulance_id' => null, // Default
-            'status' => 'pending', // Default
-        ];
+        // PERBAIKAN LOGIKA DISINI
+        DB::beginTransaction();
+        try {
+            $callData = [
+                'user_id' => Auth::id(),
+                'latitude' => $userLat,
+                'longitude' => $userLng,
+                'location' => "{$userLat}, {$userLng}",
+                'description' => $request->description ?? 'Panggilan Darurat (Tanpa Keterangan)',
+                'photo' => $photoPath,
+                'ambulance_id' => $assignedAmbulance ? $assignedAmbulance->id : null, // SIMPAN ID NYA!
+                'status' => $assignedAmbulance ? 'process' : 'pending', // LANGSUNG PROSES KALAU DAPAT
+            ];
 
-        $callData['ambulance_id'] = null; 
-        $callData['status'] = 'pending'; 
+            $emergencyCall = EmergencyCall::create($callData);
 
-        if ($assignedAmbulance) {
-            
-            $message = 'Permintaan terkirim! Sistem mendeteksi ambulan terdekat (' . $assignedAmbulance->name . '). Mohon tunggu konfirmasi Operator.';
-        } else {
-            $message = 'Mohon tunggu! Permintaan Anda telah masuk. Operator kami sedang mencarikan unit ambulan untuk Anda.';
+            if ($assignedAmbulance) {
+                // Jangan lupa ubah status ambulan jadi sibuk
+                $assignedAmbulance->update(['status' => 'busy']);
+                $message = 'Permintaan terkirim! Sistem mendeteksi ambulan terdekat (' . $assignedAmbulance->name . '). Tim sedang meluncur.';
+            } else {
+                $message = 'Mohon tunggu! Permintaan Anda telah masuk. Operator kami sedang mencarikan unit ambulan untuk Anda.';
+            }
+
+            DB::commit();
+            return redirect()->route('dashboard')->with('success', $message);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Terjadi kesalahan sistem: ' . $e->getMessage());
         }
-
-        EmergencyCall::create($callData);
-
-        return redirect()->route('dashboard')->with('success', $message);
     }
     //RUMUS MATEMATIKA
     //menghitung jarak antara dua titik koordinat 
@@ -125,40 +131,36 @@ class EmergencyController extends Controller
             'ambulance_id' => 'required|exists:ambulances,id',
         ]);
 
-        $emergencyCall = EmergencyCall::findOrFail($id);
-        $newAmbulance = Ambulance::findOrFail($request->ambulance_id);
+        // PERBAIKAN TRANSACTION DISINI
+        DB::beginTransaction();
+        try {
+            $emergencyCall = EmergencyCall::findOrFail($id);
+            $newAmbulance = Ambulance::findOrFail($request->ambulance_id);
 
-        // Validasi: Pastikan ambulan baru statusnya READY (kecuali memaksa/override, tapi sementara kita strict dulu)
-        // if ($newAmbulance->status != 'ready') {
-        //     return redirect()->back()->with('error', 'Gagal menugaskan. Ambulan ' . $newAmbulance->name . ' sedang sibuk (BUSY).');
-        // }
-
-        // 1. Jika sudah ada ambulan sebelumnya, bebaskan (set ready)
-        if ($emergencyCall->ambulance_id) {
-            $oldAmbulance = Ambulance::find($emergencyCall->ambulance_id);
-            if ($oldAmbulance) {
-                $oldAmbulance->update(['status' => 'ready']);
+            if ($emergencyCall->ambulance_id) {
+                $oldAmbulance = Ambulance::find($emergencyCall->ambulance_id);
+                if ($oldAmbulance) {
+                    $oldAmbulance->update(['status' => 'ready']);
+                }
             }
+
+            $emergencyCall->update([
+                'ambulance_id' => $newAmbulance->id,
+                'status' => 'process',
+            ]);
+
+            $newAmbulance->update(['status' => 'busy']);
+
+            if (class_exists(\App\Models\AuditLog::class)) {
+                \App\Models\AuditLog::record('Manual Dispatch', 'Operator menugaskan ambulan ' . $newAmbulance->name . ' untuk kejadian ID: ' . $emergencyCall->id);
+            }
+
+            DB::commit();
+            return redirect()->back()->with('success', 'Ambulan ' . $newAmbulance->name . ' berhasil ditugaskan secara manual.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Gagal menugaskan ambulan: ' . $e->getMessage());
         }
-
-        // 2. Update Emergency Call
-        $emergencyCall->update([
-            'ambulance_id' => $newAmbulance->id,
-            'status' => 'process', // Langsung set process
-        ]);
-
-        // 3. Set Status Ambulan Baru jadi BUSY
-        $newAmbulance->update(['status' => 'busy']);
-
-        // 4. Catat Audit Log (Jika model AuditLog ada)
-        if (class_exists(\App\Models\AuditLog::class)) {
-            \App\Models\AuditLog::record(
-                'Manual Dispatch',
-                'Operator menugaskan ambulan ' . $newAmbulance->name . ' untuk kejadian ID: ' . $emergencyCall->id
-            );
-        }
-
-        return redirect()->back()->with('success', 'Ambulan ' . $newAmbulance->name . ' berhasil ditugaskan secara manual.');
     }
 
     // BATALKAN PANGGILAN

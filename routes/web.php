@@ -25,20 +25,7 @@ Route::get('/', function () {
 Route::middleware(['auth', 'role:masyarakat'])->group(function () {
 
     // Dashboard utama untuk masyarakat (Halaman SOS)
-    Route::get('/dashboard', function () {
-        $activeCall = \App\Models\EmergencyCall::where('user_id', Auth::id())
-            ->whereIn('status', ['pending', 'process'])
-            ->latest()
-            ->first();
-
-        // Ambil 5 riwayat terakhir
-        $history = \App\Models\EmergencyCall::where('user_id', Auth::id())
-            ->latest()
-            ->limit(5)
-            ->get();
-
-        return view('dashboard', compact('activeCall', 'history'));
-    })->name('dashboard');
+    Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'masyarakat'])->name('dashboard');
 
     // Fitur Publik (Faskes & P3K)
     Route::get('/layanan/faskes', [\App\Http\Controllers\PublicFeatureController::class, 'indexFaskes'])->name('public.faskes');
@@ -59,19 +46,7 @@ Route::middleware(['auth', 'role:masyarakat,admin,super_admin,driver,operator,ru
 Route::middleware(['auth', 'role:super_admin'])->prefix('super-admin')->group(function () {
 
     // Dashboard Super Admin (Statistik Sistem)
-    Route::get('/dashboard', function () {
-        $stats = [
-            'total_users' => \App\Models\User::count(),
-            'hospitals' => \App\Models\Hospital::count(),
-            'total_basecamps' => \App\Models\Basecamp::count(),
-            'total_ambulances' => \App\Models\Ambulance::count(),
-            'total_drivers' => \App\Models\User::whereIn('role', ['driver', 'nakes'])->count(),
-            'total_calls' => \App\Models\EmergencyCall::count(),
-            'active_calls' => \App\Models\EmergencyCall::whereIn('status', ['pending', 'process'])->count(),
-        ];
-        // Pastikan view admin.dashboard bisa menangima variabel $stats
-        return view('admin.dashboard', compact('stats'));
-    })->name('super-admin.dashboard');
+    Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'superAdmin'])->name('super-admin.dashboard');
 
     // User Management (Full CRUD)
     Route::resource('users', \App\Http\Controllers\UserController::class)->names([
@@ -192,20 +167,7 @@ Route::middleware(['auth', 'role:operator,super_admin,ka'])->prefix('operator')-
 // GROUP 4: TIM LAPANGAN (DRIVER & NAKES)
 // ====================================================
 Route::middleware(['auth', 'role:driver,peserta_bhd'])->prefix('lapangan')->group(function () {
-    Route::get('/dashboard', function () {
-        $user = auth()->user();
-        $ambulance = \App\Models\Ambulance::where('driver_id', $user->id)->first();
-        $activeJob = null;
-
-        if ($ambulance) {
-            $activeJob = \App\Models\EmergencyCall::where('ambulance_id', $ambulance->id)
-                ->whereIn('status', ['pending', 'process'])
-                ->latest()->first();
-        }
-        $hospitals = \App\Models\Hospital::orderBy('available_bed_igd', 'desc')->get();
-
-        return view('lapangan.dashboard', compact('ambulance', 'activeJob', 'hospitals'));
-    })->name('lapangan.dashboard');
+    Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'lapangan'])->name('lapangan.dashboard');
 
     Route::post('/finish-job/{id}', [\App\Http\Controllers\LapanganController::class, 'finishJob'])->name('lapangan.finish');
     Route::post('/medical-record', [\App\Http\Controllers\LapanganController::class, 'storeMedicalRecord'])->name('lapangan.medical-record.store');

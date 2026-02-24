@@ -39,10 +39,6 @@
                 </div>
             </div>
 
-            @php
-                $activeCallsCount = $emergencies->where('status', '!=', 'completed')->count();
-            @endphp
-
             {{-- HORIZONTAL STATS RIBBON --}}
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <!-- Panggilan Aktif -->
@@ -86,7 +82,7 @@
                                                 <span class="font-bold text-charcoal text-xs truncate max-w-[120px]">{{ $amb->name }}</span>
                                                 <span
                                                     class="px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider
-                                                                                                                                                            {{ $amb->status == 'ready' ? 'bg-teal-50 text-teal-600' :
+                                                                                                                                                                                {{ $amb->status == 'ready' ? 'bg-teal-50 text-teal-600' :
                             ($amb->status == 'busy' ? 'bg-rescue-red border border-rescue-red/20 text-white shadow-sm shadow-rescue-red/30' : 'bg-slate-200 text-slate-600') }}">
                                                     {{ $amb->status }}
                                                 </span>
@@ -107,7 +103,7 @@
                         <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Ketersediaan Bed</p>
                         <i class="fas fa-procedures text-slate-300 text-xl"></i>
                     </div>
-                    <div class="space-y-3 overflow-y-auto custom-scrollbar max-h-[100px] pr-2">
+                    <div class="space-y-3 overflow-y-auto custom-scrollbar max-h-[250px] pr-2">
                         @foreach($hospitals->take(3) as $rs)
                             <div
                                 class="flex justify-between items-center border-b border-slate-50 pb-2 last:border-0 last:pb-0">

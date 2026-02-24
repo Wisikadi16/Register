@@ -15,13 +15,22 @@ class OperatorController extends Controller
     // DASHBOARD UTAMA
     public function dashboard()
     {
+        // PERBAIKAN: Jangan pakai ::all() atau ::get() tanpa batas!
+        // Ambil panggilan hari ini ATAU yang statusnya belum completed
         $emergencies = EmergencyCall::with(['user', 'ambulance', 'hospital'])
-            ->orderBy('created_at', 'desc')->get();
+            ->whereDate('created_at', today())
+            ->orWhereIn('status', ['pending', 'process'])
+            ->orderBy('created_at', 'desc')
+            ->limit(100) // Maksimal tampilkan 100 di dashboard biar RAM aman
+            ->get();
 
-        $ambulances = Ambulance::all();
+        // Hitung disini, JANGAN di file .blade.php
+        $activeCallsCount = EmergencyCall::whereIn('status', ['pending', 'process'])->count();
+
+        $ambulances = Ambulance::all(); // Kalau ambulan ratusan, ini juga harus di-limit/paginate nanti
         $hospitals = Hospital::orderBy('name')->get();
 
-        return view('operator.dashboard', compact('emergencies', 'ambulances', 'hospitals'));
+        return view('operator.dashboard', compact('emergencies', 'activeCallsCount', 'ambulances', 'hospitals'));
     }
 
     // 1. INPUT JADWAL DRIVER
@@ -94,8 +103,8 @@ class OperatorController extends Controller
             'caller_name' => $request->caller_name,
             'caller_phone' => $request->caller_phone,
             'location' => $request->location,
-            'latitude' => -6.200000,  // Default mock lat
-            'longitude' => 106.816666, // Default mock lng
+            'latitude' => $request->latitude ?? null,
+            'longitude' => $request->longitude ?? null,
             'description' => $request->description ?? 'Laporan Manual Operator',
             'ambulance_id' => $request->ambulance_id,
             'hospital_id' => $request->hospital_id,

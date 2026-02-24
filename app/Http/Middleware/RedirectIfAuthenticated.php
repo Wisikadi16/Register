@@ -44,8 +44,15 @@ class RedirectIfAuthenticated
                 }
 
                 // Group lapangan
-                if (in_array($role, ['driver', 'nakes', 'peserta_bhd'])) {
+                if (in_array($role, ['driver', 'peserta_bhd'])) {
                     return redirect()->route('lapangan.dashboard');
+                }
+
+                if ($role === 'nakes') {
+                    return redirect()->route('nakes.dashboard');
+                }
+                if ($role === 'sie_rujukan') {
+                    return redirect()->route('sie.dashboard');
                 }
 
                 // Group faskes

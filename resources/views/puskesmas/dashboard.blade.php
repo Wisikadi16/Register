@@ -1,112 +1,120 @@
 <x-app-layout>
-    <div class="min-h-screen bg-slate-50 relative overflow-hidden">
-        <!-- Background Decoration -->
-        <div
-            class="absolute top-0 left-0 w-full h-96 bg-gradient-to-br from-teal-500 to-blue-600 rounded-b-[3rem] shadow-lg">
+    <x-slot name="header">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <h2 class="text-3xl font-black text-charcoal tracking-tight">
+                    Dashboard <span class="text-blue-600 font-semibold">Puskesmas</span>
+                </h2>
+                <p class="text-slate-500 font-medium mt-1">Sistem Manajemen SPV & Laporan BHD</p>
+            </div>
+            <div class="bg-white border border-slate-200 px-5 py-2.5 rounded-full flex items-center gap-3 shadow-sm">
+                <i class="fas fa-calendar-alt text-slate-400"></i>
+                <span class="text-sm font-bold text-slate-700">
+                    {{ \Carbon\Carbon::now()->locale('id')->isoFormat('dddd, D MMMM Y') }}
+                </span>
+            </div>
         </div>
-        <div class="absolute top-10 right-10 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
-        <div class="absolute top-20 left-20 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+    </x-slot>
 
-        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="py-10 min-h-screen bg-slate-50 font-sans">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
 
-            <!-- Header Section -->
-            <div class="flex flex-col md:flex-row justify-between items-center mb-12">
-                <div class="text-white">
-                    <h2 class="text-4xl font-black tracking-tight mb-2 text-shadow-sm">Lab Puskesmas</h2>
-                    <p class="text-blue-100 text-lg font-medium">Sistem Informasi Manajemen Data & Pelaporan</p>
-                </div>
+            {{-- WELCOME BANNER (Minimalist & Premium) --}}
+            <div
+                class="bg-gradient-to-r from-rescue-red to-red-600 rounded-[2rem] p-8 md:p-10 shadow-lg flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden group">
                 <div
-                    class="mt-6 md:mt-0 flex items-center bg-white/20 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/20 shadow-lg">
-                    <div class="p-2 bg-white rounded-xl text-teal-600 mr-4 shadow-sm">
-                        <i class="fas fa-hospital-user text-xl"></i>
+                    class="absolute top-0 right-0 w-64 h-64 bg-white rounded-full blur-3xl opacity-10 -translate-y-1/2 translate-x-1/2 pattern-grid-lg text-white">
+                </div>
+
+                <div class="relative z-10 max-w-2xl text-center md:text-left">
+                    <div
+                        class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/20 border border-white/20 text-white text-[10px] font-black uppercase tracking-widest mb-4 shadow-sm backdrop-blur-sm">
+                        <i class="fas fa-building text-white"></i> Puskesmas & Lab Medik
                     </div>
-                    <div>
-                        <div class="text-xs text-blue-100 uppercase font-bold tracking-wider">User Login</div>
-                        <div class="text-white font-bold text-lg">{{ Auth::user()->name }}</div>
-                    </div>
+                    <h1 class="text-3xl md:text-4xl font-black text-white tracking-tight mb-2">
+                        Halo, {{ Auth::user()->name }} 👋
+                    </h1>
+                    <p class="text-red-50 text-base leading-relaxed">
+                        Sistem Informasi terpadu untuk pendataan Supervisor operasional dan pencatatan riwayat kegiatan
+                        Bantuan Hidup Dasar (BHD).
+                    </p>
+                </div>
+
+                <div
+                    class="relative z-10 hidden md:flex w-32 h-32 bg-white/20 border border-white/20 rounded-[2rem] shadow-inner items-center justify-center text-white/70 text-6xl group-hover:scale-105 group-hover:rotate-3 transition duration-700 backdrop-blur-sm">
+                    <i class="fas fa-clinic-medical text-white"></i>
                 </div>
             </div>
 
-            <!-- Stats & Menu Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-
-                <!-- Menu 1: Data Supervisor -->
-                <a href="{{ route('puskesmas.supervisors.index') }}"
-                    class="group relative bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:shadow-blue-500/20 hover:-translate-y-2 transition-all duration-300 border border-slate-100 overflow-hidden">
-                    <div
-                        class="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-bl-[100%] transition-transform group-hover:scale-110">
-                    </div>
-
-                    <div class="relative z-10 flex flex-col h-full justify-between">
-                        <div>
-                            <div
-                                class="w-20 h-20 bg-gradient-to-br from-blue-100 to-blue-50 text-blue-600 rounded-3xl flex items-center justify-center text-4xl mb-6 shadow-inner group-hover:scale-110 transition-transform duration-300">
-                                <i class="fas fa-user-tie"></i>
-                            </div>
-                            <h3
-                                class="text-2xl font-black text-slate-800 mb-2 group-hover:text-blue-600 transition-colors">
-                                Data Supervisor</h3>
-                            <p class="text-slate-500 leading-relaxed">Kelola data personil supervisor, jabatan, dan
-                                informasi kontak tim Lab Puskesmas.</p>
-                        </div>
-
-                        <div class="mt-8 flex items-center justify-between">
-                            <span class="px-5 py-2 bg-blue-50 text-blue-600 rounded-xl font-bold text-sm">
-                                {{ $totalSpv }} Terdaftar
-                            </span>
-                            <div
-                                class="w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-lg group-hover:bg-blue-700 transition relative overflow-hidden">
-                                <i class="fas fa-arrow-right relative z-10"></i>
-                                <div
-                                    class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-
-                <!-- Menu 2: Laporan BHD -->
-                <a href="{{ route('puskesmas.bhd.index') }}"
-                    class="group relative bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:shadow-rose-500/20 hover:-translate-y-2 transition-all duration-300 border border-slate-100 overflow-hidden">
-                    <div
-                        class="absolute top-0 right-0 w-32 h-32 bg-rose-50 rounded-bl-[100%] transition-transform group-hover:scale-110">
-                    </div>
-
-                    <div class="relative z-10 flex flex-col h-full justify-between">
-                        <div>
-                            <div
-                                class="w-20 h-20 bg-gradient-to-br from-rose-100 to-rose-50 text-rose-600 rounded-3xl flex items-center justify-center text-4xl mb-6 shadow-inner group-hover:scale-110 transition-transform duration-300">
-                                <i class="fas fa-heartbeat"></i>
-                            </div>
-                            <h3
-                                class="text-2xl font-black text-slate-800 mb-2 group-hover:text-rose-600 transition-colors">
-                                Laporan BHD</h3>
-                            <p class="text-slate-500 leading-relaxed">Input dan monitoring laporan kegiatan Bantuan
-                                Hidup Dasar (BHD) serta dokumentasi.</p>
-                        </div>
-
-                        <div class="mt-8 flex items-center justify-between">
-                            <span class="px-5 py-2 bg-rose-50 text-rose-600 rounded-xl font-bold text-sm">
-                                {{ $totalBhd }} Laporan
-                            </span>
-                            <div
-                                class="w-12 h-12 rounded-full bg-rose-600 text-white flex items-center justify-center shadow-lg group-hover:bg-rose-700 transition relative overflow-hidden">
-                                <i class="fas fa-arrow-right relative z-10"></i>
-                                <div
-                                    class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-
+            <div class="flex items-center gap-3 pl-2 mt-8 mb-4">
+                <div class="w-8 h-8 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center text-sm">
+                    <i class="fas fa-bars"></i>
+                </div>
+                <h3 class="text-lg font-bold text-charcoal">Menu Admin Puskesmas</h3>
             </div>
 
-            <!-- Quick Footer Info -->
-            <div class="mt-12 text-center">
-                <p class="text-sm font-medium text-slate-400">
-                    &copy; {{ date('Y') }} Sistem Ambulan Hebat & Lab Medis. All rights reserved.
-                </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16 mt-8">
+                <!-- Data Supervisor -->
+                <a href="{{ route('puskesmas.supervisors.index') }}"
+                    class="group bg-white rounded-[2rem] p-8 shadow-sm hover:shadow-lg border border-slate-100 hover:border-blue-300 transition-all duration-300 relative overflow-hidden flex flex-col items-start gap-4 hover:-translate-y-1">
+
+                    <div class="w-full flex justify-between items-start mb-2">
+                        <div
+                            class="w-16 h-16 bg-slate-50 group-hover:bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-3xl shadow-sm transition-colors duration-300">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                        <span
+                            class="px-4 py-1.5 bg-slate-50 border border-slate-100 text-slate-500 rounded-full font-black text-[10px] uppercase tracking-widest shadow-sm">
+                            <strong class="text-blue-600 text-sm mr-1">{{ $totalSpv }}</strong> Terdaftar
+                        </span>
+                    </div>
+
+                    <div>
+                        <h4 class="font-black text-charcoal text-xl mb-2 group-hover:text-blue-600 transition-colors">
+                            Data Supervisor</h4>
+                        <p class="text-slate-500 text-sm leading-relaxed">Kelola pendaftaran, jabatan, dan informasi
+                            kontak lengkap untuk tim Supervisor Lab/Puskesmas.</p>
+                    </div>
+
+                    <div
+                        class="mt-4 inline-flex items-center gap-2 text-xs font-bold text-blue-600 group-hover:translate-x-2 transition-transform">
+                        Kelola Data <i class="fas fa-arrow-right"></i>
+                    </div>
+
+                    <i
+                        class="fas fa-users absolute -right-6 -bottom-6 text-9xl text-slate-50 opacity-50 transform -rotate-12 group-hover:rotate-0 transition duration-700"></i>
+                </a>
+
+                <!-- Laporan BHD -->
+                <a href="{{ route('puskesmas.bhd.index') }}"
+                    class="group bg-white rounded-[2rem] p-8 shadow-sm hover:shadow-lg border border-slate-100 hover:border-rescue-red/30 transition-all duration-300 relative overflow-hidden flex flex-col items-start gap-4 hover:-translate-y-1">
+
+                    <div class="w-full flex justify-between items-start mb-2">
+                        <div
+                            class="w-16 h-16 bg-slate-50 group-hover:bg-red-50 text-rescue-red rounded-2xl flex items-center justify-center text-3xl shadow-sm transition-colors duration-300">
+                            <i class="fas fa-heartbeat"></i>
+                        </div>
+                        <span
+                            class="px-4 py-1.5 bg-slate-50 border border-slate-100 text-slate-500 rounded-full font-black text-[10px] uppercase tracking-widest shadow-sm">
+                            <strong class="text-rescue-red text-sm mr-1">{{ $totalBhd }}</strong> Laporan
+                        </span>
+                    </div>
+
+                    <div>
+                        <h4 class="font-black text-charcoal text-xl mb-2 group-hover:text-rescue-red transition-colors">
+                            Laporan BHD</h4>
+                        <p class="text-slate-500 text-sm leading-relaxed">Input riwayat pelaksanaan Bantuan Hidup Dasar
+                            (BHD), kelola data peserta, dan lampirkan dokumentasi.</p>
+                    </div>
+
+                    <div
+                        class="mt-4 inline-flex items-center gap-2 text-xs font-bold text-rescue-red group-hover:translate-x-2 transition-transform">
+                        Lihat Laporan <i class="fas fa-arrow-right"></i>
+                    </div>
+
+                    <i
+                        class="fas fa-file-medical-alt absolute -right-6 -bottom-6 text-9xl text-slate-50 opacity-50 transform -rotate-12 group-hover:rotate-0 transition duration-700"></i>
+                </a>
             </div>
 
         </div>

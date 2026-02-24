@@ -12,6 +12,11 @@ class EmergencyCall extends Model
     // KITA TAMBAHKAN KOLOM PENTING YANG HILANG
     protected $fillable = [
         'user_id',
+        'caller_name',
+        'caller_phone',
+        'patient_name',
+        'patient_age',
+        'patient_condition',
         'ambulance_id', // <--- Wajib ada biar driver bisa update tugas
         'hospital_id',  // <--- Tambahkan Baris INI
         'location',

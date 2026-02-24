@@ -1,37 +1,38 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-            <h2 class="text-3xl font-black text-gray-800 dark:text-white leading-tight">
-                Dashboard <span class="text-red-600">Pelayanan Darurat</span>
-            </h2>
-            <div
-                class="bg-white dark:bg-gray-800 px-4 py-2 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center gap-3">
-                <div class="p-2 bg-red-50 dark:bg-red-900/20 rounded-xl text-red-600">
-                    <i class="fas fa-heartbeat"></i>
-                </div>
-                <div class="text-sm font-bold text-gray-700 dark:text-gray-300">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <h2 class="text-3xl font-black text-charcoal tracking-tight">
+                    WPS <span class="text-rescue-red font-semibold">Tanggapan Darurat</span>
+                </h2>
+                <p class="text-slate-500 font-medium mt-1">Sistem Pelayanan Medis Warga</p>
+            </div>
+            <div class="bg-white border border-slate-200 px-5 py-2.5 rounded-full flex items-center gap-3 shadow-sm">
+                <i class="fas fa-calendar-alt text-slate-400"></i>
+                <span class="text-sm font-bold text-slate-700">
                     {{ \Carbon\Carbon::now()->locale('id')->isoFormat('dddd, D MMMM Y') }}
-                </div>
+                </span>
             </div>
         </div>
     </x-slot>
 
-    <div class="py-12 min-h-screen bg-slate-50 dark:bg-slate-900">
+    <div class="py-10 min-h-screen bg-slate-50 font-sans">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
 
-            {{-- Flash Message Success (Lebih Modern) --}}
+            {{-- Flash Message Success (Minimalist) --}}
             @if (session('success'))
                 <div x-data="{ show: true }" x-show="show"
-                    class="bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 rounded-2xl shadow-sm flex items-start gap-4 animate-fade-in-down relative overflow-hidden">
-                    <div class="flex-shrink-0 bg-emerald-100 rounded-full p-2 text-emerald-600">
+                    class="bg-white border border-emerald-200 text-charcoal p-5 rounded-2xl shadow-sm flex items-start gap-4 transition-all relative">
+                    <div
+                        class="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 shrink-0">
                         <i class="fas fa-check-circle text-xl"></i>
                     </div>
                     <div>
-                        <p class="font-bold text-lg">Berhasil!</p>
-                        <p class="text-emerald-700/80">{{ session('success') }}</p>
+                        <p class="font-bold text-base">Berhasil!</p>
+                        <p class="text-slate-500 text-sm mt-0.5">{{ session('success') }}</p>
                     </div>
                     <button @click="show = false"
-                        class="absolute top-4 right-4 text-emerald-400 hover:text-emerald-600 transition">
+                        class="absolute top-5 right-5 text-slate-400 hover:text-charcoal transition">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
@@ -39,94 +40,92 @@
 
             {{-- 1. HERO SECTION (Dynamic State) --}}
             @if(isset($activeCall) && $activeCall)
-                {{-- EMERGENCY STATE (Lebih Intens tapi Rapi) --}}
-                <div class="relative group overflow-hidden rounded-[2rem] shadow-2xl shadow-red-500/30">
-                    <div class="absolute inset-0 bg-gradient-to-br from-rose-600 via-red-600 to-red-700"></div>
-
+                {{-- EMERGENCY STATE --}}
+                <div
+                    class="bg-white rounded-[2rem] p-8 md:p-10 border border-rescue-red/30 shadow-2xl shadow-rescue-red/10 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 group">
+                    <div class="absolute top-0 left-0 w-1.5 h-full bg-rescue-red z-20"></div>
                     <div
-                        class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')]">
-                    </div>
-                    <div
-                        class="absolute -top-24 -right-24 w-96 h-96 bg-rose-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse">
+                        class="absolute -top-24 -right-24 w-64 h-64 bg-red-50 rounded-full blur-3xl opacity-50 z-0 animate-pulse">
                     </div>
 
-                    <div class="relative z-10 p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8">
-                        <div class="text-center md:text-left space-y-4 flex-1">
-                            <div
-                                class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-800/30 border border-red-400/30 backdrop-blur-md text-red-50 text-sm font-semibold tracking-wide animate-pulse">
-                                <span class="w-2 h-2 rounded-full bg-red-400 animate-ping"></span>
-                                STATUS DARURAT AKTIF
-                            </div>
-
-                            <h1 class="text-4xl md:text-6xl font-black text-white tracking-tight drop-shadow-sm">
-                                Bantuan Segera Tiba!
-                            </h1>
-
-                            <p class="text-red-100 text-lg md:text-xl font-medium leading-relaxed max-w-2xl">
-                                @if($activeCall->ambulance)
-                                    Ambulan <span
-                                        class="text-white font-bold bg-red-700/50 px-2 py-0.5 rounded">{{ $activeCall->ambulance->name }}</span>
-                                    sedang meluncur ke lokasi.
-                                @else
-                                    Sistem sedang mencari armada terdekat. Mohon tetap tenang dan jangan matikan ponsel.
-                                @endif
-                            </p>
-
-                            <div class="pt-4 flex flex-wrap justify-center md:justify-start gap-4">
-                                <button
-                                    class="bg-white text-rose-600 px-8 py-4 rounded-xl font-bold shadow-lg hover:shadow-xl hover:bg-slate-50 hover:-translate-y-1 transition-all duration-300 flex items-center gap-3 group/btn">
-                                    <i class="fas fa-phone-alt group-hover/btn:animate-tada"></i> Hubungi Operator
-                                </button>
-                                <a href="https://www.google.com/maps/dir/?api=1&destination={{ $activeCall->latitude }},{{ $activeCall->longitude }}"
-                                    target="_blank"
-                                    class="bg-red-800/40 border border-red-400/30 text-white px-8 py-4 rounded-xl font-semibold backdrop-blur-md hover:bg-red-800/60 transition flex items-center gap-3">
-                                    <i class="fas fa-map-marked-alt"></i> Pantau Lokasi
-                                </a>
-                            </div>
+                    <div class="relative z-10 text-center md:text-left space-y-5 flex-1 w-full">
+                        <div
+                            class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-50 text-rescue-red text-xs font-black tracking-widest border border-red-100 shadow-sm animate-pulse mx-auto md:mx-0">
+                            <i class="fas fa-info-circle"></i> STATUS DARURAT AKTIF
                         </div>
 
-                        <div class="relative">
-                            <div class="absolute inset-0 bg-white/20 rounded-full blur-2xl transform scale-110"></div>
-                            <i
-                                class="fas fa-ambulance text-[10rem] text-white drop-shadow-2xl animate-bounce-slow relative z-10"></i>
+                        <h1 class="text-3xl md:text-4xl font-black text-charcoal tracking-tight">
+                            Bantuan Segera Tiba!
+                        </h1>
+
+                        <p class="text-slate-500 text-lg max-w-2xl leading-relaxed">
+                            @if($activeCall->ambulance)
+                                Armada Bantuan
+                                <span
+                                    class="bg-slate-100 text-charcoal font-bold px-3 py-1 rounded-lg inline-block mx-1 border border-slate-200 shadow-sm">
+                                    {{ $activeCall->ambulance->name }} <span
+                                        class="text-[10px] text-slate-400 uppercase ml-1">{{ $activeCall->ambulance->plat_number }}</span>
+                                </span>
+                                sedang meluncur. Persiapkan diri Anda dan tetap tenang.
+                            @else
+                                Sistem kami sedang mengirimkan armada terdekat ke lokasi Anda. Mohon <strong
+                                    class="text-charcoal border-b border-rescue-red border-dashed">tetap tenang</strong> dan
+                                pastikan ponsel aktif.
+                            @endif
+                        </p>
+
+                        <div class="flex flex-col sm:flex-row gap-4 pt-4 justify-center md:justify-start">
+                            <button
+                                class="bg-white border-2 border-slate-200 text-slate-700 hover:border-blue-600 hover:text-blue-600 px-8 py-3.5 rounded-xl font-bold transition-all shadow-sm flex items-center justify-center gap-3 active:scale-95">
+                                <i class="fas fa-phone-alt animate-bounce"></i> Hubungi Operator
+                            </button>
+                            <a href="https://www.google.com/maps/dir/?api=1&destination={{ $activeCall->latitude }},{{ $activeCall->longitude }}"
+                                target="_blank"
+                                class="bg-charcoal text-white shadow-md hover:bg-slate-800 px-8 py-3.5 rounded-xl font-bold transition-all flex items-center justify-center gap-3 active:scale-95">
+                                <i class="fas fa-location-arrow"></i> Buka Navigasi
+                            </a>
                         </div>
+                    </div>
+
+                    <div
+                        class="relative z-10 w-32 h-32 md:w-40 md:h-40 bg-red-50 rounded-3xl flex items-center justify-center border border-red-100 shadow-inner group-hover:scale-105 transition duration-500 shrink-0 mx-auto">
+                        <i class="fas fa-ambulance text-6xl text-rescue-red animate-bounce-slow"></i>
                     </div>
                 </div>
 
                 {{-- MAP TRACKING CARD --}}
-                <div
-                    class="mt-8 bg-white dark:bg-gray-800 rounded-[2rem] shadow-xl p-6 border border-slate-100 dark:border-gray-700">
-                    <div class="mb-6 flex justify-between items-center">
+                <div class="mt-8 bg-white rounded-[2rem] shadow-sm border border-slate-100 p-8">
+                    <div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div>
-                            <h3 class="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                                <i class="fas fa-map-marked-alt text-blue-500"></i> Pantau Lokasi Ambulan
+                            <h3 class="text-xl font-bold text-charcoal flex items-center gap-3">
+                                <div class="w-10 h-10 bg-blue-50 text-blue-600 flex items-center justify-center rounded-xl">
+                                    <i class="fas fa-satellite-dish"></i>
+                                </div>
+                                Pantauan Armada Real-Time
                             </h3>
-                            <p class="text-slate-500 text-sm mt-1">Estimasi tiba: <span id="estimasi"
-                                    class="font-bold text-slate-800 dark:text-gray-200">- menit</span></p>
                         </div>
-                        <div
-                            class="animate-pulse flex items-center gap-2 text-blue-600 bg-blue-50 px-3 py-1 rounded-full text-xs font-bold">
-                            <span class="w-2 h-2 bg-blue-600 rounded-full"></span>
-                            LIVE TRACKING
+                        <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 px-4 py-2 rounded-xl">
+                            <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Estimasi Tiba:</span>
+                            <span id="estimasi" class="font-black text-charcoal text-sm">- mnt</span>
+                            <span class="w-2 h-2 bg-blue-500 rounded-full animate-ping ml-2"></span>
                         </div>
                     </div>
 
-                    <div id="map"
-                        class="w-full h-96 rounded-2xl border-2 border-slate-200 dark:border-gray-600 z-0 text-slate-800">
+                    <div id="map" class="w-full h-[400px] rounded-2xl border border-slate-200 z-0 bg-slate-100">
+                        <!-- Map rendered here -->
                     </div>
                 </div>
 
                 @push('styles')
                     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
                     <style>
-                        /* Animasi berdenyut untuk marker user */
                         .user-marker-icon {
                             background-color: #3b82f6;
                             border: 3px solid white;
                             border-radius: 50%;
                             width: 20px;
                             height: 20px;
-                            box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+                            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
                             animation: pulse-blue 2s infinite;
                         }
 
@@ -138,7 +137,7 @@
 
                             70% {
                                 transform: scale(1);
-                                box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+                                box-shadow: 0 0 0 12px rgba(59, 130, 246, 0);
                             }
 
                             100% {
@@ -153,169 +152,127 @@
                     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
                     <script>
                         document.addEventListener('DOMContentLoaded', function () {
-                            // Cek apakah elemen map ada
                             var mapElement = document.getElementById('map');
                             if (!mapElement) return;
 
-                            // 1. Inisialisasi Peta (Default ke Monas dulu sebelum dapat lokasi)
                             var map = L.map('map').setView([-6.175392, 106.827153], 15);
-
-                            // 2. Pasang Tile Layer (OpenStreetMap - Gratis)
                             L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                                 maxZoom: 19,
-                                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                                attribution: '&copy; OpenStreetMap'
                             }).addTo(map);
 
-                            // 3. Icon Custom
                             var ambulanceIcon = L.icon({
-                                iconUrl: 'https://cdn-icons-png.flaticon.com/512/263/263086.png', // Gambar Ambulan
+                                iconUrl: 'https://cdn-icons-png.flaticon.com/512/263/263086.png',
                                 iconSize: [40, 40],
                                 iconAnchor: [20, 20],
                                 popupAnchor: [0, -20]
                             });
 
                             var userIcon = L.divIcon({ className: 'user-marker-icon' });
-
-                            // 4. Data Dummy Awal (Ganti dengan data real dari Backend nanti)
                             var ambulanceId = "{{ $activeCall->ambulance_id ?? 1 }}";
-
-                            // Lokasi User (Pemanggil)
                             var userLat = {{ $activeCall->latitude ?? -6.175392 }};
                             var userLng = {{ $activeCall->longitude ?? 106.827153 }};
-                            var userMarker = L.marker([userLat, userLng], { icon: userIcon }).addTo(map).bindPopup("Lokasi Anda").openPopup();
-
-                            // Marker Ambulan (Akan bergerak)
+                            var userMarker = L.marker([userLat, userLng], { icon: userIcon }).addTo(map).bindPopup("Lokasi Saya").openPopup();
                             var ambulanceMarker = L.marker([userLat, userLng], { icon: ambulanceIcon }).addTo(map);
 
-                            // 5. Fungsi Update Lokasi Ambulan (Real-time Polling)
                             function updateAmbulanceLocation() {
                                 fetch(`/api/ambulance/${ambulanceId}/location`)
                                     .then(response => response.json())
                                     .then(data => {
                                         if (data.latitude && data.longitude) {
                                             var newLatLng = new L.LatLng(data.latitude, data.longitude);
-                                            ambulanceMarker.setLatLng(newLatLng); // Pindahkan marker
-
-                                            // Update popup info
-                                            ambulanceMarker.bindPopup(`<b>Ambulan ${data.unit}</b><br>Update: ${data.last_update}`).openPopup();
-
-                                            // Auto zoom supaya User & Ambulan masuk dalam layar
+                                            ambulanceMarker.setLatLng(newLatLng);
+                                            ambulanceMarker.bindPopup(`<div class="font-bold text-slate-800">Ambulan ${data.unit}</div><div class="text-[10px] text-slate-500 mt-1">Update: ${data.last_update}</div>`).openPopup();
                                             var group = new L.featureGroup([userMarker, ambulanceMarker]);
                                             map.fitBounds(group.getBounds().pad(0.1));
                                         }
                                     })
                                     .catch(error => console.error('Gagal ambil lokasi:', error));
                             }
-
-                            // Jalankan update setiap 5 detik
                             setInterval(updateAmbulanceLocation, 5000);
-                            updateAmbulanceLocation(); // Jalankan sekali di awal
+                            updateAmbulanceLocation();
                         });
                     </script>
                 @endpush
-            @else
-                {{-- SAFE STATE (Lebih Fresh & Calm) --}}
-                <div
-                    class="relative overflow-hidden rounded-[2rem] bg-white dark:bg-gray-800 shadow-xl shadow-teal-900/5 border border-slate-100 dark:border-gray-700">
-                    <div
-                        class="absolute top-0 right-0 w-full h-full bg-gradient-to-bl from-teal-50 via-transparent to-transparent opacity-70">
-                    </div>
-                    <div class="absolute -top-10 -right-10 w-64 h-64 bg-teal-100 rounded-full blur-3xl opacity-60"></div>
 
-                    <div class="relative z-10 p-8 md:p-10 flex flex-col md:flex-row items-center justify-between">
-                        <div class="space-y-3">
-                            <div
-                                class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-50 text-teal-600 text-xs font-bold uppercase tracking-wider mb-2">
-                                <i class="fas fa-shield-alt"></i> Sistem Siaga
-                            </div>
-                            <h1 class="text-3xl md:text-5xl font-extrabold text-slate-800 dark:text-white tracking-tight">
-                                Halo, <span
-                                    class="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-emerald-600">{{ Auth::user()->name }}</span>
-                                👋
-                            </h1>
-                            <p class="text-slate-500 dark:text-slate-400 text-lg max-w-xl leading-relaxed">
-                                Kesehatan adalah prioritas. Tekan tombol darurat di bawah jika Anda membutuhkan pertolongan
-                                medis mendesak.
-                            </p>
+            @else
+                {{-- SAFE STATE (Clean, Premium Greeting) --}}
+                <div
+                    class="bg-gradient-to-r from-rescue-red to-red-600 rounded-[2rem] p-8 md:p-12 shadow-lg flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden group">
+                    <div
+                        class="absolute top-0 right-0 w-64 h-64 bg-white rounded-full blur-3xl opacity-10 -translate-y-1/2 translate-x-1/2 text-white">
+                    </div>
+
+                    <div class="relative z-10 max-w-2xl text-center md:text-left">
+                        <div
+                            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/20 border border-white/20 text-white text-[10px] font-black uppercase tracking-widest mb-4 shadow-sm backdrop-blur-sm">
+                            <i class="fas fa-shield-alt text-white"></i> Sistem Siaga Penuh
                         </div>
-                        <div class="hidden md:block opacity-10 rotate-12">
-                            <i class="fas fa-heartbeat text-9xl text-teal-900"></i>
-                        </div>
+                        <h1 class="text-3xl md:text-5xl font-black text-white tracking-tight mb-4">
+                            Halo, {{ Auth::user()->name }} 👋
+                        </h1>
+                        <p class="text-red-50 text-lg leading-relaxed">
+                            Akses layanan kesehatan terpadu dan tanggap darurat dalam satu genggaman. Tekan tombol <strong
+                                class="text-white">SOS</strong> jika Anda berada dalam kondisi medis mendesak.
+                        </p>
+                    </div>
+
+                    <div
+                        class="relative z-10 hidden md:flex w-32 h-32 bg-white/20 border border-white/20 rounded-[2rem] shadow-inner items-center justify-center text-white/70 text-6xl group-hover:scale-105 group-hover:-rotate-3 transition duration-700 backdrop-blur-sm">
+                        <i class="fas fa-heartbeat text-white"></i>
                     </div>
                 </div>
             @endif
 
-            {{-- 2. QUICK ACCESS GRID (Card Modern dengan Hover Effect) --}}
+            {{-- 2. QUICK ACCESS GRID (Sleek Minimalist Cards) --}}
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
 
-                {{-- Emergency Button (Primary) --}}
-                {{-- Emergency Button (Primary - URGENT STYLE) --}}
+                {{-- EMERGENCY BUTTON (SOS - Premium Redesign) --}}
                 <a href="{{ route('emergency.create') }}"
-                    class="col-span-2 group relative overflow-hidden rounded-3xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                    <div class="absolute inset-0 bg-gradient-to-br from-red-600 to-rose-700"></div>
-
+                    class="col-span-2 group bg-rescue-red rounded-[2rem] p-8 shadow-xl shadow-rescue-red/20 relative overflow-hidden flex items-center justify-center border border-rescue-red hover:shadow-2xl hover:shadow-rescue-red/30 transition-all duration-300 transform hover:-translate-y-1">
+                    <!-- Subtle pulsing glow effect -->
+                    <div class="absolute inset-0 bg-gradient-to-tr from-black/10 to-transparent"></div>
                     <div
-                        class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] mix-blend-overlay">
+                        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-white/10 rounded-full blur-2xl animate-pulse">
                     </div>
 
-                    <div
-                        class="absolute -top-10 -right-10 w-32 h-32 bg-red-400 rounded-full blur-3xl opacity-30 animate-pulse">
-                    </div>
-
-                    <div
-                        class="h-full relative z-10 p-6 flex flex-col items-center justify-center text-center gap-4 text-white">
+                    <div class="relative z-10 flex flex-col items-center text-center gap-3">
                         <div
-                            class="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center text-4xl shadow-inner group-hover:scale-110 transition-transform duration-300">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                stroke="currentColor" class="w-12 h-12 text-white animate-pulse">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-                            </svg>
+                            class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                            <i class="fas fa-ambulance text-3xl text-rescue-red"></i>
                         </div>
                         <div>
-                            <h3 class="font-bold text-2xl tracking-tight drop-shadow-sm">Panggil Ambulan</h3>
-                            <p class="text-sm text-red-100 font-medium mt-1">Sinyal SOS Darurat (Klik Disini!)</p>
+                            <h3 class="font-black text-3xl text-white tracking-tight drop-shadow-sm mb-1 uppercase">
+                                Panggil Ambulan</h3>
+                            <p class="text-[11px] text-white/80 font-bold uppercase tracking-widest">Sinyal SOS Darurat
+                            </p>
                         </div>
                     </div>
                 </a>
 
                 {{-- Cari Faskes --}}
                 <a href="{{ route('public.faskes') }}"
-                    class="group bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-gray-700 hover:shadow-lg hover:border-blue-200 transition-all duration-300 hover:-translate-y-1 flex flex-col items-center justify-center text-center gap-4">
+                    class="group bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 hover:border-blue-500 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 flex flex-col items-center justify-center text-center gap-4">
                     <div
-                        class="w-16 h-16 bg-blue-50 dark:bg-blue-900/20 rounded-2xl flex items-center justify-center text-2xl text-blue-600 group-hover:rotate-6 transition-transform duration-300">
+                        class="w-14 h-14 bg-slate-50 group-hover:bg-blue-50 rounded-2xl flex items-center justify-center text-2xl text-slate-400 group-hover:text-blue-600 transition-colors">
                         <i class="fas fa-hospital-alt"></i>
                     </div>
                     <div>
-                        <h3 class="font-bold text-slate-800 dark:text-white text-lg">Cari Faskes</h3>
-                        <p class="text-xs text-slate-500 mt-1">RS & Klinik Terdekat</p>
+                        <h3 class="font-bold text-charcoal text-base mb-1">Cari Faskes</h3>
+                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">RS & Klinik</p>
                     </div>
                 </a>
 
-                {{-- Edukasi / P3K --}}
+                {{-- Panduan P3K --}}
                 <a href="{{ route('public.p3k') }}"
-                    class="group bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-gray-700 hover:shadow-lg hover:border-amber-200 transition-all duration-300 hover:-translate-y-1 flex flex-col items-center justify-center text-center gap-4">
+                    class="group bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 hover:border-amber-500 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 flex flex-col items-center justify-center text-center gap-4">
                     <div
-                        class="w-16 h-16 bg-amber-50 dark:bg-amber-900/20 rounded-2xl flex items-center justify-center text-2xl text-amber-500 group-hover:scale-110 transition-transform duration-300">
+                        class="w-14 h-14 bg-slate-50 group-hover:bg-amber-50 rounded-2xl flex items-center justify-center text-2xl text-slate-400 group-hover:text-amber-500 transition-colors">
                         <i class="fas fa-book-medical"></i>
                     </div>
                     <div>
-                        <h3 class="font-bold text-slate-800 dark:text-white text-lg">Panduan P3K</h3>
-                        <p class="text-xs text-slate-500 mt-1">Pertolongan Pertama</p>
-                    </div>
-                </a>
-
-                {{-- Data Bencana (PUSAKA) --}}
-                <a href="https://lookerstudio.google.com/reporting/b6f0e801-078f-479e-aa20-3975c4d6d0c1/page/RmqZF"
-                    target="_blank"
-                    class="group bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-gray-700 hover:shadow-lg hover:border-teal-200 transition-all duration-300 hover:-translate-y-1 flex flex-col items-center justify-center text-center gap-4">
-                    <div
-                        class="w-16 h-16 bg-teal-50 dark:bg-teal-900/20 rounded-2xl flex items-center justify-center text-2xl text-teal-600 group-hover:rotate-12 transition-transform duration-300">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-slate-800 dark:text-white text-lg">Data Krisis</h3>
-                        <p class="text-xs text-slate-500 mt-1">Monitoring PUSAKA</p>
+                        <h3 class="font-bold text-charcoal text-base mb-1">Panduan P3K</h3>
+                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">P. Pertama</p>
                     </div>
                 </a>
             </div>
@@ -323,127 +280,129 @@
             {{-- 3. CONTENT SECTION --}}
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-                {{-- List Riwayat (Clean List) --}}
+                {{-- Riwayat Panggilan (Clean Elegant List) --}}
                 <div
-                    class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-[2rem] shadow-sm border border-slate-100 dark:border-gray-700 flex flex-col h-full">
-                    <div class="p-8 border-b border-slate-50 dark:border-gray-700 flex justify-between items-center">
+                    class="lg:col-span-2 bg-white rounded-[2rem] shadow-sm border border-slate-100 flex flex-col h-full overflow-hidden">
+                    <div class="p-8 pb-4 flex justify-between items-center">
                         <div>
-                            <h3 class="font-bold text-xl text-slate-800 dark:text-white">Riwayat Panggilan</h3>
-                            <p class="text-sm text-slate-400 mt-1">Aktivitas permintaan bantuan terakhir</p>
+                            <h3 class="font-black text-xl text-charcoal flex items-center gap-3 tracking-tight">
+                                Riwayat Laporan Terakhir
+                            </h3>
                         </div>
                         <a href="#"
-                            class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-teal-50 hover:text-teal-600 transition">
+                            class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-charcoal transition active:scale-95">
                             <i class="fas fa-arrow-right"></i>
                         </a>
                     </div>
 
-                    <div class="flex-1 overflow-y-auto max-h-[500px] p-2">
+                    <div class="flex-1 overflow-y-auto max-h-[450px] p-6 pt-2 space-y-3 custom-scrollbar">
                         @forelse($history as $call)
                                             <div
-                                                class="group p-4 rounded-2xl hover:bg-slate-50 dark:hover:bg-gray-700/50 transition duration-300 flex items-center justify-between mb-2">
-                                                <div class="flex items-center gap-5">
+                                                class="group bg-slate-50 hover:bg-white border border-transparent hover:border-slate-200 p-5 rounded-2xl transition duration-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                                <div class="flex items-start sm:items-center gap-4">
                                                     <div
-                                                        class="w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm text-lg shrink-0
-                                                                                                                                                                {{ $call->status == 'completed' ? 'bg-emerald-100 text-emerald-600' :
-                            ($call->status == 'cancelled' ? 'bg-slate-100 text-slate-500' :
-                                ($call->status == 'process' ? 'bg-amber-100 text-amber-600' : 'bg-red-100 text-red-600')) }}">
+                                                        class="w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0 border border-slate-100/50 shadow-sm
+                                                                                {{ $call->status == 'completed' ? 'bg-teal-50 text-teal-600' :
+                            ($call->status == 'cancelled' ? 'bg-white text-slate-400' :
+                                ($call->status == 'process' ? 'bg-amber-50 text-amber-600' : 'bg-red-50 text-rescue-red')) }}">
                                                         @if($call->status == 'completed') <i class="fas fa-check"></i>
                                                         @elseif($call->status == 'cancelled') <i class="fas fa-times"></i>
                                                         @elseif($call->status == 'process') <i class="fas fa-ambulance"></i>
                                                         @else <i class="fas fa-exclamation"></i>
                                                         @endif
                                                     </div>
-
                                                     <div>
                                                         <h4
-                                                            class="font-bold text-slate-800 dark:text-gray-200 group-hover:text-teal-600 transition">
-                                                            {{ $call->description ?? 'Panggilan Darurat Medis' }}
+                                                            class="font-bold text-charcoal text-sm mb-1 group-hover:text-amber-600 transition">
+                                                            {{ $call->description ?? 'Laporan Darurat Medis' }}
                                                         </h4>
-                                                        <div class="flex items-center gap-3 text-xs text-slate-500 mt-1.5 font-medium">
-                                                            <span class="flex items-center gap-1"><i class="far fa-calendar-alt"></i>
-                                                                {{ $call->created_at->format('d M Y') }}</span>
-                                                            <span class="w-1 h-1 bg-slate-300 rounded-full"></span>
-                                                            <span class="flex items-center gap-1"><i class="far fa-clock"></i>
-                                                                {{ $call->created_at->format('H:i') }} WIB</span>
+                                                        <div
+                                                            class="flex items-center gap-2 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                                                            <i class="far fa-calendar-alt"></i> {{ $call->created_at->format('d M Y') }}
+                                                            <span class="w-1 h-1 bg-slate-300 rounded-full mx-1"></span>
+                                                            <i class="far fa-clock"></i> {{ $call->created_at->format('H:i') }}
                                                         </div>
                                                     </div>
                                                 </div>
-
-                                                <span
-                                                    class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider
-                                                                                                                                                            {{ $call->status == 'completed' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
-                            ($call->status == 'cancelled' ? 'bg-slate-50 text-slate-500 border border-slate-100' :
-                                ($call->status == 'process' ? 'bg-amber-50 text-amber-600 border border-amber-100' : 'bg-red-50 text-red-600 border border-red-100')) }}">
-                                                    {{ ucfirst($call->status) }}
-                                                </span>
+                                                <div class="self-end sm:self-center">
+                                                    <span
+                                                        class="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest
+                                                                                {{ $call->status == 'completed' ? 'bg-teal-50 text-teal-600 border border-teal-100' :
+                            ($call->status == 'cancelled' ? 'bg-slate-100 text-slate-500' :
+                                ($call->status == 'process' ? 'bg-amber-50 text-amber-600 border border-amber-100' : 'bg-red-50 text-rescue-red border border-red-100')) }}">
+                                                        {{ $call->status }}
+                                                    </span>
+                                                </div>
                                             </div>
                         @empty
-                            <div class="flex flex-col items-center justify-center h-64 text-slate-400">
-                                <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-4">
-                                    <i class="fas fa-clipboard-list text-3xl opacity-20"></i>
+                            <div class="flex flex-col items-center justify-center py-16 text-slate-400 text-center">
+                                <div
+                                    class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-4 text-slate-200 text-4xl">
+                                    <i class="fas fa-folder-open"></i>
                                 </div>
-                                <p class="font-medium">Belum ada riwayat panggilan.</p>
+                                <p class="font-bold text-charcoal mb-1">Belum Ada Riwayat</p>
+                                <p class="text-sm">Anda belum pernah melakukan panggilan darurat.</p>
                             </div>
                         @endforelse
                     </div>
                 </div>
 
-                {{-- Sidebar Info (Profile & Health) --}}
+                {{-- SIDEBAR: Profile & Info Sehat --}}
                 <div class="space-y-6">
-                    {{-- Profile Card --}}
+
+                    {{-- Minimalist Profile Card --}}
                     <div
-                        class="bg-white dark:bg-gray-800 p-8 rounded-[2rem] shadow-sm border border-slate-100 dark:border-gray-700 relative overflow-hidden">
-                        <div class="absolute top-0 right-0 w-32 h-32 bg-teal-50 rounded-full -mr-10 -mt-10 blur-2xl">
+                        class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col items-center text-center">
+                        <div
+                            class="w-20 h-20 bg-slate-50 border-4 border-white shadow-md rounded-[1.5rem] flex items-center justify-center text-3xl font-black text-charcoal mb-4 rotate-3">
+                            {{ substr(Auth::user()->name, 0, 1) }}
+                        </div>
+                        <h4 class="text-xl font-bold text-charcoal">{{ Auth::user()->name }}</h4>
+                        <p class="text-[13px] font-medium text-slate-400 mb-6">{{ Auth::user()->email }}</p>
+
+                        <div class="w-full grid grid-cols-2 gap-3 mb-6">
+                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Gol. Darah
+                                </p>
+                                <p class="text-lg font-black text-charcoal">-</p>
+                            </div>
+                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Usia
+                                    Dewasa</p>
+                                <p class="text-lg font-black text-charcoal">- <span
+                                        class="text-[10px] font-medium text-slate-400">thn</span></p>
+                            </div>
                         </div>
 
-                        <div class="relative z-10 flex flex-col items-center text-center">
-                            <div
-                                class="w-24 h-24 bg-gradient-to-br from-teal-400 to-emerald-500 p-1 rounded-full shadow-lg mb-4">
-                                <div
-                                    class="w-full h-full bg-white rounded-full flex items-center justify-center text-3xl font-black text-teal-600">
-                                    {{ substr(Auth::user()->name, 0, 1) }}
-                                </div>
-                            </div>
-
-                            <h4 class="text-xl font-bold text-slate-800 dark:text-white">{{ Auth::user()->name }}</h4>
-                            <p class="text-sm text-slate-500 mb-6">{{ Auth::user()->email }}</p>
-
-                            <div class="w-full grid grid-cols-2 gap-4 mb-6">
-                                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                                    <p class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Gol. Darah
-                                    </p>
-                                    <p class="text-xl font-black text-slate-700">-</p>
-                                </div>
-                                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                                    <p class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Usia</p>
-                                    <p class="text-xl font-black text-slate-700">- <span
-                                            class="text-xs font-normal text-slate-400">thn</span></p>
-                                </div>
-                            </div>
-
-                            <a href="{{ route('profile.edit') }}"
-                                class="w-full py-3 rounded-xl border border-teal-200 text-teal-600 font-bold hover:bg-teal-50 transition duration-300">
-                                Edit Profil Medis
-                            </a>
-                        </div>
+                        <a href="{{ route('profile.edit') }}"
+                            class="w-full py-3.5 rounded-xl bg-charcoal text-white text-[13px] font-bold hover:bg-slate-800 transition duration-300 shadow-sm">
+                            Pengaturan Profil
+                        </a>
                     </div>
 
-                    {{-- Info Banner --}}
-                    <div
-                        class="bg-gradient-to-br from-blue-500 to-indigo-600 p-6 rounded-[2rem] shadow-lg text-white relative overflow-hidden">
-                        <div class="absolute -bottom-4 -right-4 text-white opacity-10 text-8xl">
-                            <i class="fas fa-lightbulb"></i>
+                    {{-- Elegant Info Card --}}
+                    <div class="bg-charcoal p-8 rounded-[2rem] shadow-xl text-white relative overflow-hidden group">
+                        <!-- Decorative Abstract -->
+                        <div
+                            class="absolute -right-10 -bottom-10 w-40 h-40 border-4 border-slate-700 rounded-full opacity-50 group-hover:scale-110 transition duration-700">
                         </div>
+                        <div
+                            class="absolute -right-4 -bottom-4 w-32 h-32 border-4 border-slate-600 rounded-full opacity-50 group-hover:scale-110 transition duration-500 delay-75">
+                        </div>
+
                         <div class="relative z-10">
-                            <h4 class="font-bold text-lg mb-2 flex items-center gap-2">
-                                <i class="fas fa-info-circle"></i> Info Sehat
-                            </h4>
-                            <p class="text-blue-50 text-sm leading-relaxed opacity-90">
-                                Jaga pola makan dan istirahat yang cukup. Dehidrasi sering terjadi tanpa disadari, minum
-                                8 gelas air hari ini!
+                            <div
+                                class="w-12 h-12 bg-slate-800 rounded-2xl flex items-center justify-center text-amber-400 text-2xl mb-5 shadow-inner">
+                                <i class="fas fa-lightbulb"></i>
+                            </div>
+                            <h4 class="font-bold text-white text-lg mb-2">Tips Kesehatan</h4>
+                            <p class="text-slate-400 text-[13px] leading-relaxed">
+                                Jaga asupan cairan Anda hari ini. Dehidrasi ringan sering kali tidak disadari dan dapat
+                                memengaruhi konsentrasi serta daya tahan tubuh Anda.
                             </p>
                         </div>
                     </div>
+
                 </div>
             </div>
 
@@ -455,35 +414,17 @@
             animation: bounce 3s infinite;
         }
 
-        .animate-tada {
-            animation: tada 1s;
-        }
+        @keyframes bounce {
 
-        @keyframes tada {
-            0% {
-                transform: scale(1);
-            }
-
-            10%,
-            20% {
-                transform: scale(0.9) rotate(-3deg);
-            }
-
-            30%,
-            50%,
-            70%,
-            90% {
-                transform: scale(1.1) rotate(3deg);
-            }
-
-            40%,
-            60%,
-            80% {
-                transform: scale(1.1) rotate(-3deg);
-            }
-
+            0%,
             100% {
-                transform: scale(1) rotate(0);
+                transform: translateY(-5%);
+                animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+            }
+
+            50% {
+                transform: none;
+                animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
             }
         }
     </style>

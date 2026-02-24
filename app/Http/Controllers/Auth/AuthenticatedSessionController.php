@@ -46,8 +46,12 @@ class AuthenticatedSessionController extends Controller
             return redirect()->route('super-admin.dashboard');
         }
 
-        if (in_array($role, ['admin', 'ka', 'sie_rujukan'])) {
+        if ($role === 'admin') {
             return redirect()->route('admin.dashboard');
+        }
+
+        if ($role === 'ka'){
+            return redirect()->route('ka.dashboard');
         }
 
         if ($role === 'atem') {
@@ -55,18 +59,29 @@ class AuthenticatedSessionController extends Controller
         }
 
         // Group operator
-        if (in_array($role, ['operator'])) {
+        if ($role === 'operator'){
             return redirect()->route('operator.dashboard');
         }
 
         // Group lapangan
-        if (in_array($role, ['driver', 'nakes', 'peserta_bhd'])) {
+        if (in_array($role, ['driver', 'peserta_bhd'])) {
             return redirect()->route('lapangan.dashboard');
         }
 
+        if ($role === 'nakes') {
+            return redirect()->route('nakes.dashboard');
+        }
+        if ($role === 'sie_rujukan') {
+            return redirect()->route('sie.dashboard');
+        }
+
         // Group faskes
-        if (in_array($role, ['rumahsakit', 'klinik_utama'])) {
+        if ($role === 'rumahsakit') {
             return redirect()->route('faskes.dashboard');
+        }
+
+        if ($role === 'klinik_utama') {
+            return redirect()->route('klinik.dashboard');
         }
 
         // Group Lab Puskesmas
@@ -76,6 +91,8 @@ class AuthenticatedSessionController extends Controller
         if ($role === 'masyarakat') {
             return redirect()->route('dashboard');
         }
+
+
 
         // 🔴 ROLE TIDAK TERDAFTAR → TOLAK AKSES
         Auth::logout();

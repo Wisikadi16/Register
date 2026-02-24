@@ -1,305 +1,247 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-            <h2 class="text-3xl font-black text-gray-800 leading-tight">
-                Dashboard <span class="text-blue-600">Tim Lapangan</span>
-            </h2>
-            <div class="bg-white px-4 py-2 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-3">
-                <div class="p-2 bg-blue-50 rounded-xl text-blue-600">
-                    <i class="fas fa-ambulance"></i>
-                </div>
-                <div class="text-sm font-bold text-gray-700">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <h2 class="text-3xl font-black text-charcoal tracking-tight">
+                    WPS <span class="text-rescue-red font-semibold">Tim Lapangan</span>
+                </h2>
+                <p class="text-slate-500 font-medium mt-1">Sistem Respon Darurat & Ambulan</p>
+            </div>
+            <div class="bg-white border border-slate-200 px-5 py-2.5 rounded-full flex items-center gap-3 shadow-sm">
+                <i class="fas fa-calendar-alt text-slate-400"></i>
+                <span class="text-sm font-bold text-slate-700">
                     {{ \Carbon\Carbon::now()->locale('id')->isoFormat('dddd, D MMMM Y') }}
-                </div>
+                </span>
             </div>
         </div>
     </x-slot>
 
-    <div class="py-12 bg-slate-50 min-h-screen">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+    <div class="py-10 min-h-screen bg-slate-50 font-sans">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
 
-            {{-- WELCOME CARD --}}
-            <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden relative">
-                <div class="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-full -mr-10 -mt-10 blur-2xl"></div>
-                <div class="p-8 relative z-10">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                        <div>
-                            <h3 class="text-2xl font-black text-slate-800">Halo, {{ Auth::user()->name }}! 👋</h3>
-                            @if($ambulance)
-                                <p class="text-slate-500 mt-1">Armada: <strong>{{ $ambulance->name }}</strong> <span
-                                        class="bg-slate-100 px-2 py-0.5 rounded text-xs text-slate-600 font-mono ml-2">{{ $ambulance->plat_number }}</span>
-                                </p>
-                            @else
-                                <p class="text-red-500 mt-1 font-bold">⚠️ Belum terhubung dengan unit ambulan.</p>
-                            @endif
+            {{-- ELEVATED STATUS & WELCOME CARD --}}
+            <div class="bg-gradient-to-r from-rescue-red to-red-600 rounded-[2rem] p-8 shadow-lg flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden group">
+                <div class="relative z-10">
+                    <h3 class="text-2xl font-bold text-white mb-2">Halo, {{ Auth::user()->name }}</h3>
+                    @if($ambulance)
+                        <div class="flex items-center gap-3 text-red-50 font-medium">
+                            <i class="fas fa-ambulance text-white/70"></i> Armada Anda: 
+                            <span class="font-bold text-rescue-red bg-white px-3 py-1 rounded-lg">{{ $ambulance->name }} ({{ $ambulance->plat_number }})</span>
+                        </div>
+                    @else
+                        <p class="text-white font-bold flex items-center gap-2">
+                            <i class="fas fa-exclamation-circle animate-pulse text-white/80"></i> Belum terhubung dengan unit ambulan. Hubungi Operator.
+                        </p>
+                    @endif
+                </div>
+
+                @if($ambulance)
+                    <div class="flex items-center gap-5 bg-slate-50 px-6 py-4 rounded-3xl border border-slate-200 relative z-10 w-full md:w-auto justify-between md:justify-end">
+                        <div class="flex flex-col">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Status Unit</span>
+                            <div class="flex items-center gap-2">
+                                <span class="relative flex h-3 w-3">
+                                  @if($ambulance->status == 'ready')
+                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
+                                    <span class="relative inline-flex rounded-full h-3 w-3 bg-teal-500"></span>
+                                  @elseif($ambulance->status == 'busy')
+                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rescue-red opacity-75"></span>
+                                    <span class="relative inline-flex rounded-full h-3 w-3 bg-rescue-red"></span>
+                                  @else
+                                    <span class="relative inline-flex rounded-full h-3 w-3 bg-slate-400"></span>
+                                  @endif
+                                </span>
+                                <span class="font-black tracking-wider uppercase {{ $ambulance->status == 'ready' ? 'text-teal-600' : ($ambulance->status == 'busy' ? 'text-rescue-red' : 'text-slate-500') }}">
+                                    {{ $ambulance->status }}
+                                </span>
+                            </div>
                         </div>
 
-                        @if($ambulance)
-                                            <div class="flex items-center gap-3">
-                                                <span class="text-sm font-bold text-slate-400 uppercase tracking-wider">Status Unit</span>
-                                                <span
-                                                    class="px-4 py-2 rounded-xl text-sm font-bold shadow-sm border
-                                                                                                                                                                                                                                                            {{ $ambulance->status == 'ready' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                            ($ambulance->status == 'busy' ? 'bg-red-50 text-red-600 border-red-100' : 'bg-slate-50 text-slate-600 border-slate-100') }}">
-                                                    <i
-                                                        class="fas fa-circle text-[10px] mr-1.5 {{ $ambulance->status == 'ready' ? 'text-emerald-500' : ($ambulance->status == 'busy' ? 'text-red-500' : 'text-slate-400') }}"></i>
-                                                    {{ strtoupper($ambulance->status) }}
-                                                </span>
-                                            </div>
-                                            <form action="{{ route('lapangan.update-status') }}" method="POST" class="inline-block ml-4">
-                                                @csrf
-                                                <input type="hidden" name="status"
-                                                    value="{{ $ambulance->status == 'ready' ? 'offline' : 'ready' }}">
-                                                <button type="submit"
-                                                    class="px-4 py-2 rounded-full font-bold text-white text-xs shadow-lg transition transform hover:scale-105
-                                                                                                                                                        {{ $ambulance->status == 'ready' ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-500 hover:bg-gray-600' }}">
-                                                    {{ $ambulance->status == 'ready' ? '🟢 SIAP TUGAS' : '⚫ ISTIRAHAT (OFF)' }}
-                                                </button>
-                                            </form>
-
-                        @endif
+                        <form action="{{ route('lapangan.update-status') }}" method="POST" class="ml-4 pl-4 border-l border-slate-200">
+                            @csrf
+                            <input type="hidden" name="status" value="{{ $ambulance->status == 'ready' ? 'offline' : 'ready' }}">
+                            <button type="submit" class="px-5 py-2.5 rounded-xl font-bold text-white text-xs shadow-sm shadow-blue-900/10 transition-transform active:scale-95 flex items-center gap-2 {{ $ambulance->status == 'ready' ? 'bg-teal-600 hover:bg-teal-700' : 'bg-charcoal hover:bg-slate-800' }}">
+                                @if($ambulance->status == 'ready')
+                                    <i class="fas fa-check"></i> Siap Tugas
+                                @else
+                                    <i class="fas fa-power-off"></i> Istirahat
+                                @endif
+                            </button>
+                        </form>
                     </div>
-                </div>
+                @endif
+                <!-- Background Decoration -->
+                <i class="fas fa-truck-medical absolute -right-6 -bottom-6 text-9xl text-slate-50 opacity-50 transform -rotate-12 group-hover:rotate-0 transition duration-700"></i>
             </div>
 
-            {{-- MENU GRID (HYBRID DASHBOARD) --}}
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-2">
-                <!-- 1. Jadwal -->
-                <a href="{{ route('lapangan.schedules.index') }}"
-                    class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-blue-300 transition text-center group">
-                    <div
-                        class="w-12 h-12 mx-auto bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition">
-                        <i class="fas fa-calendar-alt text-xl"></i>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {{-- LEFT COLUMN: MENU & GPS --}}
+                <div class="space-y-8 flex flex-col lg:col-span-1">
+                    
+                    <!-- MENU LAPANGAN -->
+                    <div>
+                        <h4 class="text-sm font-black text-slate-400 uppercase tracking-widest mb-4 px-1">Menu Operasional</h4>
+                        <div class="grid grid-cols-2 gap-4">
+                            <a href="{{ route('lapangan.schedules.index') }}" class="bg-white border border-slate-200 hover:border-blue-500 rounded-2xl p-5 flex flex-col items-center justify-center text-center transition group hover:shadow-md hover:shadow-blue-500/10 gap-3">
+                                <i class="fas fa-calendar-alt text-2xl text-slate-300 group-hover:text-blue-500 transition"></i>
+                                <span class="font-bold text-charcoal text-[11px] uppercase tracking-wider">Jadwal</span>
+                            </a>
+                            <a href="{{ route('lapangan.messages.index') }}" class="bg-white border border-slate-200 hover:border-amber-500 rounded-2xl p-5 flex flex-col items-center justify-center text-center transition group hover:shadow-md hover:shadow-amber-500/10 gap-3">
+                                <i class="fas fa-envelope text-2xl text-slate-300 group-hover:text-amber-500 transition"></i>
+                                <span class="font-bold text-charcoal text-[11px] uppercase tracking-wider">Pesan</span>
+                            </a>
+                            <a href="{{ route('lapangan.sterilizations.create') }}" class="bg-white border border-slate-200 hover:border-teal-500 rounded-2xl p-5 flex flex-col items-center justify-center text-center transition group hover:shadow-md hover:shadow-teal-500/10 gap-3">
+                                <i class="fas fa-pump-soap text-2xl text-slate-300 group-hover:text-teal-500 transition"></i>
+                                <span class="font-bold text-charcoal text-[11px] uppercase tracking-wider">Sterilisasi</span>
+                            </a>
+                            <a href="{{ route('lapangan.performance.index') }}" class="bg-white border border-slate-200 hover:border-purple-500 rounded-2xl p-5 flex flex-col items-center justify-center text-center transition group hover:shadow-md hover:shadow-purple-500/10 gap-3">
+                                <i class="fas fa-stopwatch text-2xl text-slate-300 group-hover:text-purple-500 transition"></i>
+                                <span class="font-bold text-charcoal text-[11px] uppercase tracking-wider">Performa</span>
+                            </a>
+                        </div>
                     </div>
-                    <span class="font-bold text-gray-700 text-sm group-hover:text-blue-600">Input Jadwal</span>
-                </a>
 
-                <!-- 2. Pesan -->
-                <a href="{{ route('lapangan.messages.index') }}"
-                    class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-blue-300 transition text-center group">
-                    <div
-                        class="w-12 h-12 mx-auto bg-yellow-50 text-yellow-600 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition">
-                        <i class="fas fa-envelope text-xl"></i>
-                    </div>
-                    <span class="font-bold text-gray-700 text-sm group-hover:text-yellow-600">Pesan Masuk</span>
-                </a>
-
-                <!-- 3. Order (Scroll) -->
-                <a href="#active-job-card"
-                    class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-blue-300 transition text-center group">
-                    <div
-                        class="w-12 h-12 mx-auto bg-red-50 text-red-600 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition">
-                        <i class="fas fa-exclamation-circle text-xl"></i>
-                    </div>
-                    <span class="font-bold text-gray-700 text-sm group-hover:text-red-600">Order/Tugas</span>
-                </a>
-
-                <!-- 4. Sterilisasi -->
-                <a href="{{ route('lapangan.sterilizations.create') }}"
-                    class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-blue-300 transition text-center group">
-                    <div
-                        class="w-12 h-12 mx-auto bg-teal-50 text-teal-600 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition">
-                        <i class="fas fa-pump-soap text-xl"></i>
-                    </div>
-                    <span class="font-bold text-gray-700 text-sm group-hover:text-teal-600">Lapor Sterilisasi</span>
-                </a>
-
-                <!-- 5. Respon Time -->
-                <a href="{{ route('lapangan.performance.index') }}"
-                    class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-blue-300 transition text-center group">
-                    <div
-                        class="w-12 h-12 mx-auto bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition">
-                        <i class="fas fa-stopwatch text-xl"></i>
-                    </div>
-                    <span class="font-bold text-gray-700 text-sm group-hover:text-purple-600">Respon Time</span>
-                </a>
-            </div>
-
-            {{-- GPS TRACKER CARD --}}
-            @if($ambulance)
-                <div
-                    class="bg-gradient-to-br from-indigo-600 to-blue-700 rounded-[2rem] shadow-xl shadow-blue-900/20 p-8 text-white relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl"></div>
-                    <div class="absolute bottom-0 left-0 w-48 h-48 bg-black/10 rounded-full -ml-10 -mb-10 blur-3xl"></div>
-
-                    <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
-                        <div class="flex items-center gap-6">
-                            <div
-                                class="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center text-3xl shadow-inner border border-white/20">
-                                <i class="fas fa-satellite-dish animate-pulse"></i>
+                    <!-- GPS TRACKER -->
+                    @if($ambulance)
+                        <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col items-center text-center">
+                            <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-2xl mb-4">
+                                <i class="fas fa-satellite-dish"></i>
                             </div>
-                            <div>
-                                <h2 class="text-3xl font-black tracking-tight">GPS Tracker</h2>
-                                <p class="text-blue-100 text-lg">Aktifkan saat memulai tugas pengantaran.</p>
-                                <div id="gps-status"
-                                    class="mt-3 inline-flex items-center gap-2 px-3 py-1 bg-black/20 rounded-lg text-sm font-mono text-blue-50 border border-white/10">
-                                    <span class="w-2 h-2 bg-slate-400 rounded-full" id="status-dot"></span>
-                                    <span id="gps-text">Menunggu aktivasi...</span>
+                            <h3 class="font-bold text-charcoal text-lg mb-1">Pelacak GPS</h3>
+                            <p class="text-xs text-slate-400 mb-6 px-4">Aktifkan untuk membagikan lokasi Anda kepada Operator secara Real-Time.</p>
+                            
+                            <div id="gps-status" class="w-full bg-slate-50 border border-slate-100 rounded-xl py-3 px-4 mb-5 flex items-center justify-center gap-2">
+                                <span class="w-2.5 h-2.5 bg-slate-300 rounded-full" id="status-dot"></span>
+                                <span id="gps-text" class="text-xs font-bold text-slate-500 uppercase tracking-wider">Menunggu aktivasi</span>
+                            </div>
+
+                            <button id="toggle-gps" class="w-full bg-charcoal hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 text-sm uppercase tracking-wider">
+                                <i class="fas fa-play text-xs"></i> Mulai Tracking
+                            </button>
+                        </div>
+                    @endif
+
+                </div>
+
+                {{-- RIGHT COLUMN: ACTIVE JOB & HOSPITALS --}}
+                <div class="flex flex-col lg:col-span-2 space-y-8">
+                    
+                    @if(isset($activeJob) && $activeJob)
+                        <!-- ACTIVE JOB CARD (Elegant Redesign) -->
+                        <div id="active-job-card" class="bg-white rounded-[2rem] shadow-xl shadow-rescue-red/5 border border-rescue-red/20 overflow-hidden relative group">
+                            <!-- Subtle Red Indicator Line -->
+                            <div class="absolute top-0 left-0 w-full h-1.5 bg-rescue-red"></div>
+                            
+                            <div class="p-8">
+                                <div class="flex justify-between items-start mb-8">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-14 h-14 bg-red-50 text-rescue-red rounded-2xl flex items-center justify-center text-2xl">
+                                            <i class="fas fa-exclamation-triangle animate-pulse"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-xl font-black text-charcoal tracking-tight">TUGAS DARURAT AKTIF</h3>
+                                            <p class="text-slate-500 text-sm font-medium mt-0.5"><i class="far fa-clock mr-1"></i> {{ $activeJob->created_at->diffForHumans() }}</p>
+                                        </div>
+                                    </div>
+                                    <span class="bg-rescue-red text-white px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest shadow-sm">
+                                        Prioritas Tinggi
+                                    </span>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50 p-6 rounded-2xl border border-slate-100 mb-8">
+                                    <div>
+                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Keterangan Laporan</p>
+                                        <p class="text-base font-bold text-charcoal leading-relaxed">{{ $activeJob->description }}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Lokasi Penjemputan</p>
+                                        <div class="flex items-start gap-2">
+                                            <i class="fas fa-map-marker-alt text-rescue-red mt-1"></i>
+                                            <div>
+                                                <p class="text-sm font-bold text-charcoal">{{ $activeJob->location }}</p>
+                                                <p class="text-xs text-slate-500 mt-1 font-mono bg-white px-2 py-0.5 rounded border border-slate-200 inline-block">{{ $activeJob->latitude }}, {{ $activeJob->longitude }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="flex flex-col sm:flex-row gap-4">
+                                    <a href="https://www.google.com/maps/dir/?api=1&destination={{ $activeJob->latitude }},{{ $activeJob->longitude }}" target="_blank"
+                                        class="flex-1 bg-white border-2 border-slate-200 hover:border-blue-600 text-slate-700 hover:text-blue-600 text-center font-bold py-3.5 rounded-xl text-sm transition-all flex items-center justify-center gap-2">
+                                        <i class="fas fa-location-arrow"></i> Rute Navigasi
+                                    </a>
+                                    <button onclick="document.getElementById('medicalModal').classList.remove('hidden')"
+                                        class="flex-1 bg-charcoal hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl text-sm transition-all flex items-center justify-center gap-2 shadow-md">
+                                        <i class="fas fa-notes-medical relative"><span class="absolute -top-1 -right-1 flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rescue-red opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-rescue-red"></span></span></i> Input Medis
+                                    </button>
+                                    <form action="{{ route('lapangan.finish', $activeJob->id) }}" method="POST" class="flex-1">
+                                        @csrf
+                                        <button type="submit" onclick="return confirm('Selesaikan penanganan pasien ini?');"
+                                            class="w-full bg-teal-500 hover:bg-teal-600 text-white font-bold py-3.5 rounded-xl text-sm shadow-md transition-all flex items-center justify-center gap-2">
+                                            <i class="fas fa-check-circle"></i> Selesai
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
 
-                        <button id="toggle-gps"
-                            class="w-full md:w-auto bg-white text-blue-700 hover:bg-blue-50 font-black py-4 px-8 rounded-xl shadow-lg transition-all transform hover:scale-105 active:scale-95 flex items-center justify-center gap-3">
-                            <i class="fas fa-play"></i>
-                            <span>MULAI PERJALANAN</span>
-                        </button>
-                    </div>
-                </div>
-            @endif
-
-            {{-- ACTIVE JOB CARD --}}
-            @if(isset($activeJob) && $activeJob)
-                <div id="active-job-card"
-                    class="bg-white rounded-[2rem] shadow-2xl shadow-red-500/10 border-2 border-red-100 overflow-hidden relative group">
-                    <div class="absolute top-0 left-0 w-full h-2 bg-red-500 animate-loading-bar"></div>
-
-                    <div class="p-8">
-                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-                            <div class="flex items-center gap-4">
-                                <div
-                                    class="w-14 h-14 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center text-2xl shadow-sm">
-                                    <i class="fas fa-exclamation-triangle"></i>
+                        <!-- HOSPITAL SUGGESTIONS (Sleek List) -->
+                        <div class="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
+                            <div class="p-6 border-b border-slate-100 flex items-center gap-4">
+                                <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl">
+                                    <i class="fas fa-hospital"></i>
                                 </div>
                                 <div>
-                                    <h3 class="text-2xl font-black text-slate-800">TUGAS DARURAT</h3>
-                                    <p class="text-slate-500 font-medium">{{ $activeJob->created_at->diffForHumans() }}</p>
+                                    <h3 class="text-lg font-bold text-charcoal">Rekomendasi RS Rujukan</h3>
+                                    <p class="text-xs font-medium text-slate-400">Pilih berdasarkan ketersediaan Bed IGD terdekat</p>
                                 </div>
                             </div>
-                            <div
-                                class="bg-red-50 text-red-700 px-4 py-2 rounded-xl font-bold text-sm border border-red-100 animate-pulse">
-                                PRIORITAS TINGGI
-                            </div>
-                        </div>
-
-                        <div
-                            class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50/50 p-6 rounded-2xl border border-slate-100">
-                            <div class="space-y-1">
-                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Keterangan Kejadian</p>
-                                <p class="text-xl font-bold text-slate-800 leading-relaxed">{{ $activeJob->description }}
-                                </p>
-                            </div>
-                            <div class="space-y-1">
-                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Lokasi Pasien</p>
-                                <p class="text-lg font-bold text-slate-800 flex items-start gap-2">
-                                    <i class="fas fa-map-marker-alt text-red-500 mt-1"></i>
-                                    {{ $activeJob->location }}
-                                </p>
-                                <p class="text-xs font-mono text-slate-400 pl-6">{{ $activeJob->latitude }},
-                                    {{ $activeJob->longitude }}
-                                </p>
-                            </div>
-                        </div>
-
-                        <div class="mt-8 flex flex-col md:flex-row gap-4">
-                            <a href="https://www.google.com/maps/dir/?api=1&destination={{ $activeJob->latitude }},{{ $activeJob->longitude }}"
-                                target="_blank"
-                                class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-center font-bold py-4 px-6 rounded-2xl text-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2">
-                                <i class="fas fa-location-arrow"></i> NAVIGASI MAPS
-                            </a>
-
-                            <button onclick="document.getElementById('medicalModal').classList.remove('hidden')"
-                                class="flex-1 bg-purple-600 text-white font-bold py-4 px-6 rounded-2xl text-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2">
-                                <i class="fas fa-notes-medical"></i> INPUT MEDIS
-                            </button>
-
-                            <form action="{{ route('lapangan.finish', $activeJob->id) }}" method="POST" class="flex-1">
-                                @csrf
-                                <button type="submit" onclick="return confirm('Yakin pasien sudah sampai ke Rumah Sakit?');"
-                                    class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 px-6 rounded-2xl text-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2">
-                                    <i class="fas fa-check-circle"></i> SELESAIKAN TUGAS
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- HOSPITAL SUGGESTION --}}
-                <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden">
-                    <div class="p-8 pb-0">
-                        <h3 class="text-xl font-bold text-slate-800 flex items-center gap-3">
-                            <span
-                                class="w-8 h-8 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center text-sm"><i
-                                    class="fas fa-hospital"></i></span>
-                            Rekomendasi RS Rujukan
-                        </h3>
-                        <p class="text-slate-500 text-sm mt-1 ml-11">Urutan berdasarkan ketersediaan Bed IGD terbanyak.</p>
-                    </div>
-
-                    <div class="p-6">
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full">
-                                <thead>
-                                    <tr
-                                        class="text-left text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
-                                        <th class="px-4 py-3 pb-4">Rumah Sakit</th>
-                                        <th class="px-4 py-3 pb-4 text-center">IGD</th>
-                                        <th class="px-4 py-3 pb-4 text-center">ICU</th>
-                                        <th class="px-4 py-3 pb-4 text-center">Kontak</th>
-                                        <th class="px-4 py-3 pb-4 text-right">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="text-slate-600">
+                            <div class="p-4">
+                                <div class="space-y-2 max-h-[300px] overflow-y-auto custom-scrollbar pr-2">
                                     @forelse($hospitals as $rs)
-                                        <tr
-                                            class="border-b border-slate-50 hover:bg-slate-50/50 transition last:border-0 group">
-                                            <td class="px-4 py-4">
-                                                <p class="font-bold text-slate-800 group-hover:text-blue-600 transition">
-                                                    {{ $rs->name }}
-                                                </p>
-                                                <p class="text-xs text-slate-400">{{ Str::limit($rs->address, 30) }}</p>
-                                            </td>
-                                            <td class="px-4 py-4 text-center">
-                                                @if($rs->available_bed_igd > 0)
-                                                    <span
-                                                        class="bg-green-100 text-green-700 py-1 px-3 rounded-full text-xs font-bold shadow-sm">
-                                                        {{ $rs->available_bed_igd }}
-                                                    </span>
-                                                @else
-                                                    <span
-                                                        class="bg-red-100 text-red-600 py-1 px-3 rounded-full text-xs font-bold">PENUH</span>
-                                                @endif
-                                            </td>
-                                            <td class="px-4 py-4 text-center font-bold text-slate-700">
-                                                {{ $rs->available_bed_icu }}
-                                            </td>
-                                            <td class="px-4 py-4 text-center">
-                                                <a href="tel:{{ $rs->phone_igd }}"
-                                                    class="w-8 h-8 bg-slate-100 hover:bg-blue-100 text-slate-500 hover:text-blue-600 rounded-full flex items-center justify-center mx-auto transition">
-                                                    <i class="fas fa-phone"></i>
-                                                </a>
-                                            </td>
-                                            <td class="px-4 py-4 text-right">
-                                                <a href="https://www.google.com/maps/dir/?api=1&destination={{ $rs->latitude }},{{ $rs->longitude }}"
-                                                    target="_blank"
-                                                    class="inline-flex items-center gap-1 bg-white border border-slate-200 text-slate-600 hover:border-blue-300 hover:text-blue-600 px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm">
-                                                    <i class="fas fa-directions"></i> Rute
-                                                </a>
-                                            </td>
-                                        </tr>
+                                        <div class="flex items-center justify-between p-4 bg-slate-50 hover:bg-white border border-transparent hover:border-slate-200 rounded-2xl transition duration-300 group">
+                                            <div class="flex-1">
+                                                <h4 class="font-bold text-charcoal text-sm group-hover:text-blue-600 transition">{{ $rs->name }}</h4>
+                                                <p class="text-[11px] text-slate-400 mt-1 line-clamp-1 pr-4">{{ $rs->address }}</p>
+                                            </div>
+                                            <div class="flex items-center gap-6">
+                                                <div class="text-center">
+                                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">IGD</p>
+                                                    @if($rs->available_bed_igd > 0)
+                                                        <span class="bg-teal-100 text-teal-700 py-1 px-3 rounded-md text-xs font-black">{{ $rs->available_bed_igd }}</span>
+                                                    @else
+                                                        <span class="bg-rescue-red/10 text-rescue-red py-1 px-2 rounded-md text-[10px] font-black">PENUH</span>
+                                                    @endif
+                                                </div>
+                                                <div class="flex gap-2">
+                                                    <a href="tel:{{ $rs->phone_igd }}" class="w-10 h-10 bg-white border border-slate-200 text-slate-500 hover:text-green-500 hover:border-green-500 hover:bg-green-50 rounded-xl flex items-center justify-center transition shadow-sm">
+                                                        <i class="fas fa-phone"></i>
+                                                    </a>
+                                                    <a href="https://www.google.com/maps/dir/?api=1&destination={{ $rs->latitude }},{{ $rs->longitude }}" target="_blank" class="w-10 h-10 bg-white border border-slate-200 text-slate-500 hover:text-blue-600 hover:border-blue-600 hover:bg-blue-50 rounded-xl flex items-center justify-center transition shadow-sm">
+                                                        <i class="fas fa-directions"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
                                     @empty
-                                        <tr>
-                                            <td colspan="5" class="text-center py-8 text-slate-400 italic">Data RS belum
-                                                tersedia.</td>
-                                        </tr>
+                                        <div class="text-center py-6 text-slate-400 text-sm">Belum ada data Rumah Sakit</div>
                                     @endforelse
-                                </tbody>
-                            </table>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
 
-            @else
-                <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-12 text-center">
-                    <div class="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <span class="text-4xl">☕</span>
-                    </div>
-                    <h3 class="text-xl font-bold text-slate-800">Tidak ada tugas aktif</h3>
-                    <p class="text-slate-500 mt-2">Silakan standby di Basecamp dan pastikan GPS Tracker aktif.</p>
+                    @else
+                        <!-- EMPTY STATE -->
+                        <div class="bg-white rounded-[2rem] border border-slate-100 shadow-sm flex flex-col items-center justify-center p-16 text-center h-full min-h-[400px]">
+                            <div class="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-6 text-slate-300 text-4xl">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <h3 class="text-2xl font-black text-charcoal mb-2">Semua Aman Terkendali</h3>
+                            <p class="text-slate-500 max-w-sm">Tidak ada panggilan darurat masuk. Silakan standby di armada dan pastikan <strong class="text-charcoal border-b border-dashed border-slate-300">GPS Tracker aktif</strong> jika Anda sedang berpatroli.</p>
+                        </div>
+                    @endif
                 </div>
-            @endif
-
-        </div>
+            </div>
 
         {{-- MODAL INPUT MEDIS --}}
         <div id="medicalModal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4">

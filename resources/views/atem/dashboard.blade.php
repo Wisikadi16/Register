@@ -1,73 +1,108 @@
 <x-app-layout>
-    <div class="py-12 bg-slate-50 min-h-screen">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
+    <x-slot name="header">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <h2 class="text-3xl font-black text-charcoal tracking-tight">
+                    Dashboard <span class="text-blue-600 font-semibold">ATEM (Teknisi)</span>
+                </h2>
+                <p class="text-slate-500 font-medium mt-1">Sistem Pemeliharaan & Logistik Elektromedis</p>
+            </div>
+            <div class="bg-white border border-slate-200 px-5 py-2.5 rounded-full flex items-center gap-3 shadow-sm">
+                <i class="fas fa-calendar-alt text-slate-400"></i>
+                <span class="text-sm font-bold text-slate-700">
+                    {{ \Carbon\Carbon::now()->locale('id')->isoFormat('dddd, D MMMM Y') }}
+                </span>
+            </div>
+        </div>
+    </x-slot>
 
-            <!-- Welcome Header -->
+    <div class="py-10 min-h-screen bg-slate-50 font-sans">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+
+            {{-- WELCOME BANNER (Minimalist & Premium) --}}
             <div
-                class="bg-gradient-to-r from-blue-600 to-cyan-500 rounded-3xl p-10 text-white shadow-xl relative overflow-hidden">
-                <div class="relative z-10">
-                    <h1 class="text-4xl font-black mb-2 tracking-tight">Halo, Teknisi {{ Auth::user()->name }}! 👋</h1>
-                    <p class="text-blue-100 text-lg opacity-90">Selamat datang di Panel ATEM. Silakan pilih menu
-                        operasional di bawah ini.</p>
+                class="bg-gradient-to-r from-rescue-red to-red-600 rounded-[2rem] p-8 md:p-10 shadow-lg flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden group">
+                <div
+                    class="absolute top-0 right-0 w-64 h-64 bg-white rounded-full blur-3xl opacity-10 -translate-y-1/2 translate-x-1/2 pattern-grid-lg text-white">
                 </div>
-                <div class="absolute right-0 bottom-0 opacity-10 transform translate-x-10 translate-y-10">
-                    <i class="fas fa-tools text-[12rem]"></i>
+
+                <div class="relative z-10 max-w-2xl text-center md:text-left">
+                    <div
+                        class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/20 border border-white/20 text-white text-[10px] font-black uppercase tracking-widest mb-4 shadow-sm backdrop-blur-sm">
+                        <i class="fas fa-tools text-white"></i> Tim Teknisi Medis
+                    </div>
+                    <h1 class="text-3xl md:text-4xl font-black text-white tracking-tight mb-2">
+                        Halo, {{ Auth::user()->name }} 👋
+                    </h1>
+                    <p class="text-red-50 text-base leading-relaxed">
+                        Kelola formulir perawatan alat, jadwalkan perbaikan rutin, dan ajukan usulan suku cadang
+                        (sparepart) medis secara terpusat.
+                    </p>
+                </div>
+
+                <div
+                    class="relative z-10 hidden md:flex w-32 h-32 bg-white/20 border border-white/20 rounded-[2rem] shadow-inner items-center justify-center text-white/70 text-6xl group-hover:scale-105 group-hover:rotate-3 transition duration-700 backdrop-blur-sm">
+                    <i class="fas fa-wrench text-white"></i>
                 </div>
             </div>
 
-            <!-- Menu Grid (2 Buttons Sesuai Flowchart) -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="flex items-center gap-3 pl-2 mt-8 mb-4">
+                <div class="w-8 h-8 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center text-sm">
+                    <i class="fas fa-cogs"></i>
+                </div>
+                <h3 class="text-lg font-bold text-charcoal">Menu Elektromedis</h3>
+            </div>
 
-                <!-- Menu 1: Input Data (Pemeliharaan) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16 mt-8">
+                <!-- Input Data Pemeliharaan -->
                 <a href="{{ route('atem.data') }}"
-                    class="group bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 hover:shadow-2xl hover:border-blue-200 transition-all duration-300 transform hover:-translate-y-2 relative overflow-hidden">
+                    class="group bg-white rounded-[2rem] p-8 shadow-sm hover:shadow-lg border border-slate-100 hover:border-blue-300 transition-all duration-300 relative overflow-hidden flex flex-col items-start gap-4 hover:-translate-y-1">
+
                     <div
-                        class="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition duration-500 transform group-hover:scale-110">
-                        <i class="fas fa-clipboard-check text-9xl text-blue-600"></i>
+                        class="w-16 h-16 bg-slate-50 group-hover:bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-3xl shadow-sm transition-colors duration-300">
+                        <i class="fas fa-clipboard-check"></i>
                     </div>
-                    <div class="relative z-10 flex flex-col h-full justify-between">
-                        <div
-                            class="w-20 h-20 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 text-4xl mb-6 group-hover:bg-blue-600 group-hover:text-white transition duration-300 shadow-sm">
-                            <i class="fas fa-notes-medical"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-2xl font-black text-slate-800 mb-2 group-hover:text-blue-600 transition">
-                                Input Data Pemeliharaan</h3>
-                            <p class="text-slate-500 font-medium">Catat log pengecekan alat harian atau perbaikan.</p>
-                        </div>
-                        <div
-                            class="mt-8 flex items-center text-blue-600 font-bold group-hover:translate-x-2 transition">
-                            <span>Buka Menu</span>
-                            <i class="fas fa-arrow-right ml-2"></i>
-                        </div>
+
+                    <div>
+                        <h4 class="font-black text-charcoal text-xl mb-2 group-hover:text-blue-600 transition-colors">
+                            Data Pemeliharaan</h4>
+                        <p class="text-slate-500 text-sm leading-relaxed">Catat log pengecekan alat mekanis, uji
+                            kelayakan, dan riwayat perbaikan (maintenance) harian.</p>
                     </div>
+
+                    <div
+                        class="mt-4 inline-flex items-center gap-2 text-xs font-bold text-blue-600 group-hover:translate-x-2 transition-transform">
+                        Input Data <i class="fas fa-arrow-right"></i>
+                    </div>
+
+                    <i
+                        class="fas fa-notes-medical absolute -right-6 -bottom-6 text-9xl text-slate-50 opacity-50 transform -rotate-12 group-hover:rotate-0 transition duration-700"></i>
                 </a>
 
-                <!-- Menu 2: Input Laporan Usulan -->
+                <!-- Input Laporan Usulan -->
                 <a href="{{ route('atem.usulan') }}"
-                    class="group bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 hover:shadow-2xl hover:border-teal-200 transition-all duration-300 transform hover:-translate-y-2 relative overflow-hidden">
-                    <div
-                        class="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition duration-500 transform group-hover:scale-110">
-                        <i class="fas fa-file-invoice text-9xl text-teal-600"></i>
-                    </div>
-                    <div class="relative z-10 flex flex-col h-full justify-between">
-                        <div
-                            class="w-20 h-20 bg-teal-50 rounded-2xl flex items-center justify-center text-teal-600 text-4xl mb-6 group-hover:bg-teal-600 group-hover:text-white transition duration-300 shadow-sm">
-                            <i class="fas fa-box-open"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-2xl font-black text-slate-800 mb-2 group-hover:text-teal-600 transition">
-                                Input Laporan Usulan</h3>
-                            <p class="text-slate-500 font-medium">Ajukan permintaan sparepart atau alat baru.</p>
-                        </div>
-                        <div
-                            class="mt-8 flex items-center text-teal-600 font-bold group-hover:translate-x-2 transition">
-                            <span>Buka Menu</span>
-                            <i class="fas fa-arrow-right ml-2"></i>
-                        </div>
-                    </div>
-                </a>
+                    class="group bg-white rounded-[2rem] p-8 shadow-sm hover:shadow-lg border border-slate-100 hover:border-teal-300 transition-all duration-300 relative overflow-hidden flex flex-col items-start gap-4 hover:-translate-y-1">
 
+                    <div
+                        class="w-16 h-16 bg-slate-50 group-hover:bg-teal-50 text-teal-600 rounded-2xl flex items-center justify-center text-3xl shadow-sm transition-colors duration-300">
+                        <i class="fas fa-box-open"></i>
+                    </div>
+
+                    <div>
+                        <h4 class="font-black text-charcoal text-xl mb-2 group-hover:text-teal-600 transition-colors">
+                            Laporan Usulan</h4>
+                        <p class="text-slate-500 text-sm leading-relaxed">Ajukan permintaan pembelian perlengkapan,
+                            penggantian suku cadang (sparepart), atau pengadaan alat baru.</p>
+                    </div>
+
+                    <div
+                        class="mt-4 inline-flex items-center gap-2 text-xs font-bold text-teal-600 group-hover:translate-x-2 transition-transform">
+                        Buat Usulan <i class="fas fa-arrow-right"></i>
+                    </div>
+
+                    <i
+                        class="fas fa-boxes absolute -right-6 -bottom-6 text-9xl text-slate-50 opacity-50 transform -rotate-12 group-hover:rotate-0 transition duration-700"></i>
+                </a>
             </div>
 
         </div>

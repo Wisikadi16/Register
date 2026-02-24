@@ -112,7 +112,7 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('super-admin')->group(fu
 // GROUP 2B: ADMIN DINAS KESEHATAN (OPERASIONAL)
 // Fokus: Monitoring, Laporan, Statistik, Inventori
 // ====================================================
-Route::middleware(['auth', 'role:admin,super_admin,ka,sie_rujukan'])->prefix('admin')->group(function () {
+Route::middleware(['auth', 'role:admin,super_admin,sie_rujukan'])->prefix('admin')->group(function () {
 
     // Dashboard Admin Dinas
     Route::get('/dashboard', [\App\Http\Controllers\AdminDinkesController::class, 'dashboard'])->name('admin.dashboard');
@@ -170,8 +170,10 @@ Route::middleware(['auth', 'role:operator,super_admin,ka'])->prefix('operator')-
     Route::get('/schedules', [\App\Http\Controllers\OperatorController::class, 'scheduleIndex'])->name('operator.schedules.index');
     Route::post('/schedules', [\App\Http\Controllers\OperatorController::class, 'scheduleStore'])->name('operator.schedules.store');
 
-    // 3. Menu Rekap Laporan Pasien
+    // Rekap & Input Pasien
     Route::get('/reports', [\App\Http\Controllers\OperatorController::class, 'reports'])->name('operator.reports.index');
+    Route::get('/reports/create', [\App\Http\Controllers\OperatorController::class, 'createPatient'])->name('operator.reports.create');
+    Route::post('/reports/store', [\App\Http\Controllers\OperatorController::class, 'storePatient'])->name('operator.reports.store');
 
     // 4. Menu Ambulan Swasta
     Route::get('/ambulances/private', [\App\Http\Controllers\OperatorController::class, 'privateAmbulances'])->name('operator.ambulances.private');
@@ -189,7 +191,7 @@ Route::middleware(['auth', 'role:operator,super_admin,ka'])->prefix('operator')-
 // ====================================================
 // GROUP 4: TIM LAPANGAN (DRIVER & NAKES)
 // ====================================================
-Route::middleware(['auth', 'role:driver,nakes,peserta_bhd'])->prefix('lapangan')->group(function () {
+Route::middleware(['auth', 'role:driver,peserta_bhd'])->prefix('lapangan')->group(function () {
     Route::get('/dashboard', function () {
         $user = auth()->user();
         $ambulance = \App\Models\Ambulance::where('driver_id', $user->id)->first();
@@ -276,6 +278,91 @@ Route::middleware(['auth', 'role:puskesmas,lab_medik'])->prefix('puskesmas')->gr
     Route::post('/bhd-reports', [\App\Http\Controllers\LabPuskesmasController::class, 'bhdStore'])->name('puskesmas.bhd.store');
 });
 
+// ====================================================
+// GROUP BARU: NAKES (TEAMS MEDIS UTAMA)
+// ====================================================
+Route::middleware(['auth', 'role:nakes'])->prefix('nakes')->group(function () {
+    Route::get('/dashboard', [\App\Http\Controllers\NakesController::class, 'dashboard'])->name('nakes.dashboard');
+
+    // Menu 1: Rekap Pasien AH
+    Route::get('/patients', [\App\Http\Controllers\NakesController::class, 'patientRecap'])->name('nakes.patients.index');
+
+    // Menu 2: Input Data Pasien
+    Route::get('/patients/create', [\App\Http\Controllers\NakesController::class, 'inputDataPasien'])->name('nakes.patients.create');
+    Route::post('/patients', [\App\Http\Controllers\NakesController::class, 'storePatientData'])->name('nakes.patients.store');
+
+    // Menu 3: Laporan Usulan
+    Route::get('/reports', [\App\Http\Controllers\NakesController::class, 'laporanUsulan'])->name('nakes.reports.index');
+    Route::post('/reports', [\App\Http\Controllers\NakesController::class, 'storeUsulan'])->name('nakes.reports.store');
+});
+
+// ROUTE KLINIK UTAMA
+Route::middleware(['auth', 'role:klinik_utama'])->prefix('klinik-utama')->name('klinik.')->group(function () {
+    // Menampilkan Halaman Menu Klinik Utama
+    Route::get('/dashboard', [App\Http\Controllers\KlinikUtamaController::class, 'dashboard'])->name('dashboard');
+
+    // Menu Data SPV Klinik Utama
+    Route::get('/spv', [App\Http\Controllers\KlinikUtamaController::class, 'spvIndex'])->name('spv.index');
+    Route::post('/spv/store', [App\Http\Controllers\KlinikUtamaController::class, 'spvStore'])->name('spv.store');
+
+    // Menu Input Data Ambulan
+    Route::get('/ambulan', [App\Http\Controllers\KlinikUtamaController::class, 'ambulanIndex'])->name('ambulan.index');
+    Route::post('/ambulan/store', [App\Http\Controllers\KlinikUtamaController::class, 'ambulanStore'])->name('ambulan.store');
+});
+
+// ====================================================
+// GROUP KA (Koor / Sub Koor)
+// ====================================================
+Route::middleware(['auth', 'role:ka'])->prefix('ka')->name('ka.')->group(function () {
+    // Menampilkan Halaman Menu KA (Dashboard)
+    Route::get('/dashboard', [\App\Http\Controllers\KaController::class, 'dashboard'])->name('dashboard');
+
+    // Tampilan Laporan
+    Route::get('/laporan/pasien-tertangani', [\App\Http\Controllers\KaController::class, 'laporanPasien'])->name('laporan.pasien');
+    Route::get('/laporan/team', [\App\Http\Controllers\KaController::class, 'laporanTeam'])->name('laporan.team');
+    Route::get('/laporan/rekam-data', [\App\Http\Controllers\KaController::class, 'laporanRekamData'])->name('laporan.rekam');
+
+    // Tampilan Validasi Laporan
+    Route::get('/validasi', [\App\Http\Controllers\KaController::class, 'validasiIndex'])->name('validasi.index');
+
+    // Export Routes
+    Route::get('/laporan/pasien-tertangani/export-excel', [\App\Http\Controllers\KaController::class, 'exportExcel'])->name('laporan.pasien.excel');
+    Route::get('/laporan/pasien-tertangani/export-pdf', [\App\Http\Controllers\KaController::class, 'exportPdf'])->name('laporan.pasien.pdf');
+});
 
 
 require __DIR__ . '/auth.php';
+
+// ==========================================
+// GROUP SIE RUJUKAN (PENILAIAN & VALIDASI)
+// ==========================================
+Route::middleware(['auth', 'role:sie_rujukan'])->prefix('sie-rujukan')->name('sie.')->group(function () {
+    // 1. Dashboard
+    Route::get('/dashboard', [\App\Http\Controllers\SieRujukanController::class, 'dashboard'])->name('dashboard');
+
+    // 2. Menu Supervisi (SPV)
+    Route::get('/spv-puskesmas', [\App\Http\Controllers\SieRujukanController::class, 'spvPuskesmas'])->name('spv.puskesmas');
+    Route::post('/spv-puskesmas', [\App\Http\Controllers\SieRujukanController::class, 'storeSpvPuskesmas']);
+    Route::get('/spv-rs', [\App\Http\Controllers\SieRujukanController::class, 'spvRs'])->name('spv.rs');
+    Route::post('/spv-rs', [\App\Http\Controllers\SieRujukanController::class, 'storeSpvRs']);
+    Route::get('/spv-lab', [\App\Http\Controllers\SieRujukanController::class, 'spvLab'])->name('spv.lab');
+    Route::post('/spv-lab', [\App\Http\Controllers\SieRujukanController::class, 'storeSpvLab']);
+    Route::get('/spv-klinik', [\App\Http\Controllers\SieRujukanController::class, 'spvKlinik'])->name('spv.klinik');
+    Route::post('/spv-klinik', [\App\Http\Controllers\SieRujukanController::class, 'storeSpvKlinik']);
+
+    // 3. Menu Validasi & Penilaian
+    Route::get('/pkp-puskesmas', [\App\Http\Controllers\SieRujukanController::class, 'pkpPuskesmas'])->name('pkp.puskesmas');
+    Route::post('/pkp-puskesmas', [\App\Http\Controllers\SieRujukanController::class, 'storePkpPuskesmas']);
+    Route::get('/validasi-jadwal', [\App\Http\Controllers\SieRujukanController::class, 'validasiJadwal'])->name('validasi.jadwal');
+    Route::post('/validasi-jadwal', [\App\Http\Controllers\SieRujukanController::class, 'storeValidasiJadwal']);
+    Route::get('/validasi-lplpo', [\App\Http\Controllers\SieRujukanController::class, 'validasiLplpo'])->name('validasi.lplpo');
+    Route::post('/validasi-lplpo', [\App\Http\Controllers\SieRujukanController::class, 'storeValidasiLplpo']);
+    Route::get('/validasi-ah', [\App\Http\Controllers\SieRujukanController::class, 'validasiAh'])->name('validasi.ah');
+    Route::post('/validasi-ah', [\App\Http\Controllers\SieRujukanController::class, 'storeValidasiAh']);
+    Route::get('/stratifikasi-rs', [\App\Http\Controllers\SieRujukanController::class, 'stratifikasiRs'])->name('stratifikasi.rs');
+    Route::post('/stratifikasi-rs', [\App\Http\Controllers\SieRujukanController::class, 'storeStratifikasiRs']);
+
+    // 4. Laporan Tambahan
+    Route::get('/laporan-bhd', [\App\Http\Controllers\SieRujukanController::class, 'laporanBhd'])->name('laporan.bhd');
+    Route::post('/laporan-bhd', [\App\Http\Controllers\SieRujukanController::class, 'storeLaporanBhd']);
+});

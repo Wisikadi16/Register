@@ -1,227 +1,264 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-col md:flex-row justify-between items-center w-full">
-            <h2 class="font-bold text-2xl text-gray-800 leading-tight">
-                <span class="text-blue-600">Dashboard</span> Monitoring Operasional
-            </h2>
-            <div class="mt-2 md:mt-0 text-sm text-gray-500 text-right">
-                {{ \Carbon\Carbon::now()->locale('id')->isoFormat('dddd, D MMMM Y') }}
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <h2 class="text-3xl font-black text-charcoal tracking-tight">
+                    Dashboard <span class="text-blue-600 font-semibold">Admin Dinkes</span>
+                </h2>
+                <p class="text-slate-500 font-medium mt-1">Sistem Peringatan Terpadu & Laporan SPGDT</p>
+            </div>
+            <div class="bg-white border border-slate-200 px-5 py-2.5 rounded-full flex items-center gap-3 shadow-sm">
+                <i class="fas fa-calendar-alt text-slate-400"></i>
+                <span class="text-sm font-bold text-slate-700">
+                    {{ \Carbon\Carbon::now()->locale('id')->isoFormat('dddd, D MMMM Y') }}
+                </span>
             </div>
         </div>
     </x-slot>
 
-    <div class="py-12 bg-slate-50 min-h-screen">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
+    <div class="py-10 min-h-screen bg-slate-50 font-sans">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
 
-            <!-- Welcome Banner (Modern Gradient) -->
+            {{-- WELCOME BANNER (Minimalist & Premium) --}}
             <div
-                class="relative overflow-hidden rounded-[2rem] bg-gradient-to-r from-blue-600 to-rose-700 shadow-xl shadow-teal-900/10 p-8 text-white">
-                <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full -mr-16 -mt-16 blur-2xl">
-                </div>
+                class="bg-gradient-to-r from-rescue-red to-red-600 p-8 md:p-10 shadow-lg flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden group">
                 <div
-                    class="absolute bottom-0 left-0 w-40 h-40 bg-teal-400 opacity-20 rounded-full -ml-10 -mb-10 blur-xl">
+                    class="absolute top-0 right-0 w-64 h-64 bg-white rounded-full blur-3xl opacity-10 -translate-y-1/2 translate-x-1/2 pattern-grid-lg text-white">
                 </div>
 
-                <div class="relative z-10 flex justify-between items-center">
-                    <div>
-                        <div
-                            class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-800/30 border border-rose-400/30 backdrop-blur-md text-blue-50 text-xs font-semibold tracking-wide mb-3">
-                            <i class="fas fa-chart-line"></i> SYSTEM MONITORING
-                        </div>
-                        <h3 class="text-3xl font-bold mb-1">Selamat Datang, {{ Auth::user()->name }}! 👋</h3>
-                        <p class="text-teal-100/90 text-lg">Pantau operasional SPGDT dan ketersediaan fasilitas
-                            kesehatan secara real-time.</p>
+                <div class="relative z-10 max-w-2xl text-center md:text-left">
+                    <div
+                        class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/20 border border-white/20 text-white text-[10px] font-black uppercase tracking-widest mb-4 shadow-sm backdrop-blur-sm">
+                        <i class="fas fa-chart-line text-white"></i> Monitoring Pusat
                     </div>
-                    <div class="hidden md:block">
-                        <i class="fas fa-user-md text-8xl text-white opacity-20"></i>
-                    </div>
+                    <h1 class="text-3xl md:text-4xl font-black text-white tracking-tight mb-2">
+                        Halo, {{ Auth::user()->name }} 👋
+                    </h1>
+                    <p class="text-red-50 text-base leading-relaxed">
+                        Ringkasan eksekutif ketersediaan armada Ambulan Hebat (SPGDT) dan statistik laporan
+                        kegawatdaruratan real-time untuk optimalisasi fasilitas.
+                    </p>
+                </div>
+
+                <div
+                    class="relative z-10 hidden md:flex w-32 h-32 bg-white/20 border border-white/20 rounded-[2rem] shadow-inner items-center justify-center text-white/70 text-6xl group-hover:scale-105 group-hover:-rotate-3 transition duration-700 backdrop-blur-sm">
+                    <i class="fas fa-building text-white"></i>
                 </div>
             </div>
 
-            <!-- Stats Cards (SOS Theme) -->
+            <!-- Stats Cards (Sleek Minimalist) -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <!-- Total Calls Today -->
+                <!-- Kejadian Hari Ini -->
                 <div
-                    class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 hover:shadow-lg hover:border-blue-200 transition-all duration-300 group">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-slate-500 text-sm font-bold uppercase tracking-wider">Kejadian Hari Ini</p>
-                            <h4 class="text-4xl font-black text-slate-800 mt-2 group-hover:text-blue-600 transition">
-                                {{ $stats['total_calls_today'] }}
-                            </h4>
-                        </div>
-                        <div
-                            class="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 text-2xl group-hover:scale-110 transition duration-300">
-                            <i class="fas fa-exclamation-circle"></i>
-                        </div>
+                    class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-lg hover:-translate-y-1 hover:border-blue-300 transition-all duration-300 group flex flex-col justify-between relative overflow-hidden">
+                    <div
+                        class="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300 shadow-sm z-10 relative">
+                        <i class="fas fa-exclamation-circle"></i>
                     </div>
+                    <div class="z-10 relative">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Kejadian Hari Ini
+                        </p>
+                        <h4 class="text-4xl font-black text-charcoal group-hover:text-blue-600 transition-colors">
+                            {{ $stats['total_calls_today'] }}
+                        </h4>
+                    </div>
+                    <i
+                        class="fas fa-exclamation absolute -right-4 -bottom-4 text-7xl text-slate-50 opacity-40 transform rotate-12 group-hover:rotate-0 transition duration-700"></i>
                 </div>
 
-                <!-- Total Calls -->
+                <!-- Total Kejadian -->
                 <div
-                    class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 hover:shadow-lg hover:border-purple-200 transition-all duration-300 group">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-slate-500 text-sm font-bold uppercase tracking-wider">Total Kejadian</p>
-                            <h4 class="text-4xl font-black text-slate-800 mt-2 group-hover:text-purple-600 transition">
-                                {{ $stats['total_calls'] }}
-                            </h4>
-                        </div>
-                        <div
-                            class="w-14 h-14 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-600 text-2xl group-hover:scale-110 transition duration-300">
-                            <i class="fas fa-phone-alt"></i>
-                        </div>
+                    class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-lg hover:-translate-y-1 hover:border-purple-300 transition-all duration-300 group flex flex-col justify-between relative overflow-hidden">
+                    <div
+                        class="w-14 h-14 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:bg-purple-600 group-hover:text-white transition-colors duration-300 shadow-sm z-10 relative">
+                        <i class="fas fa-phone-alt"></i>
                     </div>
+                    <div class="z-10 relative">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Semua Kejadian
+                        </p>
+                        <h4 class="text-4xl font-black text-charcoal group-hover:text-purple-600 transition-colors">
+                            {{ $stats['total_calls'] }}
+                        </h4>
+                    </div>
+                    <i
+                        class="fas fa-phone absolute -right-4 -bottom-4 text-7xl text-slate-50 opacity-40 transform rotate-12 group-hover:rotate-0 transition duration-700"></i>
                 </div>
 
                 <!-- Active Ambulances -->
                 <div
-                    class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 hover:shadow-lg hover:border-green-200 transition-all duration-300 group">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-slate-500 text-sm font-bold uppercase tracking-wider">Ambulan On Duty</p>
-                            <h4 class="text-4xl font-black text-slate-800 mt-2 group-hover:text-green-600 transition">
-                                {{ $stats['active_ambulances'] }}
-                            </h4>
-                        </div>
-                        <div
-                            class="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center text-green-600 text-2xl group-hover:scale-110 transition duration-300">
-                            <i class="fas fa-ambulance"></i>
-                        </div>
+                    class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-lg hover:-translate-y-1 hover:border-amber-300 transition-all duration-300 group flex flex-col justify-between relative overflow-hidden">
+                    <div
+                        class="w-14 h-14 bg-amber-50 text-amber-500 rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:bg-amber-500 group-hover:text-white transition-colors duration-300 shadow-sm z-10 relative">
+                        <i class="fas fa-ambulance"></i>
                     </div>
+                    <div class="z-10 relative">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Ambulan Operasi
+                        </p>
+                        <h4 class="text-4xl font-black text-charcoal group-hover:text-amber-500 transition-colors">
+                            {{ $stats['active_ambulances'] }}
+                        </h4>
+                    </div>
+                    <i
+                        class="fas fa-truck-medical absolute -right-4 -bottom-4 text-7xl text-slate-50 opacity-40 transform -rotate-12 group-hover:rotate-0 transition duration-700"></i>
                 </div>
 
                 <!-- Available Ambulances -->
                 <div
-                    class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 hover:shadow-lg hover:border-amber-200 transition-all duration-300 group">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-slate-500 text-sm font-bold uppercase tracking-wider">Ambulan Tersedia</p>
-                            <h4 class="text-4xl font-black text-slate-800 mt-2 group-hover:text-amber-600 transition">
-                                {{ $stats['available_ambulances'] }}
-                            </h4>
-                        </div>
-                        <div
-                            class="w-14 h-14 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 text-2xl group-hover:scale-110 transition duration-300">
-                            <i class="fas fa-check-circle"></i>
-                        </div>
+                    class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-lg hover:-translate-y-1 hover:border-teal-300 transition-all duration-300 group flex flex-col justify-between relative overflow-hidden">
+                    <div
+                        class="w-14 h-14 bg-teal-50 text-teal-600 rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:bg-teal-600 group-hover:text-white transition-colors duration-300 shadow-sm z-10 relative">
+                        <i class="fas fa-check-circle"></i>
                     </div>
+                    <div class="z-10 relative">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Ambulan Tersedia
+                        </p>
+                        <h4 class="text-4xl font-black text-charcoal group-hover:text-teal-600 transition-colors">
+                            {{ $stats['available_ambulances'] }}
+                        </h4>
+                    </div>
+                    <i
+                        class="fas fa-check absolute -right-4 -bottom-4 text-7xl text-slate-50 opacity-40 transform rotate-12 group-hover:rotate-0 transition duration-700"></i>
                 </div>
             </div>
 
-            <!-- Recent Emergency Calls & Chart -->
+            <!-- Recent Emergency Calls & Chart Section -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <!-- Recent Calls -->
+
+                <!-- Recent Calls (Minimalist List) -->
                 <div
-                    class="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden flex flex-col h-full">
-                    <div class="p-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
-                        <h3 class="font-bold text-lg text-slate-800 flex items-center gap-2">
-                            <i class="fas fa-history text-slate-400"></i> Kejadian Terbaru
+                    class=<div class="bg-white border border-gray-100 p-8 md:p-10 shadow-md relative overflow-hidden flex items-center justify-between group">
+                    <div class="p-8 pb-4 flex justify-between items-center bg-white">
+                        <h3 class="font-black text-xl text-charcoal flex items-center gap-3">
+                            Kejadian Terbaru
                         </h3>
-                        <a href="#" class="text-sm font-bold text-teal-600 hover:underline">Lihat Semua</a>
+                        <a href="#"
+                            class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-blue-50 hover:text-blue-600 transition shadow-sm active:scale-95">
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
                     </div>
 
-                    <div class="flex-1 p-2 space-y-2">
-                        @if($recentCalls->isEmpty())
-                            <div class="flex flex-col items-center justify-center h-40 text-slate-400 gap-2">
-                                <i class="fas fa-clipboard-check text-4xl opacity-20"></i>
-                                <p class="text-sm font-medium">Belum ada kejadian darurat</p>
-                            </div>
-                        @else
-                            @foreach($recentCalls as $call)
+                    <div class="flex-1 p-6 pt-2 space-y-3 overflow-y-auto max-h-[400px] custom-scrollbar">
+                        @forelse($recentCalls as $call)
                                             <div
-                                                class="group p-4 rounded-2xl hover:bg-slate-50 transition border border-transparent hover:border-slate-100">
-                                                <div class="flex justify-between items-start">
-                                                    <div class="flex items-start gap-4">
-                                                        <div
-                                                            class="w-10 h-10 rounded-full flex items-center justify-center shrink-0
-                                                                                                                                                                                                                                                                            {{ $call->status == 'completed' ? 'bg-green-100 text-green-600' :
-                                ($call->status == 'on_going' ? 'bg-blue-100 text-blue-600' : 'bg-red-100 text-red-600') }}">
-                                                            <i
-                                                                class="fas {{ $call->status == 'completed' ? 'fa-check' : ($call->status == 'on_going' ? 'fa-ambulance' : 'fa-exclamation') }}"></i>
-                                                        </div>
-                                                        <div>
-                                                            <p class="font-bold text-slate-800">{{ $call->user->name }}</p>
-                                                            <p class="text-xs text-slate-500 mt-1 flex items-center gap-1">
-                                                                <i class="fas fa-map-marker-alt"></i> {{ Str::limit($call->location, 35) }}
-                                                            </p>
-                                                            <p
-                                                                class="text-xs font-medium text-slate-600 mt-2 bg-slate-100 px-2 py-1 rounded inline-block">
-                                                                🚑 {{ $call->ambulance->name ?? 'Menunggu Assignment' }}
-                                                            </p>
-                                                        </div>
+                                                class="group bg-slate-50 hover:bg-white border border-transparent hover:border-slate-200 p-5 rounded-2xl transition duration-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm hover:shadow-md">
+                                                <div class="flex items-start sm:items-center gap-4">
+                                                    <div
+                                                        class="w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0 border border-slate-100/50 shadow-sm
+                                                            {{ $call->status == 'completed' ? 'bg-teal-50 text-teal-600' :
+                            ($call->status == 'on_going' ? 'bg-amber-50 text-amber-600' : 'bg-red-50 text-rescue-red') }}">
+                                                        @if($call->status == 'completed') <i class="fas fa-check"></i>
+                                                        @elseif($call->status == 'on_going') <i class="fas fa-ambulance"></i>
+                                                        @else <i class="fas fa-exclamation"></i>
+                                                        @endif
                                                     </div>
-                                                    <div class="text-right">
-                                                        <span
-                                                            class="px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full 
-                                                                                                                                                                                                                                                                            @if($call->status == 'completed') bg-green-50 text-green-700 border border-green-100
-                                                                                                                                                                                                                                                                            @elseif($call->status == 'on_going') bg-blue-50 text-blue-700 border border-blue-100
-                                                                                                                                                                                                                                                                            @else bg-slate-50 text-slate-700 border border-slate-100 @endif">
-                                                            {{ ucfirst($call->status) }}
-                                                        </span>
-                                                        <p class="text-[10px] text-slate-400 mt-1 font-medium">
-                                                            {{ $call->created_at->diffForHumans() }}
-                                                        </p>
+                                                    <div>
+                                                        <h4
+                                                            class="font-bold text-charcoal text-sm mb-1 group-hover:text-blue-600 transition">
+                                                            {{ $call->user->name ?? 'Pelapor Anonim' }}
+                                                        </h4>
+                                                        <div
+                                                            class="flex flex-col gap-1 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                                                            <span class="flex items-center gap-1.5"><i
+                                                                    class="fas fa-map-marker-alt text-slate-300"></i>
+                                                                {{ Str::limit($call->location, 35) }}</span>
+                                                            <span class="flex items-center gap-1.5 text-blue-500 mt-1 capitalize"><i
+                                                                    class="fas fa-truck-medical"></i>
+                                                                {{ $call->ambulance->name ?? 'Menunggu Assignment' }}</span>
+                                                        </div>
                                                     </div>
                                                 </div>
+                                                <div class="self-end sm:self-center text-right flex flex-col items-end gap-2">
+                                                    <span
+                                                        class="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest shadow-sm
+                                                            {{ $call->status == 'completed' ? 'bg-teal-50 text-teal-600 border border-teal-100' :
+                            ($call->status == 'on_going' ? 'bg-amber-50 text-amber-600 border border-amber-100' : 'bg-red-50 text-rescue-red border border-red-100') }}">
+                                                        {{ ucfirst($call->status) }}
+                                                    </span>
+                                                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                                                        {{ $call->created_at->diffForHumans() }}</p>
+                                                </div>
                                             </div>
-                            @endforeach
-                        @endif
+                        @empty
+                            <div class="flex flex-col items-center justify-center py-16 text-slate-400 text-center">
+                                <div
+                                    class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-4 text-slate-200 text-4xl shadow-inner border border-slate-100">
+                                    <i class="fas fa-bed"></i>
+                                </div>
+                                <p class="font-bold text-charcoal mb-1">Tidak Ada Kejadian</p>
+                                <p class="text-sm">Pantauan darurat saat ini aman terkendali.</p>
+                            </div>
+                        @endforelse
                     </div>
                 </div>
 
-                <!-- Chart Placeholder -->
+                <!-- Chart (Sleek Bar Line) -->
                 <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-8 flex flex-col justify-center">
-                    <h3 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
-                        <i class="fas fa-chart-bar text-teal-500"></i> Tren 7 Hari Terakhir
+                    <h3 class="font-black text-xl text-charcoal mb-8 flex items-center gap-3">
+                        Statistik 7 Hari Terakhir
                     </h3>
 
-                    <div class="space-y-5">
+                    <div class="space-y-6">
                         @forelse($chartData as $data)
                             <div class="flex items-center gap-4 group">
-                                <div class="w-24 text-xs font-bold text-slate-500 text-right">
+                                <div class="w-20 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-right">
                                     {{ \Carbon\Carbon::parse($data->date)->format('d M') }}
                                 </div>
-                                <div class="flex-1 bg-slate-100 rounded-full h-3 overflow-hidden">
-                                    <div class="bg-gradient-to-r from-teal-400 to-teal-600 h-full rounded-full flex items-center justify-end group-hover:scale-x-105 transition-transform origin-left duration-500 ease-out"
+                                <div
+                                    class="flex-1 bg-slate-50 rounded-full h-4 overflow-hidden shadow-inner border border-slate-100">
+                                    <div class="bg-charcoal h-full rounded-full flex items-center justify-end group-hover:bg-blue-600 transition-colors duration-500 ease-out relative"
                                         style="width: {{ $data->total > 0 ? ($data->total / max($chartData->max('total'), 1) * 100) : 0 }}%">
                                     </div>
                                 </div>
-                                <div class="w-6 text-sm font-bold text-slate-700">{{ $data->total }}</div>
+                                <div
+                                    class="w-8 text-sm font-black text-charcoal text-left group-hover:text-blue-600 transition-colors">
+                                    {{ $data->total }}</div>
                             </div>
                         @empty
                             <div class="text-center text-slate-400 py-10">
-                                <i class="fas fa-chart-area text-4xl opacity-20 mb-2"></i>
-                                <p>Tidak ada data</p>
+                                <div
+                                    class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-4 text-slate-200 text-4xl mx-auto shadow-inner border border-slate-100">
+                                    <i class="fas fa-chart-area"></i>
+                                </div>
+                                <p class="font-bold text-charcoal">Data Belum Tersedia</p>
                             </div>
                         @endforelse
                     </div>
                 </div>
             </div>
 
-            <!-- Resource Stats -->
+            <!-- Resource Setup Summary -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div
-                    class="bg-white p-8 rounded-[2rem] shadow-none border border-slate-200 flex items-center justify-between hover:border-blue-300 transition group">
-                    <div>
-                        <h3 class="text-lg font-bold text-slate-800 mb-1">Rumah Sakit Rujukan</h3>
-                        <p class="text-sm text-slate-500">Total RS terdaftar di sistem</p>
+                    class="bg-charcoal p-8 rounded-[2rem] shadow-xl flex items-center justify-between text-white relative overflow-hidden group">
+                    <div
+                        class="absolute -right-4 -bottom-4 w-32 h-32 border-[6px] border-slate-700/50 rounded-full group-hover:scale-110 transition duration-700">
                     </div>
-                    <div class="text-right">
-                        <p class="text-5xl font-black text-blue-600 group-hover:scale-110 transition duration-300">
+                    <div class="relative z-10">
+                        <h3 class="text-lg font-bold text-white mb-2">Total Referensi RS</h3>
+                        <p class="text-sm font-medium text-slate-400 max-w-xs leading-relaxed">Fasilitas kesehatan yang
+                            terdaftar sebagai tujuan rujukan pasien.</p>
+                    </div>
+                    <div class="relative z-10 text-right">
+                        <p
+                            class="text-6xl font-black text-blue-400 drop-shadow-md group-hover:-translate-y-1 transition-transform duration-300">
                             {{ $stats['total_hospitals'] }}
                         </p>
                     </div>
                 </div>
 
                 <div
-                    class="bg-white p-8 rounded-[2rem] shadow-none border border-slate-200 flex items-center justify-between hover:border-green-300 transition group">
-                    <div>
-                        <h3 class="text-lg font-bold text-slate-800 mb-1">Puskesmas / Basecamp</h3>
-                        <p class="text-sm text-slate-500">Titik siaga ambulan</p>
+                    class="bg-charcoal p-8 rounded-[2rem] shadow-xl flex items-center justify-between text-white relative overflow-hidden group">
+                    <div
+                        class="absolute -right-4 -bottom-4 w-32 h-32 border-[6px] border-slate-700/50 rounded-full group-hover:scale-110 transition duration-700">
                     </div>
-                    <div class="text-right">
-                        <p class="text-5xl font-black text-green-600 group-hover:scale-110 transition duration-300">
+                    <div class="relative z-10">
+                        <h3 class="text-lg font-bold text-white mb-2">Puskesmas Siaga</h3>
+                        <p class="text-sm font-medium text-slate-400 max-w-xs leading-relaxed">Titik lokasi basecamp
+                            penyebaran armada darurat medis.</p>
+                    </div>
+                    <div class="relative z-10 text-right">
+                        <p
+                            class="text-6xl font-black text-teal-400 drop-shadow-md group-hover:-translate-y-1 transition-transform duration-300">
                             {{ $stats['total_basecamps'] }}
                         </p>
                     </div>

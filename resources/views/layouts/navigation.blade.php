@@ -1,23 +1,37 @@
-<nav x-data="{ open: false }" class="bg-gray-900 border-b border-gray-800">
+<nav x-data="{ open: false }" class="bg-charcoal border-b border-slate-800 shadow-md">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
+        <div class="flex justify-between h-20">
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center gap-2">
                     <span class="text-3xl">🚑</span>
                     @php
+                        $role = Auth::user()->role;
                         $homeRoute = 'dashboard';
-                        if (Auth::user()->role === 'super_admin') {
+
+                        if ($role === 'super_admin') {
                             $homeRoute = 'super-admin.dashboard';
-                        } elseif (Auth::user()->role === 'admin') {
+                        } elseif ($role === 'admin') {
                             $homeRoute = 'admin.dashboard';
-                        } elseif (Auth::user()->role === 'operator') {
+                        } elseif ($role === 'ka') {
+                            $homeRoute = 'ka.dashboard';
+                        } elseif ($role === 'operator') {
                             $homeRoute = 'operator.dashboard';
-                        } elseif (Auth::user()->role === 'atem') {
+                        } elseif ($role === 'atem') {
                             $homeRoute = 'atem.dashboard';
-                        } elseif (in_array(Auth::user()->role, ['driver', 'nakes'])) {
+                        } elseif (in_array($role, ['driver', 'peserta_bhd'])) {
                             $homeRoute = 'lapangan.dashboard';
+                        } elseif ($role === 'nakes') {
+                            $homeRoute = 'nakes.dashboard';
+                        } elseif ($role === 'sie_rujukan') {
+                            $homeRoute = 'sie.dashboard';
+                        } elseif ($role === 'rumahsakit') {
+                            $homeRoute = 'faskes.dashboard';
+                        } elseif ($role === 'klinik_utama') {
+                            $homeRoute = 'klinik.dashboard';
+                        } elseif (in_array($role, ['puskesmas', 'lab_medik'])) {
+                            $homeRoute = 'puskesmas.dashboard';
                         }
                     @endphp
                     <a href="{{ route($homeRoute) }}"
@@ -78,6 +92,15 @@
                         </x-nav-link>
                         <x-nav-link :href="route('atem.usulan')" :active="request()->routeIs('atem.usulan')">
                             Laporan Usulan
+                        </x-nav-link>
+                    @endif
+
+                    @if(Auth::user()->role == 'ka')
+                        <x-nav-link :href="route('ka.dashboard')" :active="request()->routeIs('ka.dashboard')">
+                            Dashboard KA
+                        </x-nav-link>
+                        <x-nav-link :href="route('ka.validasi.index')" :active="request()->routeIs('ka.validasi.*')">
+                            Validasi Laporan
                         </x-nav-link>
                     @endif
 
@@ -170,7 +193,7 @@
                         </x-nav-link>
                     @endif
 
-                    @if(in_array(Auth::user()->role, ['driver', 'nakes']))
+                    @if(Auth::user()->role == 'driver')
                         <x-nav-link :href="route('lapangan.dashboard')" :active="request()->routeIs('lapangan.dashboard')">
                             Tugas Saya
                         </x-nav-link>
@@ -178,6 +201,83 @@
                             href="https://lookerstudio.google.com/reporting/b6f0e801-078f-479e-aa20-3975c4d6d0c1/page/RmqZF"
                             target="_blank">
                             Monitoring PUSAKA
+                        </x-nav-link>
+                    @endif
+
+                    @if(Auth::user()->role == 'nakes')
+                        <x-nav-link :href="route('nakes.dashboard')" :active="request()->routeIs('nakes.dashboard')">
+                            Dashboard
+                        </x-nav-link>
+                        <x-nav-link :href="route('nakes.patients.index')"
+                            :active="request()->routeIs('nakes.patients.index')">
+                            Rekap Pasien
+                        </x-nav-link>
+                        <x-nav-link :href="route('nakes.reports.index')"
+                            :active="request()->routeIs('nakes.reports.index')">
+                            Laporan Usulan
+                        </x-nav-link>
+                    @endif
+
+                    @if(Auth::user()->role == 'sie_rujukan')
+                        <x-nav-link :href="route('sie.dashboard')" :active="request()->routeIs('sie.dashboard')">
+                            Dashboard
+                        </x-nav-link>
+
+                        {{-- Dropdown: Supervisi --}}
+                        <div class="hidden sm:flex sm:items-center sm:ms-2">
+                            <x-dropdown align="right" width="48">
+                                <x-slot name="trigger">
+                                    <button
+                                        class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-300 hover:text-white hover:border-gray-300 focus:outline-none focus:text-white focus:border-gray-300 transition duration-150 ease-in-out">
+                                        <div>Supervisi</div>
+                                        <div class="ms-1">
+                                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
+                                                viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd"
+                                                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                    </button>
+                                </x-slot>
+                                <x-slot name="content">
+                                    <x-dropdown-link :href="route('sie.spv.puskesmas')">SPV Puskesmas</x-dropdown-link>
+                                    <x-dropdown-link :href="route('sie.spv.rs')">SPV Rumah Sakit</x-dropdown-link>
+                                    <x-dropdown-link :href="route('sie.spv.lab')">SPV Lab Medis</x-dropdown-link>
+                                    <x-dropdown-link :href="route('sie.spv.klinik')">SPV Klinik Utama</x-dropdown-link>
+                                </x-slot>
+                            </x-dropdown>
+                        </div>
+
+                        {{-- Dropdown: Penilaian & Validasi --}}
+                        <div class="hidden sm:flex sm:items-center sm:ms-2">
+                            <x-dropdown align="right" width="48">
+                                <x-slot name="trigger">
+                                    <button
+                                        class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-300 hover:text-white hover:border-gray-300 focus:outline-none focus:text-white focus:border-gray-300 transition duration-150 ease-in-out">
+                                        <div>Penilaian & Validasi</div>
+                                        <div class="ms-1">
+                                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
+                                                viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd"
+                                                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                    </button>
+                                </x-slot>
+                                <x-slot name="content">
+                                    <x-dropdown-link :href="route('sie.pkp.puskesmas')">PKP Puskesmas</x-dropdown-link>
+                                    <x-dropdown-link :href="route('sie.stratifikasi.rs')">Stratifikasi RS</x-dropdown-link>
+                                    <x-dropdown-link :href="route('sie.validasi.jadwal')">Validasi Jadwal</x-dropdown-link>
+                                    <x-dropdown-link :href="route('sie.validasi.lplpo')">Validasi LPLPO</x-dropdown-link>
+                                    <x-dropdown-link :href="route('sie.validasi.ah')">Validasi Data AH</x-dropdown-link>
+                                </x-slot>
+                            </x-dropdown>
+                        </div>
+
+                        <x-nav-link :href="route('sie.laporan.bhd')" :active="request()->routeIs('sie.laporan.bhd')">
+                            Laporan BHD
                         </x-nav-link>
                     @endif
 
@@ -257,7 +357,7 @@
     </div>
 
     <!-- Responsive Navigation Menu -->
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden bg-gray-800">
+    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden bg-charcoal border-t border-slate-800">
         <div class="pt-2 pb-3 space-y-1">
             @if(Auth::user()->role == 'super_admin')
                 <x-responsive-nav-link :href="route('super-admin.dashboard')"
@@ -296,12 +396,51 @@
                     target="_blank">Monitoring PUSAKA</x-responsive-nav-link>
             @endif
 
-            @if(in_array(Auth::user()->role, ['driver', 'nakes']))
+            @if(Auth::user()->role == 'driver')
                 <x-responsive-nav-link :href="route('lapangan.dashboard')"
                     :active="request()->routeIs('lapangan.dashboard')">Tugas Saya</x-responsive-nav-link>
                 <x-responsive-nav-link
                     href="https://lookerstudio.google.com/reporting/b6f0e801-078f-479e-aa20-3975c4d6d0c1/page/RmqZF"
                     target="_blank">Monitoring PUSAKA</x-responsive-nav-link>
+            @endif
+
+            @if(Auth::user()->role == 'nakes')
+                <x-responsive-nav-link :href="route('nakes.dashboard')"
+                    :active="request()->routeIs('nakes.dashboard')">Dashboard</x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('nakes.patients.index')"
+                    :active="request()->routeIs('nakes.patients.index')">Rekap Pasien</x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('nakes.reports.index')"
+                    :active="request()->routeIs('nakes.reports.index')">Laporan Usulan</x-responsive-nav-link>
+            @endif
+
+            @if(Auth::user()->role == 'sie_rujukan')
+                <x-responsive-nav-link :href="route('sie.dashboard')"
+                    :active="request()->routeIs('sie.dashboard')">Dashboard</x-responsive-nav-link>
+                <div class="px-4 py-2 text-xs text-gray-400 font-bold uppercase">Supervisi</div>
+                <x-responsive-nav-link :href="route('sie.spv.puskesmas')"
+                    :active="request()->routeIs('sie.spv.puskesmas')">SPV Puskesmas</x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('sie.spv.rs')" :active="request()->routeIs('sie.spv.rs')">SPV Rumah
+                    Sakit</x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('sie.spv.lab')" :active="request()->routeIs('sie.spv.lab')">SPV Lab
+                    Medis</x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('sie.spv.klinik')" :active="request()->routeIs('sie.spv.klinik')">SPV
+                    Klinik Utama</x-responsive-nav-link>
+
+                <div class="px-4 py-2 text-xs text-gray-400 font-bold uppercase mt-2">Penilaian & Validasi</div>
+                <x-responsive-nav-link :href="route('sie.pkp.puskesmas')"
+                    :active="request()->routeIs('sie.pkp.puskesmas')">PKP Puskesmas</x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('sie.stratifikasi.rs')"
+                    :active="request()->routeIs('sie.stratifikasi.rs')">Stratifikasi RS</x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('sie.validasi.jadwal')"
+                    :active="request()->routeIs('sie.validasi.jadwal')">Validasi Jadwal</x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('sie.validasi.lplpo')"
+                    :active="request()->routeIs('sie.validasi.lplpo')">Validasi LPLPO</x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('sie.validasi.ah')"
+                    :active="request()->routeIs('sie.validasi.ah')">Validasi Data AH</x-responsive-nav-link>
+
+                <div class="px-4 py-2 text-xs text-gray-400 font-bold uppercase mt-2">Laporan</div>
+                <x-responsive-nav-link :href="route('sie.laporan.bhd')"
+                    :active="request()->routeIs('sie.laporan.bhd')">Laporan BHD</x-responsive-nav-link>
             @endif
 
             @if(Auth::user()->role == 'masyarakat')

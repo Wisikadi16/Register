@@ -19,6 +19,8 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::middleware(['auth'])->post('/notifications/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.read');
+
 // ====================================================
 // GROUP 1: MASYARAKAT / PUBLIK
 // ====================================================

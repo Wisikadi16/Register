@@ -55,7 +55,7 @@ class FacilityRequestController extends Controller
     {
         $request->validate([
             'status' => 'required|in:process,completed,rejected',
-            'operator_notes' => 'required|string',
+            'operator_notes' => 'nullable|string',
         ]);
 
         $facilityRequest = FacilityRequest::findOrFail($id);

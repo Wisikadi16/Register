@@ -68,10 +68,10 @@
                             </td>
                             <td class="p-3">
                                 <span class="px-3 py-1 text-xs font-bold rounded-full uppercase
-                                        {{ $req->status == 'pending' ? 'bg-amber-100 text-amber-700' : '' }}
-                                        {{ $req->status == 'process' ? 'bg-blue-100 text-blue-700' : '' }}
-                                        {{ $req->status == 'completed' ? 'bg-green-100 text-green-700' : '' }}
-                                        {{ $req->status == 'rejected' ? 'bg-red-100 text-red-700' : '' }}">
+                                            {{ $req->status == 'pending' ? 'bg-amber-100 text-amber-700' : '' }}
+                                            {{ $req->status == 'process' ? 'bg-blue-100 text-blue-700' : '' }}
+                                            {{ $req->status == 'completed' ? 'bg-green-100 text-green-700' : '' }}
+                                            {{ $req->status == 'rejected' ? 'bg-red-100 text-red-700' : '' }}">
                                     {{ $req->status }}
                                 </span>
                             </td>

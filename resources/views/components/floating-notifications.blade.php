@@ -41,12 +41,26 @@
             <!-- List -->
             <div class="max-h-[24rem] overflow-y-auto">
                 @forelse($globalNotifications as $notif)
-                    <a href="{{ $notif['url'] }}"
+                    <a href="{{ $notif['url'] }}" @click.prevent="
+                                    fetch('{{ route('notifications.read') }}', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').getAttribute('content')
+                                        },
+                                        body: JSON.stringify({
+                                            id: '{{ $notif['id'] }}',
+                                            type: '{{ $notif['type'] }}'
+                                        })
+                                    }).then(() => {
+                                        window.location.href = '{{ $notif['url'] }}';
+                                    });
+                                "
                         class="block px-5 py-4 border-b border-slate-50 hover:bg-slate-50 transition-colors {{ $notif['is_unread'] ? 'bg-blue-50/30' : '' }}">
                         <div class="flex items-start gap-3">
                             <div
                                 class="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center 
-                                        {{ $notif['type'] == 'emergency' ? 'bg-red-100 text-red-600' : 'bg-purple-100 text-purple-600' }}">
+                                                {{ $notif['type'] == 'emergency' ? 'bg-red-100 text-red-600' : 'bg-purple-100 text-purple-600' }}">
                                 <i class="{{ $notif['icon'] }}"></i>
                             </div>
                             <div class="flex-1 min-w-0">

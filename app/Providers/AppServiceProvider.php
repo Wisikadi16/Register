@@ -36,17 +36,18 @@ class AppServiceProvider extends ServiceProvider
 
                     foreach ($emCalls as $call) {
                         $notifications[] = [
-                            'id' => 'em_' . $call->id,
+                            'id' => $call->id,
                             'type' => 'emergency',
                             'title' => 'Panggilan Darurat Baru',
                             'message' => 'Dari: ' . ($call->user ? $call->user->name : 'Anonim') . ' - ' . ($call->type == 'phone_call' ? 'Permintaan Telepon' : 'Ambulan'),
                             'time' => $call->created_at->diffForHumans(),
-                            'is_unread' => true, // Pending calls are unread for operators
+                            'is_unread' => !$call->is_read_by_operator, // Check the new column
                             'url' => route('operator.dashboard'),
                             'icon' => $call->type == 'phone_call' ? 'fas fa-phone-volume' : 'fas fa-ambulance',
                             'created_at' => $call->created_at
                         ];
-                        $unreadCount++;
+                        if (!$call->is_read_by_operator)
+                            $unreadCount++;
                     }
 
                     $facReqs = \App\Models\FacilityRequest::where('status', 'pending')
@@ -56,17 +57,18 @@ class AppServiceProvider extends ServiceProvider
 
                     foreach ($facReqs as $req) {
                         $notifications[] = [
-                            'id' => 'req_' . $req->id,
+                            'id' => $req->id,
                             'type' => 'ticket',
                             'title' => 'Tiket Faskes Baru',
                             'message' => $req->category . ' dari ' . ($req->user ? $req->user->name : 'Faskes'),
                             'time' => $req->created_at->diffForHumans(),
-                            'is_unread' => true,
+                            'is_unread' => !$req->is_read_by_operator,
                             'url' => route('operator.requests.index'),
                             'icon' => 'fas fa-ticket-alt',
                             'created_at' => $req->created_at
                         ];
-                        $unreadCount++;
+                        if (!$req->is_read_by_operator)
+                            $unreadCount++;
                     }
                 } elseif (in_array($user->role, ['rumahsakit', 'klinik_utama', 'puskesmas', 'lab_medik'])) {
                     // Faskes sees updates to their own tickets (not pending)
@@ -77,22 +79,22 @@ class AppServiceProvider extends ServiceProvider
                         ->get();
 
                     foreach ($facReqs as $req) {
-                        // Let's assume ANY update is "unread" for simplicity unless they click it,
-                        // but since we don't have a read tracking table, we'll just show the latest 5.
-                        // We'll highlight them as unread if they were updated in the last 24 hours.
                         $isRecent = $req->updated_at > now()->subDays(1);
+                        // For Faskes, unread if not yet read by user
+                        $is_unread = !$req->is_read_by_user;
+
                         $notifications[] = [
-                            'id' => 'req_' . $req->id,
+                            'id' => $req->id,
                             'type' => 'ticket_reply',
                             'title' => 'Update Tiket: ' . ucfirst($req->status),
                             'message' => $req->operator_notes ? 'Catatan: ' . $req->operator_notes : 'Tiket Anda sedang diproses.',
                             'time' => $req->updated_at->diffForHumans(),
-                            'is_unread' => $isRecent,
+                            'is_unread' => $is_unread,
                             'url' => route(in_array($user->role, ['puskesmas', 'lab_medik']) ? 'puskesmas.requests.index' : 'faskes.requests.index'),
                             'icon' => 'fas fa-reply',
                             'created_at' => $req->updated_at
                         ];
-                        if ($isRecent)
+                        if ($is_unread)
                             $unreadCount++;
                     }
                 }

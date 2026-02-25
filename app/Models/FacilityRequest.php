@@ -16,7 +16,9 @@ class FacilityRequest extends Model
         'photo_proof',
         'status',
         'operator_notes',
-        'operator_id'
+        'operator_id',
+        'is_read_by_user',
+        'is_read_by_operator'
     ];
 
     // Relasi ke tabel users (Siapa Faskes yang lapor)

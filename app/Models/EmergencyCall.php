@@ -27,7 +27,8 @@ class EmergencyCall extends Model
         'latitude',     // <--- Wajib untuk peta
         'longitude',    // <--- Wajib untuk peta
         'driver_name',
-        'nakes_name'
+        'nakes_name',
+        'is_read_by_operator'
     ];
 
     // Relasi: Setiap panggilan dimiliki oleh satu User

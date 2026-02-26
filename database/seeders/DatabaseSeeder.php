@@ -135,12 +135,14 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // 13. Lab Medik
-        User::create([
-            'name' => 'Admin Lab Medik',
-            'email' => 'labmedik@ah.com',
-            'password' => $password,
-            'role' => 'lab_medik',
-        ]);
+        User::firstOrCreate(
+            ['email' => 'labmedik@ah.com'],
+            [
+                'name' => 'Admin Lab Medik',
+                'password' => $password,
+                'role' => 'lab_medik',
+            ]
+        );
 
 
         // ==========================================

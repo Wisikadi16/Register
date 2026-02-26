@@ -306,6 +306,15 @@ Route::middleware(['auth', 'role:ka'])->prefix('ka')->name('ka.')->group(functio
 });
 
 
+// ====================================================
+// GROUP 8: LAB MEDIK
+// ====================================================
+Route::middleware(['auth', 'role:lab_medik'])->prefix('lab-medik')->group(function () {
+    Route::get('/dashboard', [\App\Http\Controllers\LabMedikController::class, 'dashboard'])->name('lab-medik.dashboard');
+    Route::get('/patients/create', [\App\Http\Controllers\LabMedikController::class, 'create'])->name('lab-medik.patients.create');
+    Route::post('/patients', [\App\Http\Controllers\LabMedikController::class, 'store'])->name('lab-medik.patients.store');
+});
+
 require __DIR__ . '/auth.php';
 
 // ==========================================

@@ -50,7 +50,7 @@ class AuthenticatedSessionController extends Controller
             return redirect()->route('admin.dashboard');
         }
 
-        if ($role === 'ka'){
+        if ($role === 'ka') {
             return redirect()->route('ka.dashboard');
         }
 
@@ -59,7 +59,7 @@ class AuthenticatedSessionController extends Controller
         }
 
         // Group operator
-        if ($role === 'operator'){
+        if ($role === 'operator') {
             return redirect()->route('operator.dashboard');
         }
 
@@ -85,8 +85,12 @@ class AuthenticatedSessionController extends Controller
         }
 
         // Group Lab Puskesmas
-        if (in_array($role, ['puskesmas', 'lab_medik'])) {
+        if ($role === 'puskesmas') {
             return redirect()->route('puskesmas.dashboard');
+        }
+
+        if ($role === 'lab_medik') {
+            return redirect()->route('lab-medik.dashboard');
         }
         if ($role === 'masyarakat') {
             return redirect()->route('dashboard');
